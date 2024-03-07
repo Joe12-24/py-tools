@@ -54,7 +54,9 @@ def collect_table_names(file_path):
                             set_index = match.end()
                             
                             # 在 SET 后面插入 update_time = sysdate
-                            updated_tag_text = tag_text[:set_index] + ' LCODER_UPDATE_TIME = sysdate,' + tag_text[set_index:]
+                            #updated_tag_text = tag_text[:set_index] + ' LCODER_UPDATE_TIME = sysdate,' + tag_text[set_index:]
+
+                            updated_tag_text = tag_text[:set_index] + ' LCODER_UPDATE_TIME = sysdate,' 
                              # 查找update标签内是否含有foreach标签
                             foreach_found = False
                             for element2 in element.iter():
@@ -77,11 +79,14 @@ def collect_table_names(file_path):
                                 # 将修改后的内容写回文件
                                 with open(file_path, 'r' ,encoding='utf-8') as file:
                                     data = file.read()
-                                    updated_data = data.replace(tag_text, updated_tag_text)
+                                    updated_data = data.replace(update_content, updated_tag_text)
                                 
                                 with open(file_path, 'w',encoding='utf-8') as file:
                                     file.write(updated_data)
                                 print("notin:"+file_path+"\t"+tag_id+"\t"+table_name)
+                            count = tag_text.count("LCODER_UPDATE_TIME = sysdate")
+                            if count > 1:
+                                print("count>1:"+file_path+"\t"+tag_id+"\t"+table_name)
                             
                     else:
                         print("未找到表名"+file_path+"\t"+tag_id+"\t"+tag_text)
