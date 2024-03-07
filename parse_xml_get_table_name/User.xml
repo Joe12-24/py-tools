@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linkstec.lmspcom.auth.mapper.UserMapper">
+	<update id="markDeleteById" parameterType="long">
+		update otc.L_USER3
+
+		SET
+		1=1
+		where 1=1
+		<if>
+		and b=1
+		</if>
+	</update>
+	
+	<delete id="deleteUserByIds" parameterType="map">
+		delete from  otc.L_USER1 <where> </where> 
+		
+	</delete>
+<delete id="ZxDel" parameterType="com. Linkstec.newmall.dto.GJ2020fixedListInDto">
+delete from otc.GJ_PRO_SELECT_100
+where TAB_id = #{ID} or ID = #{ID}
+</delete>
+	
+	<insert id="deleteUserByIds" parameterType="map">
+		<!--update -->
+		insert into  L_USER vaules()
+		
+	</insert>
+
+	<delete id="deleteUserByIds" parameterType="map">
+		delete 
+			from 
+			otc.L_USER 
+			
+			where
+		
+	</delete>
+	
+	<update id="markDeleteByIds" parameterType="map">
+			update otc.L_USER2_SET_TT
+			set LCODER_UPDATE_TIME = sysdate 
+				
+			where 1=1
+	</update>
+	
+	<insert id="deleteByMemberId" parameterType="long">
+		insert into  otc.L_USER values   member_id = #{_parameter}
+	</insert>
+	
+	<update id="markDeleteById" parameterType="long">
+		update otc.L_USER1 
+		SET LCODER_UPDATE_TIME = sysdate, L1=1
+		<foreach>
+		</foreach>
+		
+	</update>
+
+	
+
+</mapper>
