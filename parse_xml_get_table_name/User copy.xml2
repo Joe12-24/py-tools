@@ -3,9 +3,6 @@
 <mapper namespace="com.linkstec.lmspcom.auth.mapper.UserMapper">
 	<update id="markDeleteById" parameterType="long">
 		update otc.L_USER3_sh SET LCODER_UPDATE_TIME = sysdate,
-Otc.L_USER3_sh
-1otc.L_USER3
-		SET LCODER_UPDATE_TIME = sysdate,
 		1=1
 		where 1=1
 		<if>
@@ -14,7 +11,7 @@ Otc.L_USER3_sh
 	</update>
 	
 	<delete id="deleteUserByIds" parameterType="map">
-		delete from  OTC.L_USER3 <where> </where> 
+		delete from  otc.L_USER1 <where> </where> 
 		
 	</delete>
 <delete id="ZxDel" parameterType="com. Linkstec.newmall.dto.GJ2020fixedListInDto">
@@ -24,21 +21,21 @@ where TAB_id = #{ID} or ID = #{ID}
 	
 	<insert id="deleteUserByIds" parameterType="map">
 		<!--update -->
-		insert into  OTC142.L_USER3 vaules()
+		insert into  L_USER vaules()
 		
 	</insert>
 
 	<delete id="deleteUserByIds" parameterType="map">
 		delete 
 			from 
-			OTC142.L_USER3 
+			otc.L_USER 
 			
 			where
 		
 	</delete>
 	
 	<update id="markDeleteByIds" parameterType="map">
-			update OTC142.L_USER3_SET_TT
+			update otc.L_USER2_SET_TT
 			set LCODER_UPDATE_TIME = sysdate 
 				
 			where 1=1
