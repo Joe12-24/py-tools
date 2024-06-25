@@ -47,8 +47,8 @@ with pd.ExcelWriter(output_excel_file, engine='openpyxl') as writer:
 
             # 获取是否必填列和E、F列的值
             not_blank = row.iloc[5]  # 假设是否必填列的索引位置是5（第六列）
-            e_value = str(row.iloc[4]).strip() if pd.notna(row.iloc[4]) else ''
-            f_value = str(row.iloc[6]).strip() if pd.notna(row.iloc[6]) else ''
+            e_value = str(row.iloc[4]).replace('\n', '').replace('\r', '').strip() if pd.notna(row.iloc[4]) else ''
+            f_value = str(row.iloc[6]).replace('\n', '').replace('\r', '').strip() if pd.notna(row.iloc[6]) else ''
             e_scheme = f"{e_value} {f_value}" if e_value and f_value else e_value or f_value
             e_scheme = re.sub(r'"', r'\\"', e_scheme)
 
