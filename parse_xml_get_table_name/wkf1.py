@@ -7,7 +7,8 @@ def camel_case(string):
     return ''.join(word.capitalize() if i > 0 else word for i, word in enumerate(words))
 
 # 读取原始 Excel 文件路径和输出文件路径
-input_excel_file = '凌志接口一览.xlsx'  # 替换成你的Excel文件路径
+#input_excel_file = '凌志接口一览.xlsx'  # 替换成你的Excel文件路径
+input_excel_file = 'text.xlsx' 
 output_excel_file = 'output3.xlsx'
 
 # 使用 ExcelFile 加载 Excel 文件
@@ -28,8 +29,9 @@ with pd.ExcelWriter(output_excel_file, engine='openpyxl') as writer:
             if isinstance(operator_no, datetime.datetime):
                 h_column_data.append('')
                 continue
+            
             # 判断是否跳过当前行的条件
-            if pd.isna(operator_no) or operator_no.strip() == '' or not re.match(r'^[a-zA-Z_0-9]+$', operator_no):
+            if pd.isna(operator_no) or operator_no.strip() == '' or not re.match(r'^[a-zA-Z_0-9]+$', operator_no.strip()):
                 h_column_data.append('')
                 continue  # 跳过不符合条件的行
     
