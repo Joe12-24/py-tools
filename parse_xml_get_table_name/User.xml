@@ -2,9 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.linkstec.lmspcom.auth.mapper.UserMapper">
 	<update id="markDeleteById" parameterType="long">
-		update otc.L_USER3_sh SET LCODER_UPDATE_TIME = sysdate,
+		update otcL_USER3 SET LCODER_UPDATE_TIME = sysdate,
 Otc.L_USER3_sh
-1otc.L_USER3
 		SET LCODER_UPDATE_TIME = sysdate,
 		1=1
 		where 1=1
@@ -13,48 +12,13 @@ Otc.L_USER3_sh
 		</if>
 	</update>
 	
-	<delete id="deleteUserByIds" parameterType="map">
-		delete from  OTC.L_USER3 <where> </where> 
-		
-	</delete>
+
 <delete id="ZxDel" parameterType="com. Linkstec.newmall.dto.GJ2020fixedListInDto">
 delete from otc.GJ_PRO_SELECT_100
 where TAB_id = #{ID} or ID = #{ID}
 </delete>
 	
-	<insert id="deleteUserByIds" parameterType="map">
-		<!--update -->
-		insert into  OTC142.L_USER3 vaules()
-		
-	</insert>
-
-	<delete id="deleteUserByIds" parameterType="map">
-		delete 
-			from 
-			OTC142.L_USER3 
-			
-			where
-		
-	</delete>
 	
-	<update id="markDeleteByIds" parameterType="map">
-			update OTC142.L_USER3_SET_TT
-			set LCODER_UPDATE_TIME = sysdate 
-				
-			where 1=1
-	</update>
-	
-	<insert id="deleteByMemberId" parameterType="long">
-		insert into  otc.L_USER values   member_id = #{_parameter}
-	</insert>
-	
-	<update id="markDeleteById" parameterType="long">
-		update otc.L_USER1 
-		SET LCODER_UPDATE_TIME = sysdate, L1=1
-		<foreach>
-		</foreach>
-		
-	</update>
 
 	
 

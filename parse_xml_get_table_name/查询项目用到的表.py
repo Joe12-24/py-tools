@@ -18,14 +18,31 @@ with open('表名.txt', 'r') as file:
     
 def collect_table_names(file_path):
     all_table_names = set()
-    
+    insert_table_names_set = set()
+    all_table_names_set = set()
+    update_table_names_set = set()
+    delete_table_names_set = set()
     tree = ET.parse(file_path)
     root = tree.getroot()
         
     for element in root.iter():
+        for table_name in unique_lines:
+            text_to_search = str(element.text)  # Convert to string if not already
+
+            # Define your regex pattern
+            pattern = r'(?:[.\s\n\r])' + re.escape(table_name) + r'(?:[\s\n\r])'
+
+            # Compile regex with ignore case flag
+            regex = re.compile(pattern, re.IGNORECASE)
+
+            # Search for pattern in text_to_search
+            if regex.search(text_to_search):
+                print(table_name)  
+                all_table_names_set.add(table_name)
+                
         
-        
-    return all_table_names # type: ignore
+    return insert_table_names_set, update_table_names_set,delete_table_names_set,all_table_names_set
+
 def traverse_directory(directory):
     insert_table_names_set = set()
     update_table_names_set = set()
@@ -44,7 +61,7 @@ def traverse_directory(directory):
     return insert_table_names_set, update_table_names_set,delete_table_names_set,all_table_names_set
 
 if __name__ == "__main__":
-    directory = '/Users/mac/dev/code/py-tools/parse_xml_get_table_name' # Current directory
+    directory = '/Users/mac/dev/code/py-tools/parse_xml_get_table_name/' # Current directory
     insert_table_names, update_table_names,delete_table_names,all_table_names = traverse_directory(directory)
     print("Number of table names involved in <all> tags:", len(all_table_names))
     print("Number of table names involved in <insert> tags:", len(insert_table_names))
@@ -58,4 +75,6 @@ if __name__ == "__main__":
         print(table_name)
     print("\nTable names involved in <delete> tags (after deduplication):")
     for table_name in delete_table_names:
+        print(table_name)
+    for table_name in all_table_names:
         print(table_name)
