@@ -32,9 +32,7 @@ with pd.ExcelWriter(output_excel_file, engine='openpyxl') as writer:
             if pd.isna(operator_no) or operator_no.strip() == '' or not re.match(r'^[a-zA-Z_0-9]+$', operator_no):
                 h_column_data.append('')
                 continue  # 跳过不符合条件的行
-            if isinstance(operator_no, datetime.datetime):
-                h_column_data.append('')
-                continue
+    
             # 判断参数名是否包含中文，包含中文则跳过当前行
             if any('\u4e00' <= char <= '\u9fff' for char in operator_no):
                 h_column_data.append('')
@@ -64,7 +62,7 @@ with pd.ExcelWriter(output_excel_file, engine='openpyxl') as writer:
             e_scheme_annotation = f'@Schema(description = "{e_scheme}")'
 
             # 组装H列内容
-            H_column = f"{not_blank_message}{e_scheme_annotation}\nprivate {var_type} {camel_case_name};"
+            H_column = f'{not_blank_message}{e_scheme_annotation}\nprivate {var_type} {camel_case_name};'
 
             # 将处理后的H列数据添加到列表中
             h_column_data.append(H_column)
