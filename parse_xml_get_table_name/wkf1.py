@@ -7,8 +7,8 @@ def camel_case(string):
     return ''.join(word.capitalize() if i > 0 else word for i, word in enumerate(words))
 
 # 读取原始 Excel 文件路径和输出文件路径
-#input_excel_file = '凌志接口一览.xlsx'  # 替换成你的Excel文件路径
-input_excel_file = 'text.xlsx' 
+input_excel_file = '凌志接口一览.xlsx'  # 替换成你的Excel文件路径
+#input_excel_file = 'text.xlsx' 
 output_excel_file = 'output3.xlsx'
 
 # 使用 ExcelFile 加载 Excel 文件
