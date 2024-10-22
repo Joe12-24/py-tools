@@ -1,7 +1,7 @@
 import pandas as pd
 
 # 读取原始 Excel 文件路径和输出文件路径
-input_excel_file = 'text.xlsx'  # 替换为你的Excel文件路径
+input_excel_file = '凌志接口一览.xlsx'  # 替换为你的Excel文件路径
 output_excel_file = 'output_功能号_功能名称内容.xlsx'  # 输出文件路径
 
 # 使用 ExcelFile 加载 Excel 文件
@@ -17,9 +17,6 @@ with pd.ExcelWriter(output_excel_file, engine='openpyxl') as writer:
         data_dict = {"功能号": [], "功能名称": []}
 
         # 循环遍历每一行并处理
-        current_func_num = None  # 用于存储当前的功能号
-        current_func_name = None  # 用于存储当前的功能名称
-
         for index, row in df.iterrows():
             # 只处理第二列和第三列
             second_col_value = row.iloc[0].strip() if isinstance(row.iloc[0], str) else ''
@@ -28,23 +25,23 @@ with pd.ExcelWriter(output_excel_file, engine='openpyxl') as writer:
             # 提取 "功能号" 后面的内容
             if second_col_value == "功能号":
                 current_func_num = third_col_value
-                print(current_func_num)
-            # 提取 "功能名称" 后面的内容
-            elif second_col_value == "功能名称":
-                current_func_name = third_col_value
-            
-            # 将提取的功能号和功能名称添加到字典
-            if current_func_num :
+                # print(current_func_num)
+
+                # 获取下一行的功能名称
+                if index + 1 < len(df):  # 确保下一行存在
+                    next_row = df.iloc[index + 1]
+                    current_func_name = next_row.iloc[1].strip() if isinstance(next_row.iloc[1], str) else ''
+                else:
+                    current_func_name = ''  # 如果没有下一行，则功能名称为空
+
+                # 将提取的功能号和功能名称添加到字典
                 data_dict["功能号"].append(current_func_num)
                 data_dict["功能名称"].append(current_func_name)
-                # 重置，以便提取下一个功能号和功能名称
-                current_func_num = None
-                current_func_name = None
 
         # 创建新的 DataFrame 保存提取后的数据
-        result_df = pd.DataFrame(data_dict)
-        print(data_dict)
-        # 将结果写入到新的 Excel 文件
-        result_df.to_excel(writer, sheet_name=sheet_name, index=False)
+                result_df = pd.DataFrame(data_dict)
+    # print(data_dict)
+    # 将结果写入到新的 Excel 文件
+    result_df.to_excel(writer, sheet_name=sheet_name, index=False)
 
 print(f"提取后的数据已保存到 {output_excel_file} 中。")
