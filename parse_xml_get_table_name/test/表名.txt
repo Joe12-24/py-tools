@@ -1,3 +1,4 @@
-lc_gold_weekly_conf
+
 lc_trade_time_conf
 lc_activity_flow_conf
+lc_gold_weekly_conf

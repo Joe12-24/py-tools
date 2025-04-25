@@ -2,7 +2,7 @@ import os
 import xml.etree.ElementTree as ET
 import json
 
-def xml_to_datax_json(xml_string):
+def xml_to_datax_json(xml_string,unique_entries):
     # 解析 XML 字符串
     root = ET.fromstring(xml_string)
 
@@ -12,21 +12,23 @@ def xml_to_datax_json(xml_string):
             "content": [],
             "setting": {
                 "speed": {
-                    "channel": 32  # 默认并发通道数
+                    "channel":"#{channel}"  # 默认并发通道数
                 },
                 "errorLimit": {
-                    "percentage": 0.1
+                    "percentage": "${percentage}"
                 }
             }
         }
     }
-
+    # 用一个集合去重
+    
     # 遍历 xdata-template 节点
     for template in root.findall(".//{http://www.gtja.com/xdata-templates/}xdata-template"):
         from_ds = template.get("fromDs")
         from_table_name = template.get("fromTableName")
         to_table_name = template.get("toTableName")
-
+        if from_ds and from_table_name  and 'oracle' not in from_ds and 'ocean' not in from_ds :
+            unique_entries.add(from_ds)
         # 检查必要的属性是否存在
          # 检查必要的属性是否存在，如果缺少则使用默认值
         if not from_ds:
@@ -40,10 +42,10 @@ def xml_to_datax_json(xml_string):
         if not to_table_name:
             to_table_name = "default_to_table"  # 使用默认值
             print(f"警告: 'toTableName' 属性缺失，已使用默认值: {to_table_name}")
-
+        
         # 初始化 reader 和 writer
         reader = {
-            "name": "oraclereader",
+            "name": "${cp_reader}",
             "parameter": {
                 "username": f"${{{from_ds}_username}}",
                 "password": f"${{{from_ds}_password}}",
@@ -58,18 +60,18 @@ def xml_to_datax_json(xml_string):
         }
 
         writer = {
-            "name": "oceanbasev10writer",
+            "name": "${lc_writer}",
             "parameter": {
-                "username": "${lcinfo_username}",
-                "password": "${lcinfo_password}",
+                "username": "${lc_username}",
+                "password": "${lc_password}",
                 "writeMode": "insert",
-                "batchSize": 5000,
-                "memstoreThreshold": "90",
+                "batchSize": "${batchSize}",
+                "memstoreThreshold": "${memstoreThreshold}",
                 "column": [],
                 "connection": [
                     {
                         "table": [to_table_name],
-                        "jdbcUrl": "${lcinfo_jdbcUrl}"
+                        "jdbcUrl": "${lc_jdbcUrl}"
                     }
                 ]
             }
@@ -106,10 +108,11 @@ def xml_to_datax_json(xml_string):
             "writer": writer
         })
 
+
     # 转换为 JSON 格式字符串
     return json.dumps(datax_config, indent=4, ensure_ascii=False)
 
-def process_single_file(file_path):
+def process_single_file(file_path,unique_entries):
     """处理单个 XML 文件"""
     if not os.path.isfile(file_path):
         print(f"指定的文件 {file_path} 不存在。")
@@ -120,7 +123,7 @@ def process_single_file(file_path):
 
     try:
         # 转换 XML 为 JSON
-        json_output = xml_to_datax_json(xml_content)
+        json_output = xml_to_datax_json(xml_content,unique_entries)
 
         # 保存 JSON 文件
         json_file_name = f"{os.path.splitext(os.path.basename(file_path))[0]}.json"
@@ -131,7 +134,7 @@ def process_single_file(file_path):
     except Exception as e:
         print(f"处理文件 {file_path} 时出错: {e}")
 
-def process_directory_recursive(directory):
+def process_directory_recursive(directory,unique_entries):
     """递归处理目录及其子目录中的所有 XML 文件"""
     if not os.path.isdir(directory):
         print(f"指定的目录 {directory} 不存在或不是文件夹。")
@@ -141,17 +144,23 @@ def process_directory_recursive(directory):
         for file_name in files:
             if file_name.endswith(".xml"):
                 file_path = os.path.join(root_dir, file_name)
-                process_single_file(file_path)
+                process_single_file(file_path,unique_entries)
 
 def process_files_and_directories(paths):
+    unique_entries = set()
     """处理文件或目录列表"""
     for path in paths:
         if os.path.isfile(path):
             process_single_file(path)
         elif os.path.isdir(path):
-            process_directory_recursive(path)
+            process_directory_recursive(path,unique_entries)
         else:
             print(f"路径 {path} 无效，请检查。")
+    # sorted_result = sorted(unique_entries, key=lambda x: x.split(":")[0])
+    # sorted_result = sorted(unique_entries, key=lambda x: x.split(":")[0].lower())  # 按 fromDs 排序
+
+    result = list(unique_entries)
+    print("\n".join(unique_entries))
 
 # 示例调用
 paths_to_process = [
