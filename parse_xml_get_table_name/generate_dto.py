@@ -1,3 +1,4 @@
+import re
 def parse_fields(text):
     lines = text.strip().splitlines()
     fields = []
@@ -5,10 +6,12 @@ def parse_fields(text):
         if "\t" not in line:
             continue
         name, comment = line.strip().split("\t", 1)
-        camel = to_camel_case(name)
+        camel = name
         fields.append({"raw": name, "camel": camel, "comment": comment})
     return fields
 
+def camel_to_upper_snake(name):
+    return re.sub(r'(?<!^)(?=[A-Z])', '_', name).upper()
 def to_camel_case(s):
     parts = s.lower().split("_")
     return parts[0] + ''.join(p.capitalize() for p in parts[1:])
@@ -47,7 +50,9 @@ def generate_out_dto(class_name, fields):
     lines.append("    }")
     lines.append(f"\n    public {class_name}(JSONObject map) {{")
     for field in fields:
-        lines.append(f"        this.{field['camel']} = ParamUtils.getStringParam(map.getString(\"{field['raw']}\"));")
+        # lines.append(f"        this.{field['camel']} = ParamUtils.getStringParam(map.getString(\"{field['raw']}\"));")
+        lines.append(f'        this.{field["camel"]} = ParamUtils.getStringParam(map.getString("{camel_to_upper_snake(field["camel"])}"));')
+
     lines.append("    }")
     lines.append("}")
     return "\n".join(lines)
