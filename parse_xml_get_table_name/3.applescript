@@ -13,8 +13,8 @@
 property vdiAppName : "桌面云客户端"
 
 -- 2. 动作间隔时间 (单位：秒)
-property minSeconds : 180 -- 4 分钟
-property maxSeconds : 480 -- 9 分钟
+property minSeconds : 15 -- 2 分钟
+property maxSeconds : 60 -- 5 分钟
 
 -- 3. 【核心】动作类型配置
 -- 请将您想启用的动作设置为 true，不想用的设置为 false。
