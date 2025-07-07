@@ -107,7 +107,7 @@ repeat
 	end try
 	
 	-- Sleep 2–4 minutes
-	set sleepSecs to (random number from 10 to 11)
+	set sleepSecs to (random number from 3 to 5)
 	logMessage("Sleeping for " & sleepSecs & " seconds.")
 	delay sleepSecs
 end repeat
