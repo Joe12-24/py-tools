@@ -65,7 +65,7 @@ on typeRandomCharacters()
 				keystroke randChar
 				delay 0.1
 			end repeat
-			
+			keystroke space -- 输入空格
 			delay 0.3
 			keystroke "s" using command down -- ⌘+S
 		end tell
@@ -107,7 +107,7 @@ repeat
 	end try
 	
 	-- Sleep 2–4 minutes
-	set sleepSecs to (random number from 3 to 5)
+	set sleepSecs to (random number from 180 to 300)
 	logMessage("Sleeping for " & sleepSecs & " seconds.")
 	delay sleepSecs
 end repeat
