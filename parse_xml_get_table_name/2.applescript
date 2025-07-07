@@ -23,18 +23,58 @@ end logMessage
 
 -- === RANDOM CHARACTER INPUT ===a
 on typeRandomCharacters()
+	-- 配置目标应用和窗口
+	set targetApp to "TextMate"
+	set targetWindowName to ""
+
+	-- 激活应用
+	tell application targetApp to activate
+	delay 1
+
 	tell application "System Events"
-		repeat with i from 1 to (random number from 10 to 20)
-			set randIndex to (random number from 1 to (length of charset))
-			set randChar to character randIndex of charset
-			keystroke randChar
-			delay 0.1
-		end repeat
-		delay 0.2
-		keystroke "s" using command down -- ⌘ + S
+		tell process targetApp
+			set frontmost to true
+			
+			-- 查找窗口并聚焦
+			repeat with w in windows
+				if name of w contains targetWindowName then
+					set front window to w
+					delay 0.5
+					
+					-- 主动点击窗口中心（确保焦点在编辑区）
+					try
+						set winBounds to bounds of w
+						set xPos to item 1 of winBounds + 200
+						set yPos to item 2 of winBounds + 200
+						click at {xPos, yPos}
+						delay 0.5
+					end try
+					
+					exit repeat
+				end if
+			end repeat
+			
+			-- 输入随机字符
+			set allChars to "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+			set charList to characters of allChars
+			set inputCount to (random number from 10 to 20)
+			
+			repeat with i from 1 to inputCount
+				set randIndex to (random number from 1 to (length of charList))
+				set randChar to item randIndex of charList
+				keystroke randChar
+				delay 0.1
+			end repeat
+			
+			delay 0.3
+			keystroke "s" using command down -- ⌘+S
+		end tell
 	end tell
-	logMessage("Activity: Typed random characters and ⌘+S sent.")
+	
+	logMessage("Activity: Typed random characters and saved in " & targetWindowName)
 end typeRandomCharacters
+
+
 
 -- === MAIN SCRIPT ===
 logMessage("--- SCRIPT SESSION STARTED ---")
@@ -67,7 +107,7 @@ repeat
 	end try
 	
 	-- Sleep 2–4 minutes
-	set sleepSecs to (random number from 40 to 180)
+	set sleepSecs to (random number from 10 to 11)
 	logMessage("Sleeping for " & sleepSecs & " seconds.")
 	delay sleepSecs
 end repeat
