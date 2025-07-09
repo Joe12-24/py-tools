@@ -48,7 +48,7 @@ try {
         Clear-Content -Path $targetFile
         Write-Log "File exists, cleared content: $targetFile" -Color Cyan
     }
-    Start-Process -FilePath "notepad.exe" -ArgumentList "`"$targetFile`""
+    $notepadProcess = Start-Process -FilePath "notepad.exe" -ArgumentList "`"$targetFile`"" -PassThru
     Start-Sleep -Seconds 2
 
     Write-Log "--- SCRIPT SESSION STARTED (v5.1) ---"
@@ -148,7 +148,33 @@ try {
     Write-Log "FATAL ERROR: $($_.Exception.Message)" -Color Red
     "[$(Get-Date)] $($_.Exception.ToString())" | Out-File "$PSScriptRoot\error_log.txt" -Append -Encoding utf8
 } finally {
+    try {
+        if ($notepadProcess -and -not $notepadProcess.HasExited) {
+            if ($notepadProcess.MainWindowHandle -ne 0) {
+                # 优雅关闭窗口
+                $notepadProcess.CloseMainWindow() | Out-Null
+                Start-Sleep -Seconds 2
+            }
+            if (-not $notepadProcess.HasExited) {
+                # 强制关闭
+                $notepadProcess.Kill()
+            }
+            Write-Log "Closed Notepad for file: $targetFile" -Color Cyan
+        } else {
+            Write-Log "Notepad process already exited or not found." -Color Yellow
+        }
+
+        # 删除文件（可选）
+        if (Test-Path $targetFile) {
+            Remove-Item $targetFile -Force
+            Write-Log "Deleted file: $targetFile" -Color Cyan
+        }
+    } catch {
+        Write-Log "Error during cleanup: $($_.Exception.Message)" -Color Red
+    }
+
     Write-Log "--- SCRIPT SESSION ENDED ---"
-    Write-Host "\n--- Script ended. ---"
+    Write-Host "`n--- Script ended. ---"
     pause
 }
+
