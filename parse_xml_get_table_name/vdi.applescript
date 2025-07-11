@@ -70,11 +70,11 @@ delay 0.5
 tell application "System Events"
     keystroke "763210"
 end tell
-delay 5
+delay 20
 
 -- 点击 975,593
 do shell script "/opt/homebrew/bin/cliclick c:975,593"
-delay 0.5
+delay 1
 -- 点击坐标 (274, 934)
 do shell script "/opt/homebrew/bin/cliclick c:274,934"
 delay 1
@@ -83,17 +83,15 @@ delay 1
 do shell script "/opt/homebrew/bin/cliclick c:412,268"
 delay 1
 
-set thePath to "D:\\Users\\User\\Desktop\\ddddddd-5.ps1"
+set thePath to "D:\\Users\\User\\Desktop\\ddddddd-10.ps1"
 
--- 复制路径到剪贴板
-do shell script "echo " & quoted form of thePath & " | pbcopy"
-delay 0.2
 
--- 右击 (412,268) —— 如果右击会卡死，改成左击 c:412,268
-do shell script "/opt/homebrew/bin/cliclick rc:412,268"
-delay 0.5
-
--- 回车键确认
 tell application "System Events"
-    key code 36
+    repeat with i from 1 to length of thePath
+        set theChar to character i of thePath
+        keystroke theChar
+        delay 0.1
+    end repeat
+    key code 36 -- 回车
 end tell
+

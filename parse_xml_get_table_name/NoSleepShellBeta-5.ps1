@@ -264,8 +264,49 @@ try {
     $fullErrorMessage | Out-File -FilePath $errorLogFile -Append -Encoding utf8
 
 } finally {
-    # --- Final Block ---
+    Write-Log "--- Initiating cleanup (finally block) ---" -Color Cyan
+
+    try {
+        # Ensure $WShell is defined
+        if (-not $WShell) {
+            $WShell = New-Object -ComObject WScript.Shell
+        }
+
+        # Try saving the file again
+        try {
+            $WShell.AppActivate("moveRandomInput.txt") | Out-Null
+            Start-Sleep -Milliseconds 500
+            $WShell.SendKeys("^{s}")
+            Write-Log "Final Save: Sent Ctrl+S to Notepad." -Color Cyan
+        } catch {
+            Write-Log "WARNING: Failed to activate/save Notepad. $($_.Exception.Message)" -Color Yellow
+        }
+
+        # Close Notepad
+        $processes = Get-Process notepad -ErrorAction SilentlyContinue
+        foreach ($p in $processes) {
+            try {
+                if ($p.MainWindowTitle -like "*moveRandomInput.txt*") {
+                    Stop-Process -Id $p.Id -Force
+                    Write-Log "Closed Notepad process: PID $($p.Id)" -Color Yellow
+                }
+            } catch {
+                Write-Log "WARNING: Failed to close Notepad: $($_.Exception.Message)" -Color Red
+            }
+        }
+
+        Start-Sleep -Milliseconds 800
+
+        # Delete the file
+        if (Test-Path $targetFile) {
+            Remove-Item -Path $targetFile -Force
+            Write-Log "Deleted file: $targetFile" -Color Cyan
+        }
+
+    } catch {
+        Write-Log "ERROR during cleanup: $($_.Exception.Message)" -Color Red
+    }
+
     Write-Log "--- SCRIPT SESSION ENDED ---"
-    Write-Host "`n--- Script has finished or encountered an error. ---"
-    pause
+    # 不再提示用户按任意键，直接退出
 }

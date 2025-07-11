@@ -106,6 +106,15 @@ repeat
 		typeRandomCharacters()
 	end try
 	
+		-- 如果当前时间是 07:35，sleep 180 秒
+	set currentTime to do shell script "date +%H:%M:%S"
+	if currentTime is equal to "07:29:00" then
+		logMessage("It's 07:29:00 - Sleeping 180 seconds as scheduled.")
+		delay 600
+	end if
+
+	
+
 	-- Sleep 2–4 minutes
 	set sleepSecs to (random number from 180 to 300)
 	logMessage("Sleeping for " & sleepSecs & " seconds.")
