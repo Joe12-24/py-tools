@@ -52,7 +52,7 @@ delay 10
 do shell script "/opt/homebrew/bin/cliclick c:552,337"
 
 -- 等待 6 秒
-delay 3
+delay 40
 
 -- 点击 756,586
 do shell script "/opt/homebrew/bin/cliclick c:418,996"
@@ -68,7 +68,7 @@ delay 2
 
 -- 点击 756,586
 do shell script "/opt/homebrew/bin/cliclick c:756,586"
-delay 0.5
+delay 1
 
 -- 输入 763210
 tell application "System Events"
@@ -79,7 +79,7 @@ delay 1
 tell application "System Events"
     key code 36
 end tell
-delay 1
+delay 10
 -- 点击 975,593
 do shell script "/opt/homebrew/bin/cliclick c:975,593"
 delay 1

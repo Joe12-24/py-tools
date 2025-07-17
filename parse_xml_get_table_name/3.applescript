@@ -117,3 +117,4 @@ repeat
         end try
     end try
 end repeat
+keystroke "v" using {command down}
