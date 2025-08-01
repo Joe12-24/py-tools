@@ -9,7 +9,7 @@ import re
 
 # 读取Excel文件
 excel_file = 'text.xlsx'  # 替换成你的Excel文件路径
-sheet_name = 'T80_适当性管理' 
+sheet_name = 'T80_适当性管理'
 df = pd.read_excel(excel_file)
 
 # excel_file = '凌志接口一览.xlsx'  # 替换成你的Excel文件路径

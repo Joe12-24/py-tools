@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.linkstec.lmspcom.auth.mapper.UserMapper">
 	<update id="markDeleteById" parameterType="long">
-		update otcL_USER3 SET LCODER_UPDATE_TIME = sysdate,
+		update otc.L_USER3 SET LCODER_UPDATE_TIME = sysdate,
 Otc.L_USER3_sh
 		SET LCODER_UPDATE_TIME = sysdate,
 		1=1
@@ -14,7 +14,7 @@ Otc.L_USER3_sh
 	
 
 <delete id="ZxDel" parameterType="com. Linkstec.newmall.dto.GJ2020fixedListInDto">
-delete from otc.GJ_PRO_SELECT_100
+delete from oTc142.GJ_PRO_SELECT_100
 where TAB_id = #{ID} or ID = #{ID}
 </delete>
 	

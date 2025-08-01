@@ -74,8 +74,43 @@ on typeRandomCharacters()
 	logMessage("Activity: Typed random characters and saved in " & targetWindowName)
 end typeRandomCharacters
 
+-- 获取当前鼠标位置（x,y字符串）
+on getMousePosition()
+	try
+		return do shell script "python3 -c 'from Quartz.CoreGraphics import CGEventCreate, CGEventGetLocation; loc = CGEventGetLocation(CGEventCreate(None)); print(f\"{int(loc.x)},{int(loc.y)}\")'"
+	on error
+		return "error"
+	end try
+end getMousePosition
+on parseXY(posStr)
+	set AppleScript's text item delimiters to ","
+	set parts to text items of posStr
+	set x to item 1 of parts as integer
+	set y to item 2 of parts as integer
+	return {x, y}
+end parseXY
+on abs(x)
+	if x < 0 then
+		return -x
+	else
+		return x
+	end if
+end abs
+
+on isMouseMoved(p1, p2)
+	set xy1 to parseXY(p1)
+	set xy2 to parseXY(p2)
+	set dx to abs((item 1 of xy1) - (item 1 of xy2))
+	set dy to abs((item 2 of xy1) - (item 2 of xy2))
+	if dx > 2 or dy > 2 then -- 可调：2像素以内算没动
+		return true
+	else
+		return false
+	end if
+end isMouseMoved
 
 
+property pauseTriggered : false
 -- === MAIN SCRIPT ===
 logMessage("--- SCRIPT SESSION STARTED ---")
 if targetUrl is "http://portal.mycompany.internal" then
@@ -85,10 +120,12 @@ else
 end if
 
 repeat
+
+
+
 	-- Prevent sleep
 	try
 		do shell script "/usr/bin/caffeinate -u -t 5 &"
-		logMessage("Activity: Sent no-idle event via caffeinate.")
 	end try
 	
 	-- Simulate network request
@@ -101,22 +138,72 @@ repeat
 		end try
 	end if
 	
-	-- Random keystrokes + save
-	try
-		typeRandomCharacters()
-	end try
+
+	set initialMousePos to getMousePosition()
+	delay 1
+	set laterMousePos to getMousePosition()
+
+	if initialMousePos is "error" or laterMousePos is "error" then
+		logMessage("WARNING: Failed to get mouse position, skipping mouse movement detection.")
+	else
+		if isMouseMoved(initialMousePos, laterMousePos) then
+			logMessage("Mouse moved >2px detected. Pausing input.")
+			set mouseMovedPause to true
+		else
+			-- 鼠标没动，取消暂停
+			if mouseMovedPause then
+				logMessage("Mouse stopped moving. Resuming input.")
+			end if
+			set mouseMovedPause to false
+		end if
+	end if
 	
-		-- 如果当前时间是 07:35，sleep 180 秒
-	set currentTime to do shell script "date +%H:%M:%S"
-	if currentTime is equal to "07:29:00" then
-		logMessage("It's 07:29:00 - Sleeping 180 seconds as scheduled.")
-		delay 600
+	-- 判断是否要输入随机字符
+	if mouseMovedPause then
+		logMessage("SKIPPED: Input paused due to mouse movement.")
+	else
+		try
+			typeRandomCharacters()
+		end try
 	end if
 
-	
 
-	-- Sleep 2–4 minutes
-	set sleepSecs to (random number from 180 to 300)
-	logMessage("Sleeping for " & sleepSecs & " seconds.")
-	delay sleepSecs
+
+
+
+-- 每轮循环开始前先判断是否命中特殊暂停时间
+	set currentTime to do shell script "date +%H:%M:%S"
+	logMessage("DEBUG: currentTime = " & currentTime)
+
+	if currentTime ≥ "07:34:00" and currentTime < "07:34:45" and not pauseTriggered then
+		set pauseTriggered to true
+		logMessage("MATCHED: Between 07:34:00 and 07:34:45 - Sleeping 480 seconds.")
+		delay 480
+	else if not pauseTriggered then
+		-- 正常模拟用户操作
+		logMessage("Activity: Sent no-idle event via caffeinate.")
+		logMessage("Activity: Typed random characters and saved in ...")
+
+		-- 改进版 delay：拆分成小块，便于中途检查时间
+		set totalSleep to (random number from 180 to 300)
+		set slept to 0
+		logMessage("Starting sleep loop for " & totalSleep & " seconds.")
+
+		repeat while slept < totalSleep
+			-- 检查是否进入 07:35~07:36 时间段
+			set currentTime to do shell script "date +%H:%M:%S"
+			if currentTime ≥ "07:35:00" and currentTime < "07:36:00" and not pauseTriggered then
+				set pauseTriggered to true
+				logMessage("INTERRUPT: Entered 07:35 time during sleep - switching to 900 second sleep.")
+				delay 900
+				exit repeat
+			end if
+
+			delay 10
+			set slept to slept + 10
+		end repeat
+	end if
+
+
+	
 end repeat

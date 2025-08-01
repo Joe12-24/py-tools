@@ -1,120 +1,118 @@
--- =======================================================================================
--- ---           Script v11.0: The Ultimate Configurable Edition                   ---
--- --- Action: Features a full configuration block to let the user choose which    ---
--- ---         actions to perform (clicks, F15, numbers, delete) and keeps the     ---
--- ---         robust quick-switch logic to minimize user disruption.              ---
--- =======================================================================================
+-- === CONFIGURATION ===
+property logFile : ((path to desktop folder as text) & "activity_log.txt")
+property enableConsoleLog : true
+property enableActivityLog : true
+property charset : "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
--- =======================================================================================
--- --- Part 1: 用户配置区 (USER CONFIGURATION) ---
--- =======================================================================================
+-- === LOGGING FUNCTION ===
+on logMessage(msg)
+	set timestamp to do shell script "date '+%Y-%m-%dT%H:%M:%S'"
+	set fullMsg to "[" & timestamp & "] " & msg
+	if enableConsoleLog then log fullMsg
+	if enableActivityLog then
+		try
+			do shell script "echo " & quoted form of fullMsg & " >> " & quoted form of POSIX path of logFile
+		end try
+	end if
+end logMessage
 
--- 1. 目标应用程序名称
-property vdiAppName : "桌面云客户端"
+-- === TEXT INPUT ===
+on typeRandomCharacters()
+	set targetApp to "TextMate"
+	tell application targetApp to activate
+	delay 1
+	
+	tell application "System Events"
+		tell process targetApp
+			set frontmost to true
+			try
+				click at {300, 300}
+				delay 0.5
+			end try
+			
+			set allChars to characters of charset
+			set inputCount to (random number from 10 to 20)
+			repeat with i from 1 to inputCount
+				set randIndex to (random number from 1 to (count of allChars))
+				keystroke (item randIndex of allChars)
+				delay 0.1
+			end repeat
+			keystroke space
+			delay 0.3
+			keystroke "s" using command down
+		end tell
+	end tell
+	
+	logMessage("Typed random characters.")
+end typeRandomCharacters
 
--- 2. 动作间隔时间 (单位：秒)
-property minSeconds : 15 -- 2 分钟
-property maxSeconds : 60 -- 5 分钟
+-- === MOUSE UTILS ===
+on getMousePosition()
+	try
+		return do shell script "python3 -c 'from Quartz.CoreGraphics import CGEventCreate, CGEventGetLocation; loc = CGEventGetLocation(CGEventCreate(None)); print(f\"{int(loc.x)},{int(loc.y)}\")'"
+	on error
+		return "error"
+	end try
+end getMousePosition
 
--- 3. 【核心】动作类型配置
--- 请将您想启用的动作设置为 true，不想用的设置为 false。
--- 您可以启用多个，脚本会从中随机选择一个执行。
-property actionsConfig : {¬
-    useMouseClick: false, ¬
-    useF15Key: false, ¬
-    useNumberKeys: true, ¬
-    useDeleteKey: true ¬
-}
+on parseXY(posStr)
+	set AppleScript's text item delimiters to ","
+	set parts to text items of posStr
+	set x to item 1 of parts as integer
+	set y to item 2 of parts as integer
+	return {x, y}
+end parseXY
 
--- =======================================================================================
--- --- Part 2: 主脚本逻辑 (MAIN SCRIPT LOGIC) ---
--- --- (您通常无需修改以下内容) ---
--- =======================================================================================
+on abs(x)
+	if x < 0 then return -x
+	return x
+end abs
+
+on isMouseMoved(p1, p2)
+	if p1 = "error" or p2 = "error" then return true
+	set xy1 to parseXY(p1)
+	set xy2 to parseXY(p2)
+	set dx to abs((item 1 of xy1) - (item 1 of xy2))
+	set dy to abs((item 2 of xy1) - (item 2 of xy2))
+	return dx > 2 or dy > 2
+end isMouseMoved
+
+-- === MAIN ===
+logMessage("--- SCRIPT STARTED ---")
+
 repeat
-    set waitTime to random number from minSeconds to maxSeconds
-    log "Anti-Lock script (v11.0) is running... Next action in " & (waitTime as integer) & " seconds."
-    delay waitTime
-    
-    try
-        if application vdiAppName is running then
-            -- 1. 记录当前激活的应用路径，准备切回
-            tell application "System Events"
-                set originalFrontAppProcess to first application process whose frontmost is true
-                set originalFrontApp to application file of originalFrontAppProcess
-                set originalFrontAppName to name of originalFrontAppProcess
-            end tell
-            
-            -- 2. 激活云桌面
-            tell application "System Events" to set frontmost of process vdiAppName to true
-            delay 0.3 -- 等待一小会儿确保激活成功
-            
-            -- 3. 从启用的动作中随机选择并执行
-            tell application "System Events"
-                tell process vdiAppName
-                    
-                    -- 创建一个启用了的动作列表
-                    set enabledActions to {}
-                    if useMouseClick of actionsConfig is true then set end of enabledActions to "MouseClick"
-                    if useF15Key of actionsConfig is true then set end of enabledActions to "F15Key"
-                    if useNumberKeys of actionsConfig is true then set end of enabledActions to "NumberKey"
-                    if useDeleteKey of actionsConfig is true then set end of enabledActions to "DeleteKey"
-                    
-                    -- 如果列表不为空，则随机选一个执行
-                    if (count of enabledActions) > 0 then
-                        set chosenAction to some item of enabledActions
-                        
-                        if chosenAction is "MouseClick" then
-                            -- 执行鼠标点击
-                            set frontWindow to the front window
-                            set {x1, y1} to position of frontWindow
-                            set {w, h} to size of frontWindow
-                            if x1 + 40 < x1 + w and y1 + 40 < y1 + h then
-                                set randomX to random number from (x1 + 20) to (x1 + w - 20)
-                                set randomY to random number from (y1 + 20) to (y1 + h - 20)
-                                click at {randomX, randomY}
-                                log "Action SUCCESS: Performed Mouse Click inside '" & vdiAppName & "'."
-                            else
-                                log "Action SKIPPED: Window too small for a safe click."
-                            end if
-                            
-                        else if chosenAction is "F15Key" then
-                            -- 按下 F15 (最安全)
-                            key code 111
-                            log "Action SUCCESS: Sent F15 key press."
-                            
-                        else if chosenAction is "NumberKey" then
-                            -- 按下随机数字 1-9
-                            set randomNumber to random number from 1 to 9
-                            keystroke randomNumber
-                            log "Action SUCCESS: Sent Number '" & randomNumber & "' key press."
-                            
-                        else if chosenAction is "DeleteKey" then
-                            -- 按下 Delete (Backspace) 键
-                            key code 51
-                            log "Action SUCCESS: Sent Delete (Backspace) key press."
-                        end if
-                    else
-                        log "Action SKIPPED: No actions were enabled in the configuration."
-                    end if
-                end tell
-            end tell
-            
-            -- 4. 立即切回原始应用
-            if originalFrontAppName is not vdiAppName then
-                tell application (originalFrontApp as text) to activate
-                log "Switched back to '" & originalFrontAppName & "'."
-            end if
-            
-        else
-            log "Action SKIPPED: Application '" & vdiAppName & "' is not running."
-        end if
-    on error errorMessage
-        log "An ERROR occurred: " & errorMessage
-        try
-            if originalFrontApp is not missing then
-                tell application (originalFrontApp as text) to activate
-            end if
-        end try
-    end try
+	set waitThreshold to (random number from 180 to 300)
+	set accumulatedTime to 0
+	set lastMousePos to getMousePosition()
+	logMessage("New wait window: " & waitThreshold & "s")
+
+	repeat while accumulatedTime < waitThreshold
+		delay 5
+		set currentTime to do shell script "date +%H:%M:%S"
+		
+		if currentTime ≥ "07:33:00" and currentTime < "07:34:00" then
+			logMessage("IN TIME WINDOW 07:33~07:34. Pausing 480s.")
+			delay 480
+			exit repeat
+		end if
+		
+		set newMousePos to getMousePosition()
+		if isMouseMoved(lastMousePos, newMousePos) then
+			logMessage("Mouse moved. Resetting accumulated time.")
+			set accumulatedTime to 0
+		else
+			set accumulatedTime to accumulatedTime + 5
+			logMessage("Mouse still. Accumulated idle: " & accumulatedTime & "s")
+		end if
+		set lastMousePos to newMousePos
+	end repeat
+
+	if accumulatedTime ≥ waitThreshold then
+		try
+			logMessage("No mouse movement for " & accumulatedTime & "s. Typing random text...")
+			typeRandomCharacters()
+		on error errMsg
+			logMessage("ERROR typing: " & errMsg)
+		end try
+	end if
 end repeat
-keystroke "v" using {command down}

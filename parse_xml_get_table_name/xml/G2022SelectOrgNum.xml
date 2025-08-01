@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linkstec.newmall.mapper.G2022SelectOrgNum">
+	<select id="SelectByUserName" parameterType="String"
+		resultType="map">
+		 lcinfo_source.select
+				lcinfo_source.cfh_name,lcinfo_source.app_jump_url,lcinfo_source.app_manager_logo_name,lcinfo_source.app_manager_logo_url,lcinfo_source.app_manager_logo_id
+			lcinfo_source.from
+				lcinfo_source.gj_cfh_homepage_info
+			lcinfo_source.where
+				lcinfo_source.pro_provider = (
+					lcinfo_source.select
+						lcinfo_source.org_num
+					lcinfo_source.from
+						lcinfo_source.l_organization
+					lcinfo_source.where
+						lcinfo_source.org_id = (
+							lcinfo_source.select
+								lcinfo_source.org_id
+							lcinfo_source.from
+								lcinfo_source.l_member_organization_rel
+							lcinfo_source.where
+								lcinfo_source.member_id = (
+									lcinfo_source.select
+										lcinfo_source.member_id
+									lcinfo_source.from
+										lcinfo_source.l_user
+									lcinfo_source.where
+										lcinfo_source.user_name = #{lcinfo_source.username}
+								)
+						)
+				)
+		 	
+		</select>
+		<select id="SelectByUserName1" parameterType="String"
+		resultType="map">
+		 lcinfo_source.select
+				lcinfo_source.cfh_name,lcinfo_source.app_jump_url,lcinfo_source.app_manager_logo_name,lcinfo_source.app_manager_logo_url,lcinfo_source.app_manager_logo_id
+			lcinfo_source.from
+				lcinfo_source.gj_cfh_homepage_info lcinfo_source.where lcinfo_source.pro_provider = 'lcinfo_source.8926'
+			
+		</select>
+</mapper>
