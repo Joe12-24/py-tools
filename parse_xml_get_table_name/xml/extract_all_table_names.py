@@ -1,22 +1,17 @@
 import os
 import re
-from xml.etree import ElementTree as ET
+import xml.etree.ElementTree as ET
+from collections import defaultdict
 
-# 要处理的SQL标签
 SQL_TAGS = {'select', 'update', 'insert', 'delete'}
 
 def extract_sql_from_xml(xml_path):
-    """
-    从XML中提取包含SQL语句的文本
-    """
     try:
         tree = ET.parse(xml_path)
         root = tree.getroot()
         sql_list = []
-
         for elem in root.iter():
-            tag = elem.tag.lower()
-            if tag in SQL_TAGS:
+            if elem.tag.lower() in SQL_TAGS:
                 sql_text = ''.join(elem.itertext()).strip()
                 if sql_text:
                     sql_list.append(sql_text)
@@ -24,6 +19,7 @@ def extract_sql_from_xml(xml_path):
     except Exception as e:
         print(f"[解析失败] {xml_path}: {e}")
         return []
+
 def extract_table_names(sql_text):
     patterns = [
         r'\bfrom\s+((?:[a-zA-Z_][\w]*\.)?([a-zA-Z_][\w]*))',
@@ -43,42 +39,44 @@ def extract_table_names(sql_text):
     for pattern in patterns:
         matches = re.findall(pattern, sql_text, flags=re.IGNORECASE | re.DOTALL)
         for full_match, table_name in matches:
-            # 只保留无前缀的，full_match中如果有点就是带前缀，忽略
+            # 只保留无前缀表名
             if '.' not in full_match:
                 found.add(table_name)
     return found
-def extract_nextval_sequences(sql_text):
-    """
-    找出所有 .NEXTVAL 的序列调用
-    """
-    return set(re.findall(r'\b([\w\.]+)\.NEXTVAL\b', sql_text, re.IGNORECASE))
 
-def walk_and_process_xml(folder):
-    all_table_names = set()
-    all_sequences = set()
+def extract_nextval_sequences(sql_text):
+    # 匹配形如 OTC142.SQ_ETF_CONFIGURATION.NEXTVAL 或 otc.some_seq.NEXTVAL
+    # 这里带前缀都打印
+    pattern = re.compile(r'\b([a-zA-Z0-9_]+\.[a-zA-Z0-9_\.]+)\.NEXTVAL\b', re.IGNORECASE)
+    return set(pattern.findall(sql_text))
+
+def walk_and_collect(folder):
+    table_to_files = defaultdict(set)    # 无前缀表名 -> 文件集合
+    seq_to_files = defaultdict(set)      # 序列名（含前缀） -> 文件集合
 
     for root, _, files in os.walk(folder):
         for fname in files:
-            if fname.endswith('.xml'):
+            if fname.lower().endswith('.xml'):
                 full_path = os.path.join(root, fname)
-                sql_blocks = extract_sql_from_xml(full_path)
-                for sql in sql_blocks:
+                sqls = extract_sql_from_xml(full_path)
+                for sql in sqls:
                     tables = extract_table_names(sql)
-                    seqs = extract_nextval_sequences(sql)
-                    all_table_names.update(tables)
-                    all_sequences.update(seqs)
+                    sequences = extract_nextval_sequences(sql)
+                    for table in tables:
+                        table_to_files[table].add(fname)
+                    for seq in sequences:
+                        seq_to_files[seq].add(fname)
 
-    return all_table_names, all_sequences
+    return table_to_files, seq_to_files
 
 if __name__ == '__main__':
     folder_path = "/Users/mac/dev/code/py-tools/parse_xml_get_table_name/xml"
-  # 替换成你的目录
-    tables, sequences = walk_and_process_xml(folder_path)
+    tables, sequences = walk_and_collect(folder_path)
 
-    print("✅ 未带库名前缀的表名:")
-    for t in sorted(tables):
-        print(t)
+    print("未带前缀的表名及其所在文件:")
+    for table, files in sorted(tables.items()):
+        print(f"{table} : {', '.join(sorted(files))}")
 
-    print("\n✅ 所有 .NEXTVAL 序列调用:")
-    for s in sorted(sequences):
-        print(s)
+    print("\n所有序列（含.NEXTVAL）及其所在文件:")
+    for seq, files in sorted(sequences.items()):
+        print(f"{seq}.NEXTVAL : {', '.join(sorted(files))}")

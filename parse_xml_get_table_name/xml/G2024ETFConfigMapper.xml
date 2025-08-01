@@ -155,9 +155,7 @@
 
 	<!-- 3.修改话题信息 -->
 	<update id="NMSecGetUpdTopicInfo" parameterType="com.linkstec.newmall.dto.NewMallETFConfigInDto">
-		
-		
-		
+		update OTC142.ETF_CONFIGURATION set
 		TARGET_TYPE=#{TARGET_TYPE},
 		TARGET_CODE=#{TARGET_CODE},
 		INTERNAL_FUND_CODE=#{INTERNAL_FUND_CODE},
