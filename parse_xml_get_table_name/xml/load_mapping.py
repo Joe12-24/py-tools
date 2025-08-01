@@ -17,7 +17,11 @@ def process_folder(folder_path, mapping_file):
     table_name_pattern = re.compile(r'(OTC142\.|OTC\.)([A-Za-z0-9_]+)(?![\w])', re.IGNORECASE)
 
     # 序列匹配：前缀+序列名（多层点）+ .NEXTVAL，忽略大小写
-    seq_pattern = re.compile(r'(OTC142\.|OTC\.)((?:[A-Za-z0-9_]+\.)+[A-Za-z0-9_]+)\.NEXTVAL', re.IGNORECASE)
+    # seq_pattern = re.compile(r'(OTC142\.|OTC\.)((?:[A-Za-z0-9_]+\.)*[A-Za-z0-9_]+)\.NEXTVAL', re.IGNORECASE)
+    seq_pattern = re.compile(
+    r'(OTC142\.|OTC\.)((?:[A-Za-z0-9_]+\.)*[A-Za-z0-9_]+)\.NEXTVAL(?![A-Za-z0-9_])',
+    re.IGNORECASE
+)
 
     for root, _, files in os.walk(folder_path):
         for fname in files:
@@ -32,17 +36,19 @@ def process_folder(folder_path, mapping_file):
             no_replace_tables = []  # 未替换普通表名(带前缀)
 
             # 先提取所有序列，避免误替换
-            # 先收集序列名，记录并从内容中移除临时避免替换
             seq_spans = []
             for m in seq_pattern.finditer(content):
-                seq_tables.append(m.group(0))
-                seq_spans.append((m.start(), m.end()))
-            # 临时将序列替换成占位符，避免表名替换到序列上
+                full_seq = m.group(0)
+                seq_tables.append(full_seq)
+                # seq_spans.append((m.start(), m.end()))
+                print(f'[DEBUG] 发现序列: {full_seq}')
+
+            # 临时将序列替换成空格占位符（避免误替换）
             content_masked = []
             last_idx = 0
             for start, end in seq_spans:
                 content_masked.append(content[last_idx:start])
-                content_masked.append('\0'*(end-start))  # 用零字符占位，长度一致
+                content_masked.append(' ' * (end - start))  # 空格占位，保持长度一致
                 last_idx = end
             content_masked.append(content[last_idx:])
             content_masked = ''.join(content_masked)
@@ -63,7 +69,6 @@ def process_folder(folder_path, mapping_file):
             new_content = table_name_pattern.sub(replacer, content_masked)
 
             # 还原序列占位符
-            # 用原内容中的序列字符串替换零字符占位符
             def restore_sequences(text, original, spans):
                 result = []
                 last_idx = 0
@@ -79,13 +84,29 @@ def process_folder(folder_path, mapping_file):
             with open(full_path, 'w', encoding='utf-8') as f:
                 f.write(new_content)
 
-            print(f'=== 文件: {fname} ===')
+            print(f'\n=== 文件: {fname} ===')
+            # 去重替换记录（保留顺序）
+            unique_replaced_info = []
+            seen = set()
+            for item in replaced_info:
+                if item not in seen:
+                    unique_replaced_info.append(item)
+                    seen.add(item)
+
             if replaced_info:
+                # 去重
+                unique_replaced_info = []
+                seen = set()
+                for item in replaced_info:
+                    if item not in seen:
+                        unique_replaced_info.append(item)
+                        seen.add(item)
                 print('替换成功表名:')
-                for old_prefix, old_table, new_prefix, new_table in replaced_info:
+                for old_prefix, old_table, new_prefix, new_table in unique_replaced_info:
                     print(f'{old_prefix} {old_table} {new_prefix} {new_table}')
             else:
                 print('无替换成功表名')
+
 
             if seq_tables:
                 print('\n序列表名（含.NEXTVAL，未替换）:')
@@ -104,9 +125,7 @@ def process_folder(folder_path, mapping_file):
             print('\n')
 
 if __name__ == '__main__':
-    # folder_path = r"D:\your\mybatis\xml\path"     # ← 修改为你的 XML 文件目录
-    # mapping_file = r"D:\your\mapping\table_mapping.txt"  # ← 替换为你的映射文件路径
-    folder_path = "/Users/mac/dev/code/py-tools/parse_xml_get_table_name/xml"     # ← 修改为你的 XML 文件目录
+    # 修改为你的 XML 文件目录和映射文件路径
+    folder_path = "/Users/mac/dev/code/py-tools/parse_xml_get_table_name/xml"
     mapping_file = "/Users/mac/dev/code/py-tools/parse_xml_get_table_name/xml/table_mapping.txt"
-      # 映射文件路径
     process_folder(folder_path, mapping_file)
