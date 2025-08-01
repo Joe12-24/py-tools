@@ -8,11 +8,11 @@
 
 		select distinct(MODULE_CODE) code ,MODULE_NAME||CONCAT(CONCAT('(',MODULE_CODE),')') name
 		from
-		OTC.PROD_NEW_MODULE_TOP
+		lcinfo_source.prod_module
 
 		WHERE MODULE_CODE IS NOT NULL
 		and
-		MODULE_CODE not in (select TARGET_CODE from OTC142.ETF_CONFIGURATION where TARGET_TYPE='2' and TARGET_CODE is not null)
+		MODULE_CODE not in (select TARGET_CODE from lcinfo_source.etf_config where TARGET_TYPE='2' and TARGET_CODE is not null)
 	</select>
 	<!-- 编辑查询关联板块代码 -->
 	<select id="SelectBanKuaiQuery2" parameterType="com.linkstec.newmall.dto.NewMallETFConfigInDto"
@@ -21,7 +21,7 @@
 		select distinct(MODULE_CODE) code ,
 		MODULE_NAME||CONCAT(CONCAT('(',MODULE_CODE),')') name
 		from
-		OTC.PROD_NEW_MODULE_TOP
+		lcinfo_source.prod_module
 
 		WHERE MODULE_CODE IS NOT NULL
 
@@ -33,7 +33,7 @@
 		prod_code code,
 		prod_name || CONCAT( CONCAT( '(', prod_code ), ')' ) name
 		FROM
-		OTC.GJ_G2010_PROD_INFO_BASE
+		lcinfo_source.prod_base
 		WHERE
 		prod_type = '1'
 	</select>
@@ -45,7 +45,7 @@
 
 		prod_name || CONCAT( CONCAT( '(', prod_code ), ')' ) name
 		FROM
-		OTC.GJ_G2010_PROD_INFO_BASE
+		lcinfo_source.prod_base
 		WHERE
 		prod_type = 'F'
 	</select>
@@ -73,13 +73,13 @@
 		NVL(b.name,a.TARGET_CODE) NAMECODE,
 		c.INTERNAL_FUND_NAME,
 		d.EXTERNAL_FUND_NAME
-		from OTC142.ETF_CONFIGURATION a
+		from lcinfo_source.etf_config a
 
 		left join (select distinct(MODULE_CODE) code ,MODULE_NAME||CONCAT(CONCAT('(',MODULE_CODE),')') name
 		from
-		OTC.PROD_NEW_MODULE_TOP) b  on a.TARGET_CODE = b.code
-		left join (select prod_code code ,  prod_name || CONCAT(CONCAT('(',prod_code),')') INTERNAL_FUND_NAME    from OTC.GJ_G2010_PROD_INFO_BASE where prod_type= 'F') c on c.code = a.INTERNAL_FUND_CODE
-		left join (select prod_code code ,  prod_name || CONCAT(CONCAT('(',prod_code),')') EXTERNAL_FUND_NAME    from OTC.GJ_G2010_PROD_INFO_BASE where prod_type= '1') d on d.code = a.EXTERNAL_FUND_CODE
+		lcinfo_source.prod_module) b  on a.TARGET_CODE = b.code
+		left join (select prod_code code ,  prod_name || CONCAT(CONCAT('(',prod_code),')') INTERNAL_FUND_NAME    from lcinfo_source.prod_base where prod_type= 'F') c on c.code = a.INTERNAL_FUND_CODE
+		left join (select prod_code code ,  prod_name || CONCAT(CONCAT('(',prod_code),')') EXTERNAL_FUND_NAME    from lcinfo_source.prod_base where prod_type= '1') d on d.code = a.EXTERNAL_FUND_CODE
 		<where>
 			<if test ="TARGET_CODE!= null">
 				A.TARGET_CODE  = #{TARGET_CODE}
@@ -105,7 +105,7 @@
 		a.ID,
 		a.TARGET_TYPE,
 		a.TARGET_CODE
-		from OTC142.ETF_CONFIGURATION a
+		from lcinfo_source.etf_config a
 		where 1=1
 		<if test ="TARGET_CODE!= null and TARGET_CODE!= ''">
 			AND A.TARGET_CODE = #{TARGET_CODE}  AND A.TARGET_TYPE = #{TARGET_TYPE}
@@ -121,7 +121,7 @@
 
 	<!-- 2.增加一个新的话题信息 -->
 	<insert id="NMSecGetSetTopicInfo" parameterType="com.linkstec.newmall.dto.NewMallETFConfigInDto">
-		insert into  OTC142.ETF_CONFIGURATION(
+		insert into  lcinfo_source.etf_config(
 		ID,
 		TARGET_TYPE,
 		TARGET_CODE,
@@ -155,7 +155,7 @@
 
 	<!-- 3.修改话题信息 -->
 	<update id="NMSecGetUpdTopicInfo" parameterType="com.linkstec.newmall.dto.NewMallETFConfigInDto">
-		update OTC142.ETF_CONFIGURATION set
+		update lcinfo_source.etf_config set
 		TARGET_TYPE=#{TARGET_TYPE},
 		TARGET_CODE=#{TARGET_CODE},
 		INTERNAL_FUND_CODE=#{INTERNAL_FUND_CODE},
@@ -169,7 +169,7 @@
 	</update>
 	<!-- 3.修改话题信息 -->
 	<update id="NMSecGetUpdKV" parameterType="com.linkstec.newmall.dto.NewMallETFConfigInDto">
-		update otc.ETF_CONFIGURATION set
+		update lcinfo_source.etf_config set
 
 		KV_ID=#{KV_ID},
 		KV_NAME=#{KV_NAME},
@@ -183,14 +183,14 @@
 
 	<!-- 4.删除话题信息 -->
 	<delete id="NMSecDelUpdTopicInfo" parameterType="com.linkstec.newmall.dto.NewMallETFConfigInDto">
-		delete from OTC142.ETF_CONFIGURATION
+		delete from lcinfo_source.etf_config
 		where
 		ID = #{ID}
 	</delete>
 
 	<!-- 4.1 普通删除话题信息 -->
 	<delete id="NMSecDelUpdTopicInfo2" parameterType="com.linkstec.newmall.dto.NewMallETFConfigInDto">
-		delete from OTC142.ETF_CONFIGURATION
+		delete from ETF_CONFIGURATION
 		where
 		ID = #{ID}
 	</delete>
@@ -198,7 +198,7 @@
 
 	<!-- 6.审核状态修改1 -->
 	<update id="NMSecTopicInfoAuditAutoTo1" parameterType="com.linkstec.newmall.dto.NewMallETFConfigInDto">
-		update OTC142.ETF_CONFIGURATION set LCODER_UPDATE_TIME = sysdate,
+		update OTC142.ETF_CONFIGURATION1 set LCODER_UPDATE_TIME = sysdate,
 		UPDATE_PERSON=#{UPDATE_PERSON},
 		ONLINE_STATUS='1'
 		where ID = #{ID}
@@ -206,7 +206,7 @@
 
 	<!-- 8.审核状态修改3 -->
 	<update id="NMSecTopicInfoAuditAutoTo2" parameterType="com.linkstec.newmall.dto.NewMallETFConfigInDto">
-		update OTC142.ETF_CONFIGURATION set LCODER_UPDATE_TIME = sysdate,
+		update lcinfo_source.etf_config a set LCODER_UPDATE_TIME = sysdate,
 		UPDATE_PERSON=#{UPDATE_PERSON},
 		ONLINE_STATUS='0'
 		where ID = #{ID}
@@ -232,7 +232,7 @@
 	</update>
 
 	<update id="NMSecTopicInfoOperIdTo4" parameterType="com.linkstec.newmall.dto.NewMallETFConfigInDto">
-		update otc.GJ_G2010_TOPIC_INFO set LCODER_UPDATE_TIME = sysdate,
+		update oTc.GJ_G2010_TOPIC_INFOb set LCODER_UPDATE_TIME = sysdate,
 		OPER_STATUS = 4
 		where ID = #{id}
 	</update>
