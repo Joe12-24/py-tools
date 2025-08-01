@@ -3,41 +3,24 @@
 <mapper namespace="com.linkstec.newmall.mapper.G2022SelectOrgNum">
 	<select id="SelectByUserName" parameterType="String"
 		resultType="map">
-		 lcinfo_source.select
-				lcinfo_source.cfh_name,lcinfo_source.app_jump_url,lcinfo_source.app_manager_logo_name,lcinfo_source.app_manager_logo_url,lcinfo_source.app_manager_logo_id
-			lcinfo_source.from
-				lcinfo_source.gj_cfh_homepage_info
-			lcinfo_source.where
-				lcinfo_source.pro_provider = (
-					lcinfo_source.select
-						lcinfo_source.org_num
-					lcinfo_source.from
-						lcinfo_source.l_organization
-					lcinfo_source.where
-						lcinfo_source.org_id = (
-							lcinfo_source.select
-								lcinfo_source.org_id
-							lcinfo_source.from
-								lcinfo_source.l_member_organization_rel
-							lcinfo_source.where
-								lcinfo_source.member_id = (
-									lcinfo_source.select
-										lcinfo_source.member_id
-									lcinfo_source.from
-										lcinfo_source.l_user
-									lcinfo_source.where
-										lcinfo_source.user_name = #{lcinfo_source.username}
-								)
-						)
-				)
-		 	
+		 select  a.name1 , b.name2 from a b join c 
+
+update bbbb set name = 'test'
+
+insert into aaa (id, name) values (1, 'abc')
+
+from otc142.real_table
+join lcinfo_sourc.table2
 		</select>
 		<select id="SelectByUserName1" parameterType="String"
 		resultType="map">
-		 lcinfo_source.select
-				lcinfo_source.cfh_name,lcinfo_source.app_jump_url,lcinfo_source.app_manager_logo_name,lcinfo_source.app_manager_logo_url,lcinfo_source.app_manager_logo_id
-			lcinfo_source.from
-				lcinfo_source.gj_cfh_homepage_info lcinfo_source.where lcinfo_source.pro_provider = 'lcinfo_source.8926'
-			
+		 -- 示例 SQL
+MERGE INTO user_data u USING temp_data t ON u.id = t.id;
+REPLACE INTO log_table (id, message) VALUES (1, 'ok');
+TRUNCATE TABLE old_log;
+LOCK TABLE transactions WRITE;
+DESC user_info;
+EXPLAIN SELECT * FROM sales_data;
+
 		</select>
 </mapper>
