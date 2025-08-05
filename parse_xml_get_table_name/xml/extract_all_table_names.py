@@ -70,8 +70,8 @@ def walk_and_collect(folder):
     return table_to_files, seq_to_files
 
 if __name__ == '__main__':
-    folder_path = "/Users/mac/dev/code/py-tools/parse_xml_get_table_name/xml"
-    tables, sequences = walk_and_collect(folder_path)
+    FOLDER_PATH = "/Users/mac/dev/code/py-tools/parse_xml_get_table_name/xml"
+    tables, sequences = walk_and_collect(FOLDER_PATH)
 
     print("未带前缀的表名及其所在文件:")
     for table, files in sorted(tables.items()):
