@@ -1,0 +1,2042 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linkstec.newmall.mapper.OtcNewMallInvestMapper">
+<!--  查询投顾  -->
+<select id="OccupationQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto" resultType="map">
+			select * from (
+			    select t.*, row_number() over(partition by name order by rownum) rn from (select  id,OCCUPATION_NO,NAME,IMG_URL,IMG_NAME,IMG_ID,URL FROM OTC142.G2022_FIXED_INCOME_OCCUPATION UNION 
+					select   id,OCCUPOTION_NO,NAME,IMG_URL,IMG_NAME,IMG_ID,URL FROM OTC142.G2021_INVEST_OCCUPOTION) t 
+			) where rn = 1 
+			<if test = "NAME != null" >
+	      		 and NAME = #{NAME}
+	       </if>
+			ORDER BY name 
+</select>
+<!--  查询bicode -->
+<select id="BiCodeQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto" resultType="map">
+						
+			SELECT wmsys.wm_concat(RELATION_CODE) as RELATION_CODE
+			FROM (
+			    SELECT RELATION_CODE
+			    FROM OTC142.G2021_INVEST_CHANCE
+			    WHERE NUMBER_ISSUE = (
+			        SELECT MAX(TO_NUMBER(NUMBER_ISSUE)) as NUMBER_ISSUE
+			        FROM OTC142.G2021_INVEST_CHANCE
+			    )
+			)
+</select>
+
+<update id="BiCodeUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_CHANCE set LCODER_UPDATE_TIME = sysdate,
+				
+				BI_CONF = #{BI_CONF},
+				BI_DETAIL = #{BI_DETAIL}
+		where 	RELATION_CODE = #{RELATION_CODE}	
+				
+</update>
+<!--     定投榜单增删改查       -->
+
+<!--查询定投榜单名称  -->
+<select id="NMSecFixedNameQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		 select 
+			a.FIXED_NAME	
+		 from
+		 OTC142.GJ_FIXED_LIST_INFO a    
+		 where 1=1
+	       <if test = "FIXED_NAME != null" >
+	       and a.FIXED_NAME = #{FIXED_NAME}
+	       </if>  
+ 		 order by a.FIXED_CODE desc
+</select>
+
+<!--查询定投榜单名称  -->
+<select id="SelectNumIssue" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		select distinct NUMBER_ISSUE code ,NUMBER_ISSUE name from OTC142.G2021_INVEST_CHANCE order by TO_NUMBER(NUMBER_ISSUE) desc
+</select>
+
+
+<!--查询定投榜单  -->
+<select id="NMSecFixedQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		 select 
+		 		a.FIXED_CODE,
+				a.FIXED_NAME,
+				a.FIXED_PRIORITY,
+				decode(a.FIXED_USER_RULE,null,'全部',a.FIXED_USER_RULE) FIXED_USER_RULE,    
+				a.CREATE_DATE,
+				a.CREATE_PERSONNEL,
+				a.UPDATE_DATE,
+				a.AUDIT_STATUS,
+				a.UPDATE_PERSONNEL
+		 from
+		 OTC142.GJ_FIXED_LIST_INFO a 
+		 where 1=1
+	 		       <if test = "FIXED_NAME != null" >
+	 		       and a.FIXED_NAME like concat(concat('%',#{FIXED_NAME}),'%')
+	 		       </if>
+	 		        <if test = "FIXED_CODE != null" >
+	 		       and a.FIXED_CODE = #{FIXED_CODE}
+	 		       </if>
+	 		order by a.FIXED_CODE desc
+</select>
+<!--查询新客  -->
+<select id="XinKeQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		 select 
+		 		a.*
+		 from
+		 OTC142.GJ_XINKE_LIST_PROD a 
+		 where 1=1
+	 		       <if test = "BELONG != null" >
+	 		       and a.BELONG =#{BELONG}
+	 		       </if>
+</select>
+<!--查询公共模板 -->
+<select id="ModuleQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		 select 
+		 		a.*
+		 from
+		 OTC142.G2021_INVEST_MODULE a 
+		 where 1=1
+		      
+		       <if test = "ID != null" >
+		       and a.ID =#{ID}
+		       </if>
+</select>
+<!--查询所有期数 -->
+<select id="IssueQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		select * from (
+		 select 
+		 		IMG_URL,
+				IMG_NAME,
+				URL,
+				READ_VIDEO_SELECT,
+				MODULE_NAME,
+				NAME,
+				FENGKOU_NO,
+				UPLOAD_TIME,
+				ABSTRACT,
+				TITLE,
+				ABSTRACT2,
+				TITLE2,
+				CREATE_PERSONNEL,
+				CREATE_TIME,
+				UPD_PERSONNEL,
+				UPD_TIME,
+				ID,
+				NUMBER_ISSUE,
+				RELATION_CODE,
+				'第 ' || NUMBER_ISSUE || ' 期' as NUMBER_ISSUE1,
+				VISIBLE,
+				SHARE_ID,
+				SHARE_NAME,
+				SHARE_URL,
+				SHARE_TITLE,
+				SHARE_DESC,
+				PUSH_STATUS,
+				FUND_ID,
+				(select NAME||'-' ||TIBAO_DATE||'-'||ORG_NAME from OTC.G2021_INVEST_CHANCE_SH where ID = FUND_ID) AS FUND_NAME
+
+		 from
+		 OTC142.G2021_INVEST_CHANCE ) a
+		 where 1=1
+		      
+		       <if test = "ID != null" >
+		       and a.ID =#{ID}
+		       </if>
+		       	<if test = "NAME != null" >
+		       and a.NAME like CONCAT(CONCAT('%',#{NAME}),'%')
+		       </if>
+		       order by to_number(NUMBER_ISSUE) desc,to_number(FENGKOU_NO) desc
+</select>
+<!--查询投资风口配置的产品 -->
+<select id="IssueProdQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		 select 
+		 		a.PROD_CODE,
+				a.PRIORITY,
+				a.ID,
+				a.url,
+				decode(a.USER_RULE,null,'全部',a.USER_RULE) USER_RULE, 
+				decode(a.BUTTON_WORD_SHOW,null,'0',a.BUTTON_WORD_SHOW) BUTTON_WORD_SHOW, 
+				decode(a.IS_SHOW_PROD,null,'0',a.IS_SHOW_PROD) IS_SHOW_PROD, 
+				a.CREATE_PERSONNEL,
+				a.CREATE_TIME,
+				a.UPD_PERSONNEL,
+				a.UPD_TIME,
+				DECODE(A.PROD_NAME,NULL,B.PROD_NAME,A.PROD_NAME) prod_name,
+				a.PROD_CARD_URL,
+				decode(z.SHT_NAME_IDENTIF,1,z.sht_name,b.sht_name) SHT_NAME2,
+		       z.SHT_NAME_IDENTIF
+				
+
+		 from
+		 OTC142.G2021_INVEST_PROD a 
+		 left join otc.gj_g2010_prod_info_base b on a.PROD_CODE = b.PROD_CODE
+		 
+		 left join OTC142.GJ_G2010_MANUAL_PROD_INFO z on  a.prod_code=z.prod_code
+		 where 1=1
+		      
+		       <if test = "ID != null" >
+		       and a.TID =#{ID}
+		       </if>
+</select>
+<!--查询投资风口配置的基金经理 -->
+<select id="IssueFundQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		 select 
+		 		a.URL_DESC,
+				a.IMG_URL,
+				a.IMG_NAME,
+				a.IMG_ID,
+				a.CREATE_PERSONNEL,
+				a.CREATE_TIME,
+				a.UPD_PERSONNEL,
+				a.UPD_TIME,
+				a.ID,
+				A.NAME||concat(concat('(',PSN_ID),')') REL_NAME,
+				a.TOUXIAN,
+				a.TITLE1,
+				a.DESCRIBE1,
+				a.DESCRIBE2,
+				a.DESCRIBE3,
+				a.TITLE2,
+				a.TITLE3,
+				a.TID,
+				a.NAME,
+				a.MODULE_NAME,
+				a.UPLOAD_TIME,
+				a.URL,
+				a.PSN_ID,
+				a.OCCUPATION_NO,
+				decode(manual_type,null,'0',manual_type) manual_type
+
+				
+
+		 from
+		 OTC142.G2021_INVEST_FUND a 
+		 
+		 where 1=1
+		      
+		    <choose>
+		      <when test="ID != null">
+		       	and a.ID =#{ID}
+		      </when>
+		      <otherwise>
+		        and a.TID =#{TID}
+		      </otherwise>
+	    </choose>
+		       
+		       
+</select>
+<!--查询投资风口配置的投顾 -->
+<select id="IssueTouGuQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		 select 
+		 		a.TID,
+				a.ID,
+				a.MODULE_NAME,
+				a.NAME,
+				a.OCCUPOTION_NO,
+				a.UPLOAD_TIME,
+				a.ABSTRACT,
+				a.IMG_URL,
+				a.URL,
+				a.IMG_NAME,
+				a.IMG_ID,
+				a.CREATE_PERSONNEL,
+				a.CREATE_TIME,
+				a.UPD_PERSONNEL,
+				a.UPD_TIME,
+				a.ARTICL_NAME,
+				a.ARTICLE_URL
+		 from
+		 OTC142.G2021_INVEST_OCCUPOTION a 
+		 where 1=1
+		  <choose>
+		      <when test="ID != null">
+		       	and a.ID =#{ID}
+		      </when>
+		      <otherwise>
+		        and a.TID =#{TID}
+		      </otherwise>
+	    </choose>
+</select>
+<!--查询投资风口配置的视频-->
+<select id="IssueVideoQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		 select 
+		 		a.TID,
+				a.ID,
+				a.IMG_URL,
+				a.VIDEO_URL,
+				a.IMG_NAME,
+				a.IMG_ID,
+				a.PRIORITY,
+				a.CREATE_PERSONNEL,
+				a.CREATE_TIME,
+				a.UPD_PERSONNEL,
+				a.UPD_TIME
+		 from
+		 OTC142.G2021_INVEST_VIDEO a 
+		 where 1=1
+		  <choose>
+		      <when test="ID != null">
+		       	and a.ID =#{ID}
+		      </when>
+		      <otherwise>
+		        and a.TID =#{TID}
+		      </otherwise>
+		      
+	    </choose>
+</select>
+<!--查询投资风口配置的热点-->
+<select id="IssueHotQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		 select 
+		 		a.TID,
+				a.ID,
+				a.TITLE,
+				a.ABSTRACT,
+				a.PRIORITY,
+				
+				a.CREATE_PERSONNEL,
+				a.CREATE_TIME,
+				a.UPD_PERSONNEL,
+				a.UPD_TIME,
+				a.FENGKOU_NO,
+				a.NUMBER_ISSUE
+		 from
+		 OTC142.G2021_INVEST_HOT_EVENT a 
+		 where 1=1
+		  <choose>
+		      <when test="ID != null">
+		       	and a.ID =#{ID}
+		      </when>
+		      <otherwise>
+		        and a.TID =#{TID}
+		      </otherwise>
+	    </choose>
+</select>
+<update id="HotUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_HOT_EVENT set LCODER_UPDATE_TIME = sysdate,
+				
+				UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate,
+				PRIORITY = #{PRIORITY},
+				TITLE = #{TITLE},
+				ABSTRACT = #{ABSTRACT}
+			where ID = #{ID}
+</update>
+<!--查询投资风口配置的内参解读-->
+<select id="IssueReadQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		 select 
+		 		a.TID,
+				a.ID,
+				a.TITLE1,
+				a.TITLE2,
+				a.TITLE3,
+				A.DESCRIBE1,
+				A.DESCRIBE2,
+				A.DESCRIBE3,
+				a.ABSTRACT,
+				a.PRIORITY,
+				
+				a.CREATE_PERSONNEL,
+				a.CREATE_TIME,
+				a.UPD_PERSONNEL,
+				a.UPD_TIME,
+				a.FENGKOU_NO,
+				a.NUMBER_ISSUE
+		 from
+		 OTC142.G2021_INVEST_READ a 
+		 where 1=1
+		  <choose>
+		      <when test="ID != null">
+		       	and a.ID =#{ID}
+		      </when>
+		      <otherwise>
+		        and a.TID =#{TID}
+		      </otherwise>
+	    </choose>
+</select>
+<!--查询投资风口配置的内参解读-->
+<select id="IssueWeeklyQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		 select 
+		 		a.TID,
+				a.ID,
+				a.TITLE,
+				a.ABSTRACT,
+				
+				a.CREATE_PERSONNEL,
+				a.CREATE_TIME,
+				a.UPD_PERSONNEL,
+				a.UPD_TIME,
+				a.FENGKOU_NO,
+				a.NUMBER_ISSUE,
+				ZHOUBAO_ISSUE,
+				UPLOAD_TIME
+		 from
+		 OTC142.G2021_INVEST_WEEKLY_REPORT a 
+		 where 1=1 
+		 <if test="ZHOUBAO_ISSUE != null">
+			and ZHOUBAO_ISSUE = #{ZHOUBAO_ISSUE}
+		</if>
+		 <if test="FENGKOU_NO != null">
+			and FENGKOU_NO = #{FENGKOU_NO}
+		</if>
+		 <if test="NUMBER_ISSUE != null">
+			and NUMBER_ISSUE = #{NUMBER_ISSUE}
+		</if>
+		  <choose>
+		      <when test="ID != null">
+		       	and a.ID =#{ID}
+		      </when>
+		      <otherwise>
+		        and a.TID =#{TID}
+		      </otherwise>
+	    </choose>
+</select>
+<!--查询投资风口配置的内参解读-->
+<select id="IssueWeeklyQueryRepeat" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		 select 
+		 		
+				a.NUMBER_ISSUE,
+				ZHOUBAO_ISSUE,
+				UPLOAD_TIME
+		 from
+		 OTC142.G2021_INVEST_WEEKLY_REPORT a 
+		 where 1=1 
+		 <if test="ZHOUBAO_ISSUE != null">
+			and ZHOUBAO_ISSUE = #{ZHOUBAO_ISSUE}
+		</if>
+		 <if test="FENGKOU_NO != null">
+			and FENGKOU_NO = #{FENGKOU_NO}
+		</if>
+		 <if test="NUMBER_ISSUE != null">
+			and NUMBER_ISSUE = #{NUMBER_ISSUE}
+		</if>
+		 
+</select>
+<!--查询投资风口配置的内参解读-->
+<select id="IssueReadQueryHave" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		 select 
+		 		a.TID,
+				a.ID,
+				a.TITLE1,
+				a.TITLE2,
+				a.TITLE3,
+				A.DESCRIBE1,
+				A.DESCRIBE2,
+				A.DESCRIBE3,
+				a.ABSTRACT,
+				a.PRIORITY,
+				
+				a.CREATE_PERSONNEL,
+				a.CREATE_TIME,
+				a.UPD_PERSONNEL,
+				a.UPD_TIME,
+				a.FENGKOU_NO,
+				a.NUMBER_ISSUE
+		 from
+		 OTC142.G2021_INVEST_READ a 
+		 where 1=1
+		        and a.TID =#{TID}
+</select>
+
+<!-- 添加定投榜单 -->
+<insert id="NMSecFixedAdd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.GJ_FIXED_LIST_INFO(
+				FIXED_CODE,
+				FIXED_NAME,
+				FIXED_PRIORITY,
+				CREATE_DATE,
+				CREATE_PERSONNEL,
+				FIXED_USER_RULE,
+				AUDIT_STATUS)
+		 		values(
+		 		'fl'||lpad(OTC142.SEQ_GJ_FIXED_LIST_INFO.NEXTVAL,4,0),
+		 		#{FIXED_NAME},
+		 		#{FIXED_PRIORITY},
+		 		sysdate,
+		 		#{CREATE_PERSONNEL},
+		 		decode(#{FIXED_USER_RULE},'全部',null,#{FIXED_USER_RULE}),
+		 		'4' <!-- 新增待审核 -->
+		 		)
+</insert>	
+<!-- 添加新客 -->
+<insert id="XkAdd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.GJ_XINKE_LIST_PROD(
+				ID,
+				BELONG,
+				BUY_RULE,
+				PROD_DESC,
+				TICKET_RULE,
+				CREATE_DATE,
+				CREATE_PERSONNEL
+				)values(
+		 		OTC142.SEQ_GJ_FIXED_LIST_INFO.NEXTVAL,
+		 		#{BELONG},
+		 		#{BUY_RULE},
+		 		#{PROD_DESC},
+		 		#{TICKET_RULE},
+		 		sysdate,
+		 		#{CREATE_PERSONNEL}
+		 		)
+</insert>	
+<!-- 添加公共模板 -->
+<insert id="ModuleAdd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.G2021_INVEST_MODULE(
+				ID,
+				UP_NAME,
+				UP_DESC,
+				UP_URL,
+				C_URL,
+				URL_DESC,
+				IMG_URL,
+				IMG_NAME,
+				IMG_ID,
+				CREATE_PERSONNEL,
+				CREATE_TIME,
+				IMG_URL2,
+				IMG_ID2,
+				IMG_NAME2,
+				FOOT_DESC,
+				FOOT_DESC2,
+				
+				SKIP_URL,
+				SKIP_URL_DESC,
+				FOOT_URL,
+				SKIP_URL2,
+				SKIP_URL_DESC2,
+				FOOT_URL2,
+				ITEM_CODE,
+				ENTRANCE_SCENE
+
+				)values(
+				OTC142.SEQ_G2021_INVEST_MODULE.NEXTVAL,
+
+		 		#{UP_NAME},
+				#{UP_DESC},
+				#{UP_URL},
+				#{C_URL},
+				#{URL_DESC},
+				#{IMG_URL},
+				#{IMG_NAME},
+				#{IMG_ID},
+				#{CREATE_PERSONNEL},
+				sysdate,
+				#{IMG_URL2},
+				#{IMG_ID2},
+				#{IMG_NAME2},
+				#{FOOT_DESC},
+				#{FOOT_DESC2},
+				#{SKIP_URL},
+				#{SKIP_URL_DESC},
+				#{FOOT_URL},
+				#{SKIP_URL2},
+				#{SKIP_URL_DESC2},
+				#{FOOT_URL2},
+				#{ITEM_CODE},
+				#{FIXED_NAME}
+				)
+</insert>
+	<!-- 查询当前序列值的SQL语句 -->
+	<select id="IssueAddSequenceValue" resultType="map">
+		SELECT  OTC142.SEQ_G2021_INVEST_CHANCE.NEXTVAL  as ID from dual
+	</select>
+<!-- 添加新一期 -->
+<insert id="IssueAdd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+<!--	<selectKey keyProperty="ID" resultType="Long" order="AFTER">-->
+<!--    		  SELECT  OTC142.SEQ_G2021_INVEST_CHANCE.currval  as ID from dual-->
+<!--    </selectKey>-->
+		insert into OTC142.G2021_INVEST_CHANCE(
+				id,
+				MODULE_NAME,
+				NAME,
+				FENGKOU_NO,
+				UPLOAD_TIME,
+				ABSTRACT,
+				TITLE,
+				ABSTRACT2,
+				TITLE2,
+				CREATE_PERSONNEL,
+				CREATE_TIME,
+				NUMBER_ISSUE,
+				VISIBLE,
+				IMG_ID,
+				IMG_NAME,
+				IMG_URL,
+				URL,
+				READ_VIDEO_SELECT,
+				RELATION_CODE,
+				SHARE_ID,
+				SHARE_NAME,
+				SHARE_URL,
+				SHARE_TITLE,
+				SHARE_DESC,
+				FUND_ID,
+				PUSH_STATUS
+								
+				)VALUES(	
+				#{SEQUENCE_CHANCE_ID},
+				#{MODULE_NAME},
+				#{NAME},
+				#{FENGKOU_NO},
+				#{UPLOAD_TIME},
+				#{ABSTRACT},
+				#{TITLE},
+				#{ABSTRACT2},
+				#{TITLE2},
+				#{CREATE_PERSONNEL},
+				sysdate,
+				#{NUMBER_ISSUE},
+				#{VISIBLE},
+				#{IMG_ID},
+				#{IMG_NAME},
+				#{IMG_URL},
+				#{URL},
+				#{READ_VIDEO_SELECT},
+				#{RELATION_CODE},
+				#{SHARE_ID},
+				#{SHARE_NAME},
+				#{SHARE_URL},
+				#{SHARE_TITLE},
+				#{SHARE_DESC},
+				#{FUND_ID},
+				'2'
+				)
+				</insert>
+<!-- 添加基金经理-->
+	<select id="FundAddSequenceValue" resultType="map">
+		SELECT  OTC142.SEQ_G2021_INVEST_FUND.NEXTVAL  as ID from dual
+	</select>
+<insert id="FundAdd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+<!--	<selectKey keyProperty="ID" resultType="Long" order="AFTER">-->
+<!--    		  SELECT  OTC142.SEQ_G2021_INVEST_FUND.currval  as ID from dual-->
+<!--    </selectKey>-->
+		insert into OTC142.G2021_INVEST_FUND(
+				URL_DESC,
+				IMG_URL,
+				IMG_NAME,
+				IMG_ID,
+				CREATE_PERSONNEL,
+				CREATE_TIME,
+				ID,
+				TOUXIAN,
+				TITLE1,
+				DESCRIBE1,
+				DESCRIBE2,
+				DESCRIBE3,
+				TITLE2,
+				TITLE3,
+				TID,
+				NAME,
+				MODULE_NAME,
+				UPLOAD_TIME,
+				URL,
+				PSN_ID,
+				MANUAL_TYPE,
+				OCCUPATION_NO
+
+				)values(
+		 		#{URL_DESC},
+				#{IMG_URL},
+				#{IMG_NAME},
+				#{IMG_ID},
+				#{CREATE_PERSONNEL},
+				sysdate,
+				#{SEQUENCE_FUND_ID},
+				#{TOUXIAN},
+				#{TITLE1},
+				#{DESCRIBE1},
+				#{DESCRIBE2},
+				#{DESCRIBE3},
+				#{TITLE2},
+				#{TITLE3},
+				#{ID},
+				(select REL_NAME from OTC.PROD_FUND_MANAGER_PIC WHERE PSN_ID=#{PSN_ID} and rownum=1),
+				#{MODULE_NAME},
+				#{UPLOAD_TIME},
+				#{URL},
+				#{PSN_ID},
+				#{CHECKED},
+				#{OCCUPATION_NO}
+		 		)
+</insert>	
+
+
+<!-- 复制 添加基金经理-->
+<insert id="FundAddCopy" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.G2021_INVEST_FUND(
+				URL_DESC,
+				IMG_URL,
+				IMG_NAME,
+				IMG_ID,
+				CREATE_PERSONNEL,
+				CREATE_TIME,
+				ID,
+				TOUXIAN,
+				TITLE1,
+				DESCRIBE1,
+				DESCRIBE2,
+				DESCRIBE3,
+				TITLE2,
+				TITLE3,
+				TID,
+				NAME,
+				MODULE_NAME,
+				UPLOAD_TIME,
+				URL,
+				FENGKOU_NO,
+			NUMBER_ISSUE,
+				PSN_ID
+
+				)select 
+		 		URL_DESC,
+				IMG_URL,
+				IMG_NAME,
+				IMG_ID,
+				#{CREATE_PERSONNEL},
+				sysdate,
+				OTC142.SEQ_G2021_INVEST_FUND.NEXTVAL,
+				TOUXIAN,
+				TITLE1,
+				DESCRIBE1,
+				DESCRIBE2,
+				DESCRIBE3,
+				TITLE2,
+				TITLE3,
+				#{ID},
+				NAME,
+				MODULE_NAME,
+				UPLOAD_TIME,
+				URL,
+				#{FENGKOU_NO},
+			#{NUMBER_ISSUE},
+				PSN_ID FROM OTC.G2021_INVEST_fund_SH WHERE TID in 
+					
+				<foreach collection="strArrFund" index="index" item="id" separator="," close=")" open="(">
+	           		 #{id}
+	       		</foreach>
+		 		
+</insert>	
+<!-- 添加投顾-->
+<insert id="TouGuAdd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.G2021_INVEST_OCCUPOTION(
+				ID,
+				MODULE_NAME,
+				NAME,
+				OCCUPOTION_NO,
+				UPLOAD_TIME,
+				ABSTRACT,
+				IMG_URL,
+				IMG_NAME,
+				IMG_ID,
+				CREATE_PERSONNEL,
+				CREATE_TIME,
+				ARTICL_NAME,
+				ARTICLE_URL,
+				TID,
+				URL
+
+				)values(
+		 		OTC142.SEQ_G2021_INVEST_OCCUPOTION.NEXTVAL,
+				#{MODULE_NAME},
+				#{NAME},
+				#{OCCUPOTION_NO},
+				#{UPLOAD_TIME},
+				#{ABSTRACT},
+				#{IMG_URL},
+				#{IMG_NAME},
+				#{IMG_ID},
+				#{CREATE_PERSONNEL},
+				sysdate,
+				#{ARTICL_NAME},
+				#{ARTICLE_URL},
+				#{ID},
+				#{URL}
+		 		)
+</insert>	
+<!-- 添加投顾-->
+<insert id="VideoAdd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.G2021_INVEST_VIDEO(
+				ID,
+				
+				IMG_URL,
+				IMG_NAME,
+				IMG_ID,
+				CREATE_PERSONNEL,
+				CREATE_TIME,
+				TID,
+				VIDEO_URL,
+				PRIORITY
+
+				)values(
+		 		OTC142.SEQ_G2021_INVEST_VIDEO.NEXTVAL,
+				
+				#{IMG_URL},
+				#{IMG_NAME},
+				#{IMG_ID},
+				#{CREATE_PERSONNEL},
+				sysdate,
+				#{ID},
+				#{VIDEO_URL},
+				#{PRIORITY}
+		 		)
+</insert>	
+<!-- 添加热点事件-->
+<insert id="HotAdd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.G2021_INVEST_HOT_EVENT(
+				ID,
+				TITLE,
+				ABSTRACT,
+				CREATE_PERSONNEL,
+				CREATE_TIME,
+				TID,
+				PRIORITY
+
+				)values(
+		 		OTC142.SEQ_G2021_INVEST_HOT_EVENT.NEXTVAL,
+				
+				#{TITLE},
+				#{ABSTRACT},
+				#{CREATE_PERSONNEL},
+				sysdate,
+				#{ID},
+				#{PRIORITY}
+		 		)
+</insert>	
+<!-- 添加内参解读-->
+<insert id="ReadAdd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.G2021_INVEST_READ(
+				ID,
+				TITLE1,
+				ABSTRACT,
+				CREATE_PERSONNEL,
+				CREATE_TIME,
+				TID,
+				PRIORITY,
+				TITLE2,
+				TITLE3,
+				DESCRIBE1,
+				DESCRIBE2,
+				DESCRIBE3
+
+				)values(
+		 		OTC142.SEQ_G2021_INVEST_READ.NEXTVAL,
+				
+				#{TITLE1},
+				#{ABSTRACT},
+				#{CREATE_PERSONNEL},
+				sysdate,
+				#{ID},
+				#{PRIORITY},
+				#{TITLE2},
+				#{TITLE3},
+				#{DESCRIBE1},
+				#{DESCRIBE2},
+				#{DESCRIBE3}
+		 		)
+</insert>	
+<!-- 添加周报-->
+<insert id="weeklyAdd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.G2021_INVEST_WEEKLY_REPORT(
+				ID,
+				ABSTRACT,
+				TITLE,
+				CREATE_PERSONNEL,
+				CREATE_TIME,
+				TID,
+				ZHOUBAO_ISSUE,
+				UPLOAD_TIME
+
+				)values(
+		 		OTC142.SEQ_G2021_INVEST_READ.NEXTVAL,
+				#{ABSTRACT},
+				#{TITLE},
+				
+				#{CREATE_PERSONNEL},
+				sysdate,
+				#{ID},
+				#{ZHOUBAO_ISSUE},
+				#{UPLOAD_TIME}
+		 		)
+</insert>	
+
+<!-- 复制  添加热点事件-->
+<insert id="HotAddCopy3" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.G2021_INVEST_HOT_EVENT(
+				ID,
+				FENGKOU_NO,
+				NUMBER_ISSUE,
+				TITLE,
+				ABSTRACT,
+				CREATE_PERSONNEL,
+				CREATE_TIME,
+				TID,
+				PRIORITY
+
+				) select 
+		 		OTC142.SEQ_G2021_INVEST_HOT_EVENT.NEXTVAL,
+			#{FENGKOU_NO},
+			#{NUMBER_ISSUE},
+				TITLE,
+				ABSTRACT,
+				#{CREATE_PERSONNEL},
+				sysdate,
+				#{ID},
+				PRIORITY
+		 		from otc.G2021_INVEST_HOT_EVENT_sh where TID in 
+					
+				<foreach collection="strArrFund" index="index" item="id" separator="," close=")" open="(">
+	           		 #{id}
+	       		</foreach>
+</insert>	
+<!-- 复制  添加内参解读-->
+
+<insert id="ReadAddCopy" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.G2021_INVEST_READ(
+				ID,
+				FENGKOU_NO,
+				NUMBER_ISSUE,
+				TITLE1,
+				ABSTRACT,
+				CREATE_PERSONNEL,
+				CREATE_TIME,
+				TID,
+				PRIORITY,
+				TITLE2,
+				TITLE3,
+				DESCRIBE1,
+				DESCRIBE2,
+				DESCRIBE3
+
+				) select 
+		 		OTC142.SEQ_G2021_INVEST_READ.NEXTVAL,
+			#{FENGKOU_NO},
+			#{NUMBER_ISSUE},
+				TITLE1,
+				ABSTRACT,
+				#{CREATE_PERSONNEL},
+				sysdate,
+				#{ID},
+				PRIORITY,
+				TITLE2,
+				TITLE3,
+				DESCRIBE1,
+				DESCRIBE2,
+				DESCRIBE3
+		 		from otc.G2021_INVEST_READ_SH where TID in 
+					
+				<foreach collection="strArrFund" index="index" item="id" separator="," close=")" open="(">
+	           		 #{id}
+	       		</foreach>
+</insert>	
+<!-- 复制  添加热点事件-->
+<insert id="HotAddCopy" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.G2021_INVEST_HOT_EVENT(
+				ID,
+				TITLE,
+				ABSTRACT,
+				CREATE_PERSONNEL,
+				CREATE_TIME,
+				TID,
+				PRIORITY
+
+				) select 
+		 		OTC142.SEQ_G2021_INVEST_HOT_EVENT.NEXTVAL,
+				
+				TITLE,
+				ABSTRACT,
+				#{CREATE_PERSONNEL},
+				sysdate,
+				#{ID},
+				'1'
+		 		from otc.G2021_INVEST_CHANCE_SH where title is not null  and id in
+		 		<foreach collection="strArrFund" index="index" item="id" separator="," close=")" open="(">
+           		 #{id}
+       			</foreach>
+</insert>	
+<!-- 复制  添加热点事件-->
+<insert id="HotAddCopy2" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.G2021_INVEST_HOT_EVENT(
+				ID,
+				TITLE,
+				ABSTRACT,
+				CREATE_PERSONNEL,
+				CREATE_TIME,
+				TID,
+				PRIORITY
+
+				) select 
+		 		OTC142.SEQ_G2021_INVEST_HOT_EVENT.NEXTVAL,
+				
+				TITLE2,
+				ABSTRACT2,
+				#{CREATE_PERSONNEL},
+				sysdate,
+				#{ID},
+				'1'
+		 		from otc.G2021_INVEST_CHANCE_SH where title2 is not null  and id in
+		 		<foreach collection="strArrFund" index="index" item="id" separator="," close=")" open="(">
+           		 #{id}
+       			</foreach>
+</insert>	
+
+<!-- 更新基金经理头像 头衔 -->
+<update id="updFundFromMNG" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_FUND A
+		set
+			LCODER_UPDATE_TIME = sysdate,
+			(TOUXIAN,IMG_ID,IMG_NAME,IMG_URL) = (SELECT MNG_TITLE,DECODE(IMAGE_EDIT_ID,null,'',IMAGE_EDIT_ID)IMG_ID,
+		DECODE(IMAGE_EDIT_NAME,null,IMAGE_NAME,IMAGE_EDIT_NAME)IMG_NAME,
+		DECODE(IMAGE_EDIT_URL,null,IMAGE_URL,IMAGE_EDIT_URL)IMG_URL FROM OTC142.FUND_MNG_INFO B WHERE A.PSN_ID = B.PERSONCODE)
+		where id = #{SEQUENCE_FUND_ID}
+</update>
+<!-- 更新定投榜单 -->
+<update id="NMSecFixedUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.GJ_FIXED_LIST_INFO set LCODER_UPDATE_TIME = sysdate,
+				FIXED_NAME = #{FIXED_NAME},
+		 		FIXED_CODE = #{FIXED_CODE},
+		 		FIXED_PRIORITY = #{FIXED_PRIORITY},
+		 		FIXED_USER_RULE = decode(#{FIXED_USER_RULE},'全部',null,#{FIXED_USER_RULE}),
+				UPDATE_DATE =sysdate,
+				UPDATE_PERSONNEL = #{UPDATE_PERSONNEL},
+				AUDIT_STATUS='2'
+			where FIXED_CODE = #{FIXED_CODE}
+</update>
+<!-- 更新公共模板 -->
+<update id="ModuleUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_MODULE set LCODER_UPDATE_TIME = sysdate,
+				UP_NAME = #{UP_NAME},
+				UP_DESC = #{UP_DESC},
+				UP_URL = #{UP_URL},
+				C_URL = #{C_URL},
+				URL_DESC = #{URL_DESC},
+				UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate,
+				FOOT_DESC = #{FOOT_DESC},
+				SKIP_URL = #{SKIP_URL},
+				SKIP_URL_DESC = #{SKIP_URL_DESC},
+				FOOT_URL = #{FOOT_URL},
+				SKIP_URL2 = #{SKIP_URL2},
+				SKIP_URL_DESC2 = #{SKIP_URL_DESC2},
+				FOOT_URL2 = #{FOOT_URL2},
+				FOOT_DESC2 = #{FOOT_DESC2},
+				FOOT_NAME2 = #{FOOT_NAME2},
+				ITEM_CODE=#{ITEM_CODE},
+				ENTRANCE_SCENE=#{FIXED_NAME}
+
+			where ID = #{ID}
+</update>
+<!-- 修改审核状态-->
+<update id="auditUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_CHANCE set LCODER_UPDATE_TIME = sysdate,
+				PUSH_STATUS=#{PUSH_STATUS},
+				ORDER_ID= TO_NUMBER(NUMBER_ISSUE || FENGKOU_NO) 
+					where ID = #{ID}
+</update>
+<!-- 修改审核状态 待审核-->
+<update id="auditUpd2TID" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_CHANCE set LCODER_UPDATE_TIME = sysdate,
+				PUSH_STATUS='2'
+					where ID = #{TID}
+</update>
+<!-- 修改审核状态 待审核-->
+<update id="auditUpd2ID" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_CHANCE set LCODER_UPDATE_TIME = sysdate,
+				PUSH_STATUS='2'
+				where ID = #{ID}
+</update>
+<!-- 更新新一期 -->
+<update id="IssueUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_CHANCE set LCODER_UPDATE_TIME = sysdate,
+				
+				MODULE_NAME = #{MODULE_NAME},
+				NAME = #{NAME},
+				FENGKOU_NO = #{FENGKOU_NO},
+				UPLOAD_TIME = #{UPLOAD_TIME},
+				ABSTRACT = #{ABSTRACT},
+				TITLE = #{TITLE},
+				ABSTRACT2 = #{ABSTRACT2},
+				TITLE2 = #{TITLE2},
+				UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate,
+				NUMBER_ISSUE = #{NUMBER_ISSUE},
+				VISIBLE = #{VISIBLE},
+				URL=#{URL},
+				RELATION_CODE=#{RELATION_CODE},
+				READ_VIDEO_SELECT=#{READ_VIDEO_SELECT},
+				SHARE_TITLE=#{SHARE_TITLE},
+				PUSH_STATUS='2',
+				SHARE_DESC=#{SHARE_DESC}
+			where ID = #{ID}
+</update>
+<!-- 更新基金经理-->
+<update id="FundUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_FUND set LCODER_UPDATE_TIME = sysdate,
+			URL_DESC = #{URL_DESC},
+			UPD_PERSONNEL = #{UPD_PERSONNEL},
+			UPD_TIME = SYSDATE,
+			TOUXIAN = #{TOUXIAN},
+			TITLE1 = #{TITLE1},
+			DESCRIBE1 = #{DESCRIBE1},
+			DESCRIBE2 = #{DESCRIBE2},
+			DESCRIBE3 = #{DESCRIBE3},
+			OCCUPATION_NO= #{OCCUPATION_NO},
+			TITLE2 = #{TITLE2},
+			TITLE3 = #{TITLE3},
+			
+			<choose>
+		      <when test='PSN_ID.contains("(")'>
+		       	
+		      </when>
+		      <otherwise>
+		       PSN_ID = #{PSN_ID},
+				NAME = (select REL_NAME from OTC.PROD_FUND_MANAGER_PIC WHERE PSN_ID=#{PSN_ID} and rownum=1),
+			
+		      </otherwise>
+	    	</choose>
+			
+			MODULE_NAME = #{MODULE_NAME},
+			UPLOAD_TIME = #{UPLOAD_TIME},
+			MANUAL_TYPE = #{CHECKED},
+			URL = #{URL}
+			where ID = #{ID}
+</update>
+<!-- 更新投顾-->
+<update id="TouGuUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_OCCUPOTION set LCODER_UPDATE_TIME = sysdate,
+				MODULE_NAME = #{MODULE_NAME},
+				NAME = #{NAME},
+				OCCUPOTION_NO = #{OCCUPOTION_NO},
+				UPLOAD_TIME = #{UPLOAD_TIME},
+				ABSTRACT = #{ABSTRACT},
+				UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate,
+				ARTICL_NAME = #{ARTICL_NAME},
+				ARTICLE_URL  = #{ARTICLE_URL},
+				URL = #{URL}
+			where ID = #{ID}
+</update>
+<!-- 更新视频-->
+<update id="VideoUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_VIDEO set LCODER_UPDATE_TIME = sysdate,
+				
+				UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate,
+				PRIORITY = #{PRIORITY},
+				VIDEO_URL = #{VIDEO_URL}
+			where ID = #{ID}
+</update>
+<!-- 更新热点-->
+<update id="ReadUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_READ set LCODER_UPDATE_TIME = sysdate,
+				
+				UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate,
+				PRIORITY =  #{PRIORITY},
+				TITLE1 = #{TITLE1},
+				TITLE2 = #{TITLE2},
+				TITLE3 = #{TITLE3},
+				DESCRIBE3 = #{DESCRIBE3},
+				DESCRIBE2 = #{DESCRIBE2},
+				DESCRIBE1 = #{DESCRIBE1},
+				ABSTRACT = #{ABSTRACT}
+			where ID = #{ID}
+</update>
+<!-- 更新热点-->
+<update id="WeeklyUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_WEEKLY_REPORT set LCODER_UPDATE_TIME = sysdate,
+				
+				UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate,
+				TITLE = #{TITLE},
+				ABSTRACT = #{ABSTRACT},
+				UPLOAD_TIME = #{UPLOAD_TIME},
+				ZHOUBAO_ISSUE = #{ZHOUBAO_ISSUE}
+			where ID = #{ID}
+</update>
+<!-- 更新甄选100标签 -->
+<update id="ZxUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.GJ_PRO_SELECT_100 set LCODER_UPDATE_TIME = sysdate,
+				TAB_URL = #{TAB_URL},
+		 		TAB_NAME = #{TAB_NAME},
+		 		TAB_DESC = #{TAB_DESC},
+		 		TAB_PRIORITY = #{TAB_PRIORITY},
+				UPDATE_DATE =sysdate,
+				UPDATE_PERSONNEL = #{UPDATE_PERSONNEL}
+			where ID = #{ID}
+</update>
+
+<!-- 更新定投榜单优先级 -->
+<update id="G2020UpdatePriority" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.GJ_FIXED_LIST_INFO
+		set LCODER_UPDATE_TIME = sysdate, FIXED_PRIORITY=#{FIXED_PRIORITY}
+		where FIXED_CODE=#{FIXED_CODE}
+</update>
+
+<!-- 更新定投榜单可见用户 -->
+<update id="G2020UpdateUserRule" parameterType="com.linkstec.newmall.dto.JYFM2020fundManagerInDto">
+		update OTC142.GJ_FIXED_LIST_INFO
+		set LCODER_UPDATE_TIME = sysdate, FIXED_USER_RULE=decode(#{FIXED_USER_RULE},'全部',null,#{FIXED_USER_RULE}),
+			UPDATE_DATE = sysdate,
+			UPDATE_PERSONNEL = #{UPDATE_PERSONNEL}
+		where FIXED_CODE=#{FIXED_CODE}
+</update>
+
+<!-- 删除定投榜单 ，连同删除挂在它下面的产品和产品规则-->
+<delete id="NMSecFixedDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.GJ_FIXED_LIST_INFO
+		where FIXED_CODE = #{FIXED_CODE}
+</delete>	
+<!-- 删除X新客 ，连同删除挂在它下面的产品-->
+<delete id="XkDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.GJ_XINKE_LIST_PROD
+		where id = #{ID} or belong=11
+</delete>	
+<!-- 删除ZX ，连同删除挂在它下面的产品-->
+<delete id="ZxDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.GJ_PRO_SELECT_100
+		where TAB_id = #{ID} or ID = #{ID}
+</delete>	
+
+<!-- 根据JYFM_CODE删除产品 -->
+<delete id="NMSecFixedProdDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.GJ_FIXED_LIST_PROD
+		where FIXED_CODE = #{FIXED_CODE}
+		<if test="ID != null">
+			and ID = #{ID}
+		</if>
+</delete>
+
+<!-- 根据JYFM_CODE删除产品规则 -->
+<delete id="NMSecFixedRuleDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.GJ_FIXED_LIST_RULE
+		where FIXED_CODE = #{FIXED_CODE}
+		<if test="ID != null">
+			and ID = #{ID}
+		</if>
+</delete>
+
+
+
+<!--     定投榜单下挂产品增删改查       -->
+
+<!-- 查询产品 -->
+<select id="NMSecProdQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		 select * from(
+		 		SELECT ROW_NUMBER() over(partition by a.ID order by a.FIXED_CODE) rn,
+		 		a.ID,
+		 		a.FIXED_CODE,
+				a.PROD_CODE,
+				b.PROD_NAME,
+				b.INVEST_TYPE, <!-- 投资类型 -->
+				b.STL_RISK_TYPE,<!--风险等级  -->
+				b.INV_MNG,<!--投资经理 不是 基金经理  -->
+				decode(a.USER_RULE,null,'全部',a.USER_RULE) USER_RULE,
+				<!-- 基金经理 、定投人数、当日申购限额、 -->
+				b.COMM_1Y,
+				b.DT_COMM_3Y,<!-- 近三年定投收益率 -->
+				a.PRIORITY,
+				a.CREATE_DATE,
+				a.CREATE_PERSONNEL,
+				a.UPDATE_DATE,
+				a.UPDATE_PERSONNEL,
+				decode(a.SOURCE,'1','手工添加',a.RULE_CODE) SOURCE,
+				a.STATUS,
+				b.OFUND_PLAN_CNT,<!-- 定投人数 -->
+				b.OFUND_PLAN_CNT_VIRTUAL,<!--虚拟定投人数  -->
+				b.S_RATE3Y,<!--灵犀定投收益率近3年  -->
+				b.S_N_RATE3Y,<!--超额收益率近3年  -->
+				b.PBUYTOP,<!-- 当日申购限额 -->
+				c.REL_NAME <!--基金经理   -->
+		 		from OTC142.GJ_FIXED_LIST_PROD a left join otc.gj_g2010_prod_info_base b on a.PROD_CODE = b.PROD_CODE
+		 		LEFT JOIN 
+		 		(
+	                select * from (
+	                    select pro_id,pro_code,REL_NAME,rank() over(partition by PRO_CODE order by OFFICE_DATE asc) num from OTC.PROD_FUND_MANAGER where end_dt is null
+	                ) where num = 1
+            	)c
+		 		ON A.PROD_CODE = c.PRO_CODE and b.PROD_ID = c.PRO_ID
+		 		where FIXED_CODE = #{FIXED_CODE} )
+		 		  where rn = 1
+		 		ORDER BY COMM_1Y DESC NULLS LAST 					
+</select>
+
+<!-- 查询产品 -->
+<select id="XkProdQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		 select * from(
+		 		SELECT ROW_NUMBER() over(partition by a.ID order by a.ID) rn,
+		 		a.ID,
+		 		A.BELONG,
+				A.BUY_RULE,
+				A.PROD_DESC,
+				A.TICKET_RULE,
+				a.PROD_CODE,
+				b.PROD_NAME,
+				b.INVEST_TYPE, <!-- 投资类型 -->
+				b.STL_RISK_TYPE,<!--风险等级  -->
+				b.INV_MNG,<!--投资经理 不是 基金经理  -->
+				decode(a.USER_RULE,null,'全部',a.USER_RULE) USER_RULE,
+				<!-- 基金经理 、定投人数、当日申购限额、 -->
+				b.COMM_1Y,
+				b.DT_COMM_3Y,<!-- 近三年定投收益率 -->
+				a.PRIORITY,
+				a.CREATE_DATE,
+				a.CREATE_PERSONNEL,
+				a.UPDATE_DATE,
+				a.UPDATE_PERSONNEL,
+				
+				b.OFUND_PLAN_CNT,<!-- 定投人数 -->
+				b.OFUND_PLAN_CNT_VIRTUAL,<!--虚拟定投人数  -->
+				b.S_RATE3Y,<!--灵犀定投收益率近3年  -->
+				b.S_N_RATE3Y,<!--超额收益率近3年  -->
+				b.PBUYTOP
+		 		from OTC142.GJ_XINKE_LIST_PROD a left join otc.gj_g2010_prod_info_base b on a.PROD_CODE = b.PROD_CODE
+		 		where BELONG=#{BELONG})
+		 		  where rn = 1
+		 		ORDER BY COMM_1Y DESC NULLS LAST 					
+</select>
+
+<!-- 根据标签 查询已配置甄选100产品 -->
+<select id="ZxProdQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		select  
+			a.*,
+			b.BUYNOW_BUTTON,
+			b.PRO_PRIORITY,
+			b.ID,
+			decode(b.USER_RULE,null,'全部',b.USER_RULE) USER_RULE
+			from OTC142.GJ_PRO_SELECT_100 B 
+			left join otc.PRO_SELECT_100 a ON A.PROOD_CODE=B.PROD_CODE
+			where tab_id=#{ID}
+			
+			
+			
+</select>
+<!-- 删除投资新风口产品 -->
+<delete id="DeleteInvestProd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.G2021_INVEST_PROD
+		<where>
+			<foreach collection="list" index="index" item="item" open="(" separator="or" close=")">
+			 ID= #{item.ID}
+			</foreach>
+		</where> 	
+</delete>
+<!-- 删除产品 -->
+<delete id="G2020DeleteProd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.GJ_FIXED_LIST_PROD
+		<where>
+			<foreach collection="list" index="index" item="item" open="(" separator="or" close=")">
+			 ID= #{item.ID}
+			</foreach>
+		</where> 	
+</delete>
+<!-- 删除XINKE产品 -->
+<delete id="G2020DeleteXkProd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.GJ_XINKE_LIST_PROD
+		<where>
+			<foreach collection="list" index="index" item="item" open="(" separator="or" close=")">
+			 ID= #{item.ID}
+			</foreach>
+		</where> 	
+</delete>
+<!-- 删除公共模板 -->
+<delete id="ModuleDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.G2021_INVEST_MODULE
+		where ID= #{ID}	
+</delete>
+<!-- 删除新一期 -->
+<delete id="IssueDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.G2021_INVEST_CHANCE
+		where ID= #{ID}
+		</delete>
+<!-- 删除基金 -->
+<delete id="FundDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.G2021_INVEST_FUND
+		where ID= #{ID}
+		</delete>
+<!-- 删除投顾-->
+<delete id="TouGuDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.G2021_INVEST_OCCUPOTION
+		where ID= #{ID}
+</delete>
+<!-- 删除视频-->
+<delete id="VideoDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.G2021_INVEST_VIDEO
+		where ID= #{ID}
+</delete>
+<!-- 删除热点-->
+<delete id="HotDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.G2021_INVEST_HOT_EVENT
+		where ID= #{ID}
+</delete>
+<!-- 删除热点-->
+<delete id="ReadDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.G2021_INVEST_READ
+		where ID= #{ID}
+</delete>
+<!-- 删除热点-->
+<delete id="weeklyDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.G2021_INVEST_WEEKLY_REPORT
+		where ID= #{ID}
+</delete>
+<!-- 删除新一期下挂产品 -->
+<delete id="IssueProdDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.G2021_INVEST_PROD
+		where TID= #{ID}
+</delete>
+<!-- 删除新一期 下挂基金经理-->
+<delete id="IssueFundDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.G2021_INVEST_FUND
+		where TID= #{ID}
+</delete>
+<!-- 删除新一期 下挂视频-->
+<delete id="IssueVideoDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.G2021_INVEST_VIDEO
+		where TID= #{ID}
+</delete>
+<!-- 删除新一期 下挂热点-->
+<delete id="IssueHotDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.G2021_INVEST_HOT_EVENT
+		where TID= #{ID}
+</delete>
+<!-- 删除新一期 下挂内参解读-->
+<delete id="IssueReadDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.G2021_INVEST_READ
+		where TID= #{ID}
+</delete>
+<!-- 删除新一期 下挂投顾文章-->
+<delete id="IssueOccputionDel" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.G2021_INVEST_OCCUPOTION
+		where TID= #{ID}
+</delete>
+
+<!-- 查询可添加产品 -->
+<select id="G2020ProdToAdd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+resultType="map">
+	select
+	prod_code,
+	prod_name,
+	invest_type,
+	buy_status
+	from otc.gj_g2010_prod_info_base
+	where prod_type='1'
+	and prod_code not in(
+		select prod_code
+		from OTC142.GJ_FIXED_LIST_PROD
+		where FIXED_CODE=#{FIXED_CODE}
+	) 
+	and prod_code not in (
+		select prod_code
+		from otc.PROD_DIV_SPL
+	)
+	<if test="PROD_CODE!=null">
+		and prod_code  like concat(concat('%',#{PROD_CODE}),'%') 
+	</if>
+	<if test="PROD_NAME!=null">
+		and prod_name  like concat(concat('%',#{PROD_NAME}),'%') 
+	</if>
+	<if test="INVEST_TYPE!=null">
+		and invest_type=#{INVEST_TYPE}
+	</if>
+	<if test="BUY_STATUS!=null">
+		and buy_status=#{BUY_STATUS}
+	</if>
+</select>
+<!-- 查询XINKE可添加产品 -->
+<select id="G2020XkProdToAdd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+resultType="map">
+	select
+	prod_code,
+	prod_name,
+	invest_type,
+	buy_status
+	from otc.gj_g2010_prod_info_base
+	where prod_code not in(
+		select prod_code
+		from OTC142.GJ_XINKE_LIST_PROD
+		where BELONG=#{BELONG}
+	) 
+	<if test="PROD_CODE!=null">
+		and prod_code  like concat(concat('%',#{PROD_CODE}),'%') 
+	</if>
+	<if test="PROD_NAME!=null">
+		and prod_name  like concat(concat('%',#{PROD_NAME}),'%') 
+	</if>
+	<if test="INVEST_TYPE!=null">
+		and invest_type=#{INVEST_TYPE}
+	</if>
+	<if test="BUY_STATUS!=null">
+		and buy_status=#{BUY_STATUS}
+	</if>
+</select>
+<!-- 查询甄选100可添加产品 -->
+<select id="G2020ZxProdToAdd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		select  
+			* 
+			from otc.PRO_SELECT_100 where prood_code not in (
+			select prod_code from OTC142.GJ_PRO_SELECT_100 where tab_id=#{ID}
+			
+			)
+		<if test="PROD_CODE!=null">
+		and proOd_code  like concat(concat('%',#{PROD_CODE}),'%') 
+	</if>
+	<if test="PROD_NAME!=null">
+		and prod_name  like concat(concat('%',#{PROD_NAME}),'%') 
+	</if>
+	</select>
+<!-- 查询新一期可添加产品 -->
+<select id="SelectProdQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		select  
+	 	   ID,
+           PROD_CODE,
+           prod_name,
+           SHT_NAME,
+           decode(SHT_NAME_IDENTIF,1,sht_name,sht_name) SHT_NAME2,
+           SHT_NAME_IDENTIF,
+           decode(RATE_IDENTIF,1,rate,rate) RATE2,
+           prod_type,
+           buy_status, <!-- 可售状态 -->
+		   risk_type, <!-- 投资类型 -->
+		   invest_type, <!-- 可售状态 -->
+		   RATE_POSTFIX,
+           RATE,
+           RATE_LABEL,
+	       PROD_FEATURE_LABEL,<!-- 产品特点标签 -->
+	       PROD_FEATURE_DESCRIBE <!-- 产品特点描述 -->
+	from  
+		(SELECT /*+ driving_site(a) */
+			   a.ID,
+		        <!-- b.ITEM_CODE, -->
+		       c.PROD_CODE,
+		       c.prod_name,
+		       a.SHT_NAME,
+		       decode(a.SHT_NAME_IDENTIF,1,a.sht_name,c.sht_name) SHT_NAME2,
+		       a.SHT_NAME_IDENTIF,
+		       decode(a.RATE_IDENTIF,1,a.rate,c.rate) RATE2,
+		       c.prod_type,
+		       c.buy_status, <!-- 可售状态 -->
+		       c.risk_type, <!-- 投资类型 -->
+		       c.invest_type, <!-- 可售状态 -->
+			   a.RATE_POSTFIX,
+		       a.RATE,
+		       a.RATE_IDENTIF,
+		       a.RATE_LABEL,
+		       a.PROD_FEATURE_LABEL,<!-- 产品特点标签 -->
+		       a.PROD_FEATURE_DESCRIBE <!-- 产品特点描述 -->
+		  FROM OTC142.GJ_G2010_MANUAL_PROD_INFO   a
+		 RIGHT join OTC.GJ_G2010_PROD_INFO_BASE  c
+		on a.prod_code=c.prod_code
+		where c.prod_code not in (
+			select prod_code from OTC142.G2021_INVEST_PROD where TID=#{ID}
+			
+			)
+		<if test="PROD_CODE!=null">
+		and A.prod_code  like concat(concat('%',#{PROD_CODE}),'%') 
+	</if>
+	<if test="PROD_NAME!=null">
+		and c.prod_name  like concat(concat('%',#{PROD_NAME}),'%') 
+	</if>
+			) 
+			
+</select>
+<!-- <select id="SelectProdQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		SELECT 
+			a.PROD_CODE,
+			a.PROD_name,
+			a.sht_name,
+			decode(SHT_NAME_IDENTIF,1,sht_name,sht_name) SHT_NAME2,
+			b.sht_name sht_name1,
+		    b.prod_type,
+		    b.rate rate1,
+		    b.PROD_LABEL prod_label2,
+		    b.PROD_DAY,
+		    b.risk_type,
+				B.INVEST_TYPE,
+				B.BUY_STATUS,
+		    a.no_sell_display,
+			a.AUDIT_STATUS
+		
+		FROM OTC142.GJ_G2010_MANUAL_PROD_INFO  a
+		 right join otc.GJ_G2010_PROD_INFO_BASE b
+		on a.prod_code=b.prod_code  where b.prod_code not in (
+			select prod_code from OTC142.G2021_INVEST_PROD where TID=#{ID}
+			
+			)
+		<if test="PROD_CODE!=null">
+		and A.prod_code  like concat(concat('%',#{PROD_CODE}),'%') 
+	</if>
+	<if test="PROD_NAME!=null">
+		and A.prod_name  like concat(concat('%',#{PROD_NAME}),'%') 
+	</if>
+			order by a.create_time desc, a.upd_time desc nulls last,a.prod_code 
+			
+</select> -->
+<select id="SelectFundAddWhether" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+			select PSN_ID from OTC142.G2021_INVEST_FUND WHERE 1=1
+						<if test="ID!=null">
+							and TID=#{ID}
+						</if>
+						<if test="PSN_ID != null">
+							and PSN_ID=#{PSN_ID}
+					 	 </if>
+</select>
+<!-- 查询新一期可添加基金经理 -->
+<select id="SelectFundQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		select 
+			code ,name from 
+				(select distinct PSN_ID code ,REL_NAME||concat(concat('(',PSN_ID),')') name
+				from 
+				OTC.PROD_FUND_MANAGER_PIC )
+<!--		 where code not in (-->
+<!--			select PSN_ID from OTC142.G2021_INVEST_FUND WHERE 1=1-->
+<!--			<if test="ID!=null">-->
+<!--				and TID=#{ID}-->
+<!--			</if>-->
+
+<!--			) <if test="PSN_ID != null">-->
+<!--				or code=#{PSN_ID}-->
+<!--              </if>-->
+<!--		-->
+			
+</select>
+<!-- 查询关联板块代码 -->
+<select id="SelectBanKuaiQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		select distinct(MODULE_CODE) code ,MODULE_NAME||CONCAT(CONCAT('(',MODULE_CODE),')') name 
+				from 
+				OTC.PROD_NEW_MODULE_TOP
+		
+			WHERE MODULE_CODE IS NOT NULL
+</select>
+<!-- 查询财富号投资新风口审核通过  -->
+<select id="SelectfundIdQuery" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+		resultType="map">
+		select ID code ,NAME||'-' ||TIBAO_DATE||'-'||ORG_NAME name 
+				from 
+				OTC.G2021_INVEST_CHANCE_SH where AUDIT_STATUS = #{AUDIT_STATUS}  ORDER BY TIBAO_DATE DESC
+</select>
+
+<insert id="IssueAddProd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.G2021_INVEST_PROD(
+			ID,
+			PROD_CODE,
+			prod_name,
+			PRIORITY,
+			BUTTON_WORD_SHOW,
+			IS_SHOW_PROD,
+			CREATE_PERSONNEL,
+			CREATE_TIME,
+			TID
+			
+		)select OTC142.SEQ_GJ_FIXED_LIST_PROD.nextval, b.* from (select 
+		
+		DISTINCT(prod_code),
+		prod_name,
+		'1' as PRIORITY,
+		'0' as BUTTON_WORD_SHOW,
+		'0' as IS_SHOW_PROD,
+		#{CREATE_PERSONNEL},
+			sysdate,
+			#{ID} from OTC.PROD_NEW_MODULE_TOP WHERE  fund_type = '场外' and  MODULE_CODE in
+			
+			<foreach collection="strArr" index="index" item="id" separator="," close=")" open="(">
+           		 #{id}
+       		</foreach>
+			and prod_code not in (select prod_code from OTC142.G2021_INVEST_PROD where tid=#{ID})
+		)b 
+		
+		
+		</insert>
+<!-- 新一期添加产品 -->
+<insert id="IssuepProdAdd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.G2021_INVEST_PROD(
+			ID,
+			PROD_CODE,
+			PRIORITY,
+			BUTTON_WORD_SHOW,
+			IS_SHOW_PROD,
+			USER_RULE,
+			CREATE_PERSONNEL,
+			CREATE_TIME,
+			TID
+			
+		)values
+		(
+			OTC142.SEQ_GJ_FIXED_LIST_PROD.nextval,
+			#{PROD_CODE},
+			#{PRIORITY},
+			decode(#{BUTTON_WORD_SHOW},null,'0',#{BUTTON_WORD_SHOW}),
+			decode(#{IS_SHOW_PROD},null,'0',#{IS_SHOW_PROD}),
+			#{USER_RULE},
+			#{CREATE_PERSONNEL},
+			sysdate,
+			#{ID}
+		)
+</insert>
+<!-- 复制财富号投资风口 新一期添加产品 -->
+<insert id="IssueProdCopy" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		insert into OTC142.G2021_INVEST_PROD(
+			ID,
+			FENGKOU_NO,
+			NUMBER_ISSUE,
+			PROD_CODE,
+			prod_name,
+			PRIORITY,
+			BUTTON_WORD_SHOW,
+			IS_SHOW_PROD,
+			CREATE_PERSONNEL,
+			CREATE_TIME,
+			TID
+			
+		)select OTC142.SEQ_GJ_FIXED_LIST_PROD.nextval, b.* from (select 
+		#{FENGKOU_NO},
+			#{NUMBER_ISSUE},
+		prod_code,
+		prod_name,
+		'1' as PRIORITY,
+		'1' as BUTTON_WORD_SHOW,
+		'1' as IS_SHOW_PROD,
+		#{CREATE_PERSONNEL},
+			sysdate,
+			#{ID} from OTC.G2021_INVEST_PROD_sh WHERE TID in
+			
+			<foreach collection="strArrFund" index="index" item="id" separator="," close=")" open="(">
+           		 #{id}
+       		</foreach>
+			and prod_code not in (select prod_code from OTC142.G2021_INVEST_PROD where tid=#{ID})
+		)b
+		
+</insert>
+
+<!-- 更新产品优先级 -->
+<update id="G2020UpdateProdPriority" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.GJ_FIXED_LIST_PROD
+		set LCODER_UPDATE_TIME = sysdate, PRIORITY=#{PRIORITY}
+		where FIXED_CODE=#{FIXED_CODE} and PROD_CODE=#{PROD_CODE}
+</update>
+<!-- 更新投资风口产品优先级 -->
+<update id="ProdPriority" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_PROD
+		set LCODER_UPDATE_TIME = sysdate, 
+		PRIORITY=#{PRIORITY},
+			UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate
+		where ID=#{ID}
+</update>
+
+<!-- 更新视频优先级 -->
+<update id="VideoPriority" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_VIDEO
+		set LCODER_UPDATE_TIME = sysdate, 
+		PRIORITY=#{PRIORITY},
+			UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate
+		where ID=#{ID}
+</update>
+<!-- 更新热点优先级 -->
+<update id="ReadPriority" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_READ
+		set LCODER_UPDATE_TIME = sysdate, 
+		PRIORITY=#{PRIORITY},
+			UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate
+		where ID=#{ID}
+</update>
+<!-- 更新投资风口产品期数 风口 -->
+<update id="updIssueFengKouProd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_PROD
+		set LCODER_UPDATE_TIME = sysdate, 
+				FENGKOU_NO = #{FENGKOU_NO},
+				NUMBER_ISSUE =#{NUMBER_ISSUE}
+		where TID=#{ID}
+</update>
+<!-- 更新投资风口产品期数 风口 -->
+<update id="updIssueFengKouFund" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_FUND
+		set LCODER_UPDATE_TIME = sysdate, 
+				FENGKOU_NO = #{FENGKOU_NO},
+				NUMBER_ISSUE =#{NUMBER_ISSUE}
+		where TID=#{ID}
+</update>
+<!-- 更新投资风口产品期数 风口 -->
+<update id="updIssueFengKouTouGu" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_OCCUPOTION
+		set LCODER_UPDATE_TIME = sysdate, 
+				FENGKOU_NO = #{FENGKOU_NO},
+				NUMBER_ISSUE =#{NUMBER_ISSUE}
+		where TID=#{ID}
+</update>
+<update id="updIssueFengKouVideo" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_VIDEO
+		set LCODER_UPDATE_TIME = sysdate, 
+				FENGKOU_NO = #{FENGKOU_NO},
+				NUMBER_ISSUE =#{NUMBER_ISSUE}
+		where TID=#{ID}
+</update>
+<update id="updIssueFengKouHot" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_HOT_EVENT
+		set LCODER_UPDATE_TIME = sysdate, 
+				FENGKOU_NO = #{FENGKOU_NO},
+				NUMBER_ISSUE =#{NUMBER_ISSUE}
+		where TID=#{ID}
+</update>
+<update id="updIssueFengKouRead" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_READ
+		set LCODER_UPDATE_TIME = sysdate, 
+				FENGKOU_NO = #{FENGKOU_NO},
+				NUMBER_ISSUE =#{NUMBER_ISSUE}
+		where TID=#{ID}
+</update>
+<update id="updIssueFengKouWeekly" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_WEEKLY_REPORT
+		set LCODER_UPDATE_TIME = sysdate, 
+				FENGKOU_NO = #{FENGKOU_NO},
+				NUMBER_ISSUE =#{NUMBER_ISSUE}
+		where TID=#{ID}
+</update>
+<update id="ProdButton" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_PROD
+		set LCODER_UPDATE_TIME = sysdate, 
+		BUTTON_WORD_SHOW=#{BUTTON_WORD_SHOW},
+		URL=#{URL},
+			UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate
+		where ID=#{ID}
+</update>
+<update id="ProdShow" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_PROD
+		set LCODER_UPDATE_TIME = sysdate, 
+		IS_SHOW_PROD=#{IS_SHOW_PROD},
+		PROD_CARD_URL=#{PROD_CARD_URL},
+			UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate
+		where ID=#{ID}
+</update>
+<update id="ProdRule" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_PROD
+		set LCODER_UPDATE_TIME = sysdate, 
+		USER_RULE=decode(#{USER_RULE},'全部',null,#{USER_RULE}),
+		UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate
+		where ID=#{ID}
+</update>
+<!-- 更新XINKE产品优先级 -->
+<update id="G2020UpdateProdXkPriority" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.GJ_XINKE_LIST_PROD
+		set LCODER_UPDATE_TIME = sysdate, PRIORITY=#{PRIORITY}
+		where ID=#{ID}
+</update>
+<!-- 更新zhenxuan产品优先级 -->
+<update id="G2020UpdateProdZxPriority" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.GJ_PRO_SELECT_100 
+		set LCODER_UPDATE_TIME = sysdate, PRO_PRIORITY=#{PRIORITY}
+		where ID=#{ID}
+</update>
+
+<!-- 更新产品可见用户 -->
+<update id="G2020UpdateProdUserRule" parameterType="com.linkstec.newmall.dto.JYFM2020fundManagerInDto">
+		update OTC142.GJ_FIXED_LIST_PROD
+		set LCODER_UPDATE_TIME = sysdate, USER_RULE=decode(#{USER_RULE},'全部',null,#{USER_RULE}),
+			UPDATE_DATE = sysdate,
+			UPDATE_PERSONNEL = #{UPDATE_PERSONNEL}
+		where ID=#{ID}
+</update>
+<!-- 更新产品zx可见用户 -->
+<update id="G2020UpdateXkUserRule" parameterType="com.linkstec.newmall.dto.JYFM2020fundManagerInDto">
+		update OTC142.GJ_XINKE_LIST_PROD
+		set LCODER_UPDATE_TIME = sysdate, USER_RULE=decode(#{USER_RULE},'全部',null,#{USER_RULE}),
+			UPDATE_DATE = sysdate,
+			UPDATE_PERSONNEL = #{UPDATE_PERSONNEL}
+		where ID=#{ID}
+</update>
+<!-- 更新产品可见用户 -->
+<update id="G2020UpdateZxUserRule" parameterType="com.linkstec.newmall.dto.JYFM2020fundManagerInDto">
+		update OTC142.GJ_PRO_SELECT_100  
+		set LCODER_UPDATE_TIME = sysdate, USER_RULE=decode(#{USER_RULE},'全部',null,#{USER_RULE}),
+			UPDATE_DATE = sysdate,
+			UPDATE_PERSONNEL = #{UPDATE_PERSONNEL}
+		where ID=#{ID}
+</update>
+<!-- 更新产品可见用户 -->
+<update id="G2020UpdateZxButton" parameterType="com.linkstec.newmall.dto.JYFM2020fundManagerInDto">
+		update OTC142.GJ_PRO_SELECT_100  
+		set LCODER_UPDATE_TIME = sysdate, BUYNOW_BUTTON=#{BUYNOW_BUTTON},
+			UPDATE_DATE = sysdate,
+			UPDATE_PERSONNEL = #{UPDATE_PERSONNEL}
+		where ID=#{ID}
+</update>
+<!--     定投榜单下挂产品规则增删改查       -->
+
+
+
+<!-- 添加产品规则 -->
+<insert id="G2020AddProdRule" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+	
+	     insert into OTC142.GJ_FIXED_LIST_RULE(
+	        ID,
+		    FIXED_CODE,
+			RULE_CODE,
+			DESC_START,
+			BOLT_NUM,
+			<!-- OPER_ID, -->
+			CREATE_PERSONNEL,
+			CREATE_TIME
+         )
+	values(
+		 OTC142.SEQ_GJ_FIXED_LIST_RULE.NEXTVAL,
+		 #{FIXED_CODE},
+		 #{RULE_CODE},
+		 10,
+		 3,
+		 <!--#{OPER_ID},  -->
+		 #{CREATE_PERSONNEL},
+		 sysdate
+		 
+		)
+		
+</insert>
+	
+
+<!-- 查询产品规则 -->
+<select id="G2020QueryProdRule" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto"
+	        resultType="map">
+	 select a.ID,
+			a.FIXED_CODE,
+			a.RULE_CODE,
+			a.DESC_START,
+			a.BOLT_NUM,
+			<!-- a.OPER_ID, -->
+			a.CREATE_PERSONNEL,
+			a.CREATE_TIME,
+			a.UPDATE_TIME,
+			a.UPDATE_PERSONNEL,
+			c.RULE_NAME		
+	 from OTC142.GJ_FIXED_LIST_RULE a
+	 left join OTC142.GJ_G2010_RULE_INFO c
+	    on a.rule_code=c.rule_code
+	 where 1=1
+	<if test="FIXED_CODE !=null">
+		and a.FIXED_CODE=#{FIXED_CODE}
+	</if>
+	<if test="FIXED_CODE ==null">
+		and 1!=1
+	</if>
+	   order by a.DESC_START desc
+</select>
+
+
+<!-- 删除产品规则 -->
+<delete id="G2020DeleteProdRule" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		delete from OTC142.GJ_FIXED_LIST_RULE where ID = #{ID}
+</delete>
+
+<!-- 更新产品规则降序起点 -->
+	<update id="G2020ProdRulePriorityEditIds"  parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.GJ_FIXED_LIST_RULE
+		SET LCODER_UPDATE_TIME = sysdate, DESC_START=#{DESC_START}
+		where ID=#{ID}
+</update>
+	
+<!-- 更新产品规则筛选数量 -->
+<update id="G2020ProdRulePriorityEditIbn"  parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.GJ_FIXED_LIST_RULE
+		SET LCODER_UPDATE_TIME = sysdate, BOLT_NUM=#{BOLT_NUM}
+		where ID=#{ID}
+</update>
+
+<!-- 更新审核状态1/3 -->
+<update id="G2020AuditStatusUpd"  parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.GJ_FIXED_LIST_INFO
+		SET LCODER_UPDATE_TIME = sysdate, AUDIT_STATUS=#{OPER_ID}
+		where FIXED_CODE =#{FIXED_CODE}
+</update>
+
+<!-- 新一期kv图修改 -->
+	
+	<update id="ChanceImageUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_CHANCE set LCODER_UPDATE_TIME = sysdate,
+			UPD_PERSONNEL = #{UPD_PERSONNEL},
+			UPD_TIME = sysdate,
+			IMG_ID=#{IMG_ID},
+			IMG_NAME=#{IMG_NAME},
+			IMG_URL=#{IMG_URL},
+			SHARE_ID=#{SHARE_ID},
+			SHARE_NAME=#{SHARE_NAME},
+			SHARE_URL=#{SHARE_URL}
+		where ID =#{ID}
+	</update>
+<!-- 公共模板1图修改 -->
+	
+	<update id="ModuleImage1Upd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_MODULE set LCODER_UPDATE_TIME = sysdate,
+			UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate,
+			IMG_URL = #{IMG_URL},
+				IMG_NAME = #{IMG_NAME},
+				IMG_ID = #{IMG_ID}
+				
+		where ID =#{ID}
+	</update>
+<!-- 公共模板2图修改 -->
+	
+	<update id="ModuleImage2Upd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_MODULE set LCODER_UPDATE_TIME = sysdate,
+			UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate,
+				IMG_URL2 = #{IMG_URL2},
+				IMG_ID2 = #{IMG_ID2},
+				IMG_NAME2 = #{IMG_NAME2}
+		where ID =#{ID}
+	</update>
+<!-- 基金经理图修改 -->
+	
+	<update id="FundImageUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_FUND set LCODER_UPDATE_TIME = sysdate,
+			UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate,
+				IMG_URL = #{IMG_URL},
+				IMG_ID = #{IMG_ID},
+				IMG_NAME = #{IMG_NAME}
+		where ID =#{ID}
+	</update>
+<!-- 投顾图片修改 -->
+	
+	<update id="TouGuImageUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_OCCUPOTION set LCODER_UPDATE_TIME = sysdate,
+			UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate,
+				IMG_URL = #{IMG_URL},
+				IMG_ID= #{IMG_ID},
+				IMG_NAME = #{IMG_NAME}
+		where ID =#{ID}
+	</update>
+	
+	<update id="VideoImageUpd" parameterType="com.linkstec.newmall.dto.AGJ2021InvestInDto">
+		update OTC142.G2021_INVEST_VIDEO set LCODER_UPDATE_TIME = sysdate,
+			UPD_PERSONNEL = #{UPD_PERSONNEL},
+				UPD_TIME = sysdate,
+				IMG_URL = #{IMG_URL},
+				IMG_ID= #{IMG_ID},
+				IMG_NAME = #{IMG_NAME}
+		where ID =#{ID}
+	</update>
+</mapper>
