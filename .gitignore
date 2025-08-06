@@ -4,3 +4,5 @@ parse_xml_get_table_name/*.xlsxxlsx
 parse_xml_get_table_name/template/*
 parse_xml_get_table_name/template.zip
 parse_xml_get_table_name/datax/datax_jobs
+parse_xml_get_table_name/output/replace_log.txt
+parse_xml_get_table_name/output/replace_summary.xlsx

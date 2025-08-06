@@ -53,20 +53,38 @@ def process_folder(folder_path, mapping_file, output_xlsx, output_log_txt):
             content_masked.append(content[last_idx:])
             content_masked = ''.join(content_masked)
 
-            def replacer(m):
-                prefix = m.group(1)
-                table = m.group(2)
+            # def replacer(m):
+            #     prefix = m.group(1)
+            #     table = m.group(2)
+            #     table_upper = table.upper()
+
+            #     if table_upper in mapping:
+            #         new_table = mapping[table_upper]
+            #         replaced_info.append((prefix.upper(), table_upper, 'lcinfo_source.', new_table))
+            #         return 'lcinfo_source.' + new_table
+            #     else:
+            #         no_replace_tables.append((prefix.upper(), table_upper))
+            #         return m.group(0)
+
+            # new_content = table_name_pattern.sub(replacer, content_masked)
+            # 只在 SQL 关键字后面出现的表名做替换（避免误替换标签属性）
+            def sql_replacer(m):
+                keyword = m.group(1)
+                prefix = m.group(2)
+                table = m.group(3)
                 table_upper = table.upper()
 
                 if table_upper in mapping:
                     new_table = mapping[table_upper]
                     replaced_info.append((prefix.upper(), table_upper, 'lcinfo_source.', new_table))
-                    return 'lcinfo_source.' + new_table
+                    return f"{keyword} lcinfo_source.{new_table}"
                 else:
                     no_replace_tables.append((prefix.upper(), table_upper))
                     return m.group(0)
 
-            new_content = table_name_pattern.sub(replacer, content_masked)
+            sql_pattern = re.compile(r'\b(insert\s+into|update|from|join|delete\s+from)\s+(OTC142\.|OTC\.)([A-Za-z0-9_]+)', re.IGNORECASE)
+
+            new_content = sql_pattern.sub(sql_replacer, content_masked)
 
             # 还原序列
             def restore_sequences(text, original, spans):

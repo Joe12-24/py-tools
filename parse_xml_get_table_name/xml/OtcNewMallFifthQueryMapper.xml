@@ -1,0 +1,3863 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linkstec.newmall.mapper.OtcNewMallFifthQueryMapper">
+		<!-- 1.查询：获取心愿场景详细内容 -->
+		<select id="NMSecWishSenceQuery" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto"
+		resultType="map">
+		 select ID,
+		 		SCENE_ID,
+		 		SCENE_NAME,
+		 		UPDATE_TIME,
+		 		SHELVES_STATUS,
+		 		CUSTOMER_DISPLAY_LABEL,
+		 		WISH_NAME,
+		 		DISPLAY_LOCATION,
+		 		SKIP_URL,
+		 		WISH_LOGO_URL,
+		 		WISH_LOGO_ID,
+		 		WISH_LOGO_NAME,
+		 		SHARE_LOGO_URL,
+		 		SHARE_LOGO_ID,
+		 		SHARE_LOGO_NAME,
+		 		SCENE_DESCRIBE,
+		 		ABOUT_ITEM_CODE,
+		 		WISH_BUTTON
+		 		from OTC142.GJ_G2010_818WISH_SCENE
+		 		<where>
+		 		       1=1
+		 			<if test="sceneName!=null">
+		 				 and SCENE_NAME like concat(concat('%',#{sceneName}),'%')
+		 			</if>
+		 			<if test="wishName!=null">
+		 				 and WISH_NAME  like concat(concat('%',#{wishName}),'%')
+		 			</if>
+		 			<if test="shelvesStatus!=null">
+		 				 and SHELVES_STATUS = #{shelvesStatus}
+		 			</if>
+		 			<if test="customerDisplayLabel!=null">
+		 				and  CUSTOMER_DISPLAY_LABEL like concat(concat('%',#{customerDisplayLabel}),'%')
+		 			</if>
+		 			<if test="sceneId!=null">
+		 				and  SCENE_ID =#{sceneId}
+		 			</if>
+		 			order by id desc
+		 		</where>
+		</select>
+		
+		<!-- 3.修改：修改心愿场景内容 -->
+		<update id="NMSecEditWishScene" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto">
+			update OTC142.GJ_G2010_818WISH_SCENE set LCODER_UPDATE_TIME = sysdate,
+			     SCENE_NAME = #{sceneName},
+			     UPDATE_TIME = TO_CHAR(sysdate,'yyyy.mm.dd HH24:MI'),
+			     SHELVES_STATUS = #{shelvesStatus},
+			     CUSTOMER_DISPLAY_LABEL = #{customerDisplayLabel},
+			     WISH_NAME =#{wishName},
+			     DISPLAY_LOCATION = #{displayLocation},
+			     SCENE_DESCRIBE = #{sceneDescribe},
+			     SKIP_URL = #{skipUrl},
+			     WISH_BUTTON = #{wishButton},
+			    <!--  WISH_LOGO_URL = #{wishLogoUrl},
+			     WISH_LOGO_ID  =#{wishLogoId},
+			     WISH_LOGO_NAME = #{wishLogoName},
+			     SHARE_LOGO_URL =#{shareLogoUrl},
+			     SHARE_LOGO_ID =#{shareLogoId},
+			     SHARE_LOGO_NAME = #{shareLogoName} -->
+			     ABOUT_ITEM_CODE =#{aboutItemCode}
+			     where SCENE_ID =#{sceneId}
+		</update>
+		
+		<!-- 4.删除：删除心愿场景 -->
+		<delete id="NMSecDelWishScene" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto">
+		delete from OTC142.GJ_G2010_818WISH_SCENE
+		where
+		 <foreach collection="list" index="index" item="item" open="(" separator="or" close=")">
+				SCENE_ID = #{item.SCENE_ID}
+			</foreach>
+		</delete>
+					
+		<!-- 9.删除：删除心愿场景连同删除心愿墙 -->
+		<delete id="NMSecDelWishWall2" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto">
+		delete from OTC142.GJ_G2010_818WISH_WALL
+		where 
+			<foreach collection="list" index="index" item="item" open="(" separator="or" close=")">
+				SCENE_ID = #{item.SCENE_ID}
+			</foreach>
+		</delete>
+		
+		<!-- 5.新增：新增心愿场景 -->
+		<insert id="NMSecWishSceneAdd" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto">
+		insert into OTC142.GJ_G2010_818WISH_SCENE(
+				ID,
+		 		SCENE_ID,
+		 		SCENE_NAME,
+		 		UPDATE_TIME,
+		 		SHELVES_STATUS,
+		 		CUSTOMER_DISPLAY_LABEL,
+		 		WISH_NAME,
+		 		DISPLAY_LOCATION,
+		 		SKIP_URL,
+		 		WISH_LOGO_URL,
+		 		WISH_LOGO_ID,
+		 		WISH_LOGO_NAME,
+		 		SHARE_LOGO_URL,
+		 		SHARE_LOGO_ID,
+		 		SCENE_DESCRIBE,
+		 		SHARE_LOGO_NAME,
+		 		ABOUT_ITEM_CODE,
+		 		WISH_BUTTON) 
+		 		values(
+		 		OTC142.SEQ_T_WISH_SCENE_ID.NEXTVAL,
+		 		'CJ'||lpad(OTC142.SEQ_T_WISH_SCENE_ID.NEXTVAL,4,0),
+		 		#{sceneName},
+		 		TO_CHAR(sysdate,'yyyy.mm.dd HH24:MI'),
+		 		#{shelvesStatus},
+		 		#{customerDisplayLabel},
+		 		#{wishName},
+		 		#{displayLocation},
+		 		#{skipUrl},
+		 		#{wishLogoUrl},
+		 		#{wishLogoId},
+		 		#{wishLogoName},
+		 		#{shareLogoUrl},
+		 		#{shareLogoId},
+		 		#{sceneDescribe},
+		 		#{shareLogoName},
+		 		#{aboutItemCode},
+		 		#{wishButton}
+		 		)
+		</insert>
+		
+		<!-- 2.查询：获取心愿墙详细内容 -->
+		<select id="NMSecWishWallQuery" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto"
+		resultType="map">
+		 select ID,
+		 		SCENE_ID,
+		 		WISH_ID,
+		 		WISH_NAME,
+		 		WISH_GOAL,
+		 		ON_STATUS,
+		 		IS_DISPLAY,
+		 		UPDATE_TIME,
+		 		SCENE_NAME
+		 		from OTC142.GJ_G2010_818WISH_WALL
+		 		<where>
+		 			1=1
+		 				<if test="sceneId!=null">
+		 				 and SCENE_ID = #{sceneId}
+		 				</if>
+		 				<if test="wishId!=null">
+		 				 and WISH_ID = #{wishId}
+		 				</if>
+		 				order by id desc
+		 		</where>
+		</select>
+		
+		<!-- 6.删除：删除心愿墙 -->
+		<delete id="NMSecDelWishWall" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto">
+		delete from OTC142.GJ_G2010_818WISH_WALL
+		where WISH_ID =#{wishId}
+		</delete>
+		
+		
+		<!-- 7.修改：修改心愿墙 -->
+		<delete id="NMSecEditWishWall" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto">
+		update OTC142.GJ_G2010_818WISH_WALL set LCODER_UPDATE_TIME = sysdate, 
+			WISH_NAME =#{wishName},
+			WISH_GOAL =#{wishGoal},
+			ON_STATUS =#{onStatus},
+			IS_DISPLAY =#{isDisplay},
+			UPDATE_TIME =TO_CHAR(sysdate,'yyyy.mm.dd HH24:MI'),
+			SCENE_NAME=#{sceneName}
+			<where>
+					1=1 
+						<if test="wishId!=null">
+		 				 and WISH_ID = #{wishId}
+		 				</if>
+			</where>
+		</delete>
+		
+		<!-- 8.新增：新增心愿墙 -->
+		<insert id="NMSecWishWallAdd" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto">
+		insert into OTC142.GJ_G2010_818WISH_WALL(
+				ID,
+		 		SCENE_ID,
+		 		WISH_ID,
+		 		WISH_NAME,
+		 		WISH_GOAL,
+		 		ON_STATUS,
+		 		IS_DISPLAY,
+		 		UPDATE_TIME,
+		 		SCENE_NAME) 
+		 		values(
+		 		OTC142.SEQ_T_WISH_WALL_ID.NEXTVAL,
+		 		#{sceneId},
+		 		'XY'||lpad(OTC142.SEQ_T_WISH_WALL_ID.NEXTVAL,4,0),
+		 		#{wishName},
+		 		#{wishGoal},
+		 		#{onStatus},
+		 		#{isDisplay},
+		 		TO_CHAR(sysdate,'yyyy.mm.dd HH24:MI'),
+		 		#{sceneName}
+		 		)
+		</insert>
+		
+		<!-- 10.获取单个心愿场景 -->
+		<select id="NMSecSingleWishSceneQuery" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto"
+		resultType="map">
+		select ID,
+		 		SCENE_ID,
+		 		SCENE_NAME,
+		 		UPDATE_TIME,
+		 		SHELVES_STATUS,
+		 		CUSTOMER_DISPLAY_LABEL,
+		 		WISH_NAME,
+		 		DISPLAY_LOCATION,
+		 		SKIP_URL,
+		 		WISH_LOGO_URL,
+		 		WISH_LOGO_ID,
+		 		WISH_LOGO_NAME,
+		 		SHARE_LOGO_URL,
+		 		SHARE_LOGO_ID,
+		 		SHARE_LOGO_NAME,
+		 		SCENE_DESCRIBE,
+		 		ABOUT_ITEM_CODE,
+		 		WISH_BUTTON
+		 		from OTC142.GJ_G2010_818WISH_SCENE
+		 		<where>
+		 		       1=1
+		 			<if test="sceneId!=null">
+		 				and  SCENE_ID =#{sceneId}
+		 			</if>
+		 		</where>
+		</select>
+		
+		<!-- 10.获取已配置标签列表 -->
+		<select id="NMSecGetWishScenePolicyList" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto"
+		resultType="map">
+		select distinct <!-- ID KEY, -->
+		 	   CUSTOMER_DISPLAY_LABEL value
+		 		from OTC142.GJ_G2010_818WISH_SCENE
+		 		 where CUSTOMER_DISPLAY_LABEL is not null
+		</select>
+		
+		<!-- 11.修改心愿配图 -->
+		<update id="NMSecEditWishImage" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto">
+		update OTC142.GJ_G2010_818WISH_SCENE set  LCODER_UPDATE_TIME = sysdate,
+				 UPDATE_TIME = TO_CHAR(sysdate,'yyyy.mm.dd HH24:MI'),
+		 	  	 WISH_LOGO_URL = #{wishLogoUrl},
+			     WISH_LOGO_ID  =#{wishLogoId},
+			     WISH_LOGO_NAME = #{wishLogoName}
+			     where SCENE_ID =#{sceneId}
+		</update>
+
+		<!-- 12.修改分享配图 -->
+		<update id="NMSecEditShareImage" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto">
+		update OTC142.GJ_G2010_818WISH_SCENE set  LCODER_UPDATE_TIME = sysdate,
+				 UPDATE_TIME = TO_CHAR(sysdate,'yyyy.mm.dd HH24:MI'),
+		 	  	 SHARE_LOGO_URL =#{shareLogoUrl},
+			     SHARE_LOGO_ID =#{shareLogoId},
+			     SHARE_LOGO_NAME = #{shareLogoName}
+			     where SCENE_ID =#{sceneId}
+		</update>
+		
+		<!-- 修改：修改心愿配图 -->
+		<update id="NMSecEditWishPic" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto">
+			update OTC142.GJ_G2010_818WISH_SCENE set  LCODER_UPDATE_TIME = sysdate,
+			     WISH_LOGO_URL = #{wishLogoUrl},
+			     WISH_LOGO_ID  =#{wishLogoId},
+			     WISH_LOGO_NAME = #{wishLogoName}
+			     where SCENE_ID =#{sceneId}
+		</update>
+		
+		<!-- 修改：修改分享配图 -->
+		<update id="NMSecEditSharePic" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto">
+			update OTC142.GJ_G2010_818WISH_SCENE set  LCODER_UPDATE_TIME = sysdate,
+			     SHARE_LOGO_URL =#{shareLogoUrl},
+			     SHARE_LOGO_ID =#{shareLogoId},
+			     SHARE_LOGO_NAME = #{shareLogoName}
+			     where SCENE_ID =#{sceneId}
+		</update>
+		
+		<!-- 10.查看同一心愿场景下心愿墙展示数量 -->
+		<select id="NMSecGetWishWallNum" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto"
+		resultType="map">
+			SELECT IS_DISPLAY FROM OTC142.GJ_G2010_818WISH_WALL WHERE IS_DISPLAY=1 AND SCENE_NAME = #{sceneName}
+		</select>
+		
+		<!-- 11.查看同一心愿场景下心愿墙最少数量 -->
+		<select id="NMSecGetWishWallNum2" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto"
+		resultType="map">
+			SELECT IS_DISPLAY FROM OTC142.GJ_G2010_818WISH_WALL WHERE SCENE_NAME = #{sceneName}
+		</select>
+		
+		<select id="NMSecGetItemCode" parameterType="com.linkstec.newmall.dto.NewMallWishPlanInDto"
+		resultType="map">
+			select item_code key ,concat(item_name,'  创建人:')|| create_Personnel value,create_time from OTC142.GJ_G2010_ITEM_INFO where item_type ='2' order by create_time desc
+		</select>
+		
+		<!-- ———————————————————————————————————————————————————————————————————————————————————————————————— -->
+		<!-- 黄金宝话题配置 -->
+		<!-- 1.查询所有话题信息 -->
+		<select id="NMSecGetAllTopicInfo" parameterType="com.linkstec.newmall.dto.NewMallTopicConfigInDto"
+		resultType="map">
+			select 
+				A.ID,
+				A.TOPIC_CODE,
+				A.TOPIC_NAME,
+				A.TOPIC_STATUS,
+				A.TOPIC_CONTENT,
+				A.TOPIC_CASE_1,
+				A.TOPIC_CASE_2,
+				A.TOPIC_JUMP_URL,
+				A.CREATE_PERSONNEL,
+				A.CREATE_TIME,
+				A.UPD_TIME,
+				A.UPD_PERSONNEL,
+				A.AUDIT_STATUS,
+				A.TOPIC_LABEL,
+				A.OPER_STATUS,
+				C.JOINPNUM
+				from OTC142.GJ_G2010_TOPIC_INFO A LEFT JOIN (
+													SELECT
+														COUNT (1) as JOINPNUM,
+														TOPIC_CODE
+													FROM
+														OTC142.GJ_G2010_TOPIC_STATISTICS
+													WHERE
+														TOPIC_CODE IN (
+															SELECT
+																A .TOPIC_CODE
+															FROM
+																OTC142.GJ_G2010_TOPIC_INFO A
+														) GROUP BY 
+															TOPIC_CODE
+														) C ON A.TOPIC_CODE = C.TOPIC_CODE													
+				<where>
+					<if test ="topicCode!= null">
+						A.TOPIC_CODE like concat(concat('%',#{topicCode}),'%')
+					</if>
+					<if test ="topicStatus!=null">
+						AND A.TOPIC_STATUS = #{topicStatus}
+					</if>
+					<if test ="createTime1!=null">
+						AND A.CREATE_TIME &gt;= #{createTime1}
+					</if>
+					<if test ="createTime2 != null">
+						AND A.CREATE_TIME &lt;=  #{createTime2}
+					</if>
+					<if test ="id != null">
+						AND A.ID = #{id}
+					</if>
+				</where>
+				order by id desc
+		</select>
+		
+		<!-- 2.增加一个新的话题信息 -->
+		<insert id="NMSecGetSetTopicInfo" parameterType="com.linkstec.newmall.dto.NewMallTopicConfigInDto">
+			insert into  OTC142.GJ_G2010_TOPIC_INFO(
+					ID,
+					TOPIC_CODE,
+					TOPIC_NAME,
+					TOPIC_STATUS,
+					TOPIC_CONTENT,
+					TOPIC_CASE_1,
+					TOPIC_CASE_2,
+					TOPIC_JUMP_URL,
+					CREATE_PERSONNEL,
+					CREATE_TIME,
+					AUDIT_STATUS,
+					TOPIC_LABEL,
+					OPER_STATUS
+				)values(
+					OTC142.SQ_GJ_G2010_TOPIC_INFO.NEXTVAL,
+					'HT'||lpad(OTC142.SQ_GJ_G2010_TOPIC_INFO.NEXTVAL,4,0),
+					#{topicName},
+					#{topicStatus},
+					#{topicContent},
+					#{topicCase1},
+					#{topicCase2},
+					#{topicJumpUrl},
+					#{createPersonal},
+					to_date(to_char(sysdate,'yyyy.mm.dd HH24:MI:SS'),'yyyy.mm.dd HH24:MI:SS'),
+					4,
+					#{topicLabel},
+					1
+				)
+		</insert>
+
+		<!-- 3.修改话题信息 -->
+		<update id="NMSecGetUpdTopicInfo" parameterType="com.linkstec.newmall.dto.NewMallTopicConfigInDto">
+			update OTC142.GJ_G2010_TOPIC_INFO set LCODER_UPDATE_TIME = sysdate,
+				TOPIC_NAME =#{topicName},
+				TOPIC_STATUS =#{topicStatus},
+				TOPIC_CONTENT =#{topicContent},
+				TOPIC_CASE_1 =#{topicCase1},
+				TOPIC_CASE_2 =#{topicCase2},
+				TOPIC_JUMP_URL =#{topicJumpUrl},
+				TOPIC_LABEL =#{topicLabel},
+				UPD_TIME = to_date(to_char(sysdate,'yyyy.mm.dd HH24:MI:SS'),'yyyy.mm.dd HH24:MI:SS'),
+				UPD_PERSONNEL =#{updPersonal}
+				where ID = #{id}
+		</update>
+		
+		<!-- 4.删除话题信息 -->
+		<delete id="NMSecDelUpdTopicInfo" parameterType="com.linkstec.newmall.dto.NewMallTopicConfigInDto">
+			delete from OTC142.GJ_G2010_TOPIC_INFO
+				where
+					<foreach collection="list" index="index" item="item" open="(" separator="or" close=")">
+						ID = #{item.ID}
+					</foreach>
+		</delete>
+		
+		<!-- 4.1 普通删除话题信息 -->
+		<delete id="NMSecDelUpdTopicInfo2" parameterType="com.linkstec.newmall.dto.NewMallTopicConfigInDto">
+			delete from OTC142.GJ_G2010_TOPIC_INFO
+				where
+						ID = #{id}
+		</delete>
+		
+		<!-- 5.查询投票信息 -->
+		<select id="NMSecGetAllVoteInfo" parameterType="com.linkstec.newmall.dto.NewMallTopicConfigInDto"
+		resultType="map">
+			select 
+				ID,
+				TOPIC_CODE,
+				TOPIC_NAME,
+				CUST_TELNUM,
+				TOPIC_CASE,
+				VOTE_TIME
+				from OTC142.GJ_G2010_TOPIC_STATISTICS
+				order by id desc
+		</select>
+		
+		<!-- 6.审核状态修改1 -->
+		<update id="NMSecTopicInfoAudit4to1" parameterType="com.linkstec.newmall.dto.NewMallTopicConfigInDto">
+			update OTC142.GJ_G2010_TOPIC_INFO set LCODER_UPDATE_TIME = sysdate,
+				AUDIT_STATUS = #{type},
+				OPER_STATUS = 1
+				where ID = #{id}
+		</update>
+		
+		<!-- 8.审核状态修改3 -->
+		<update id="NMSecTopicInfoAuditAutoTo2" parameterType="com.linkstec.newmall.dto.NewMallTopicConfigInDto">
+			update OTC142.GJ_G2010_TOPIC_INFO set LCODER_UPDATE_TIME = sysdate,
+				AUDIT_STATUS = 2
+				where ID = #{id}
+		</update>
+		
+		<!-- 9.审核状态修改4 -->
+		<update id="NMSecTopicInfoOperIdTo1" parameterType="com.linkstec.newmall.dto.NewMallTopicConfigInDto">
+			update OTC142.GJ_G2010_TOPIC_INFO set LCODER_UPDATE_TIME = sysdate,
+				OPER_STATUS = 1
+				where ID = #{id}
+		</update>
+		
+		<update id="NMSecTopicInfoOperIdTo2" parameterType="com.linkstec.newmall.dto.NewMallTopicConfigInDto">
+			update OTC142.GJ_G2010_TOPIC_INFO set LCODER_UPDATE_TIME = sysdate,
+				OPER_STATUS = 2
+				where ID = #{id}
+		</update>
+		
+		<update id="NMSecTopicInfoOperIdTo3" parameterType="com.linkstec.newmall.dto.NewMallTopicConfigInDto">
+			update OTC142.GJ_G2010_TOPIC_INFO set LCODER_UPDATE_TIME = sysdate,
+				OPER_STATUS = 3
+				where ID = #{id}
+		</update>
+		
+		<update id="NMSecTopicInfoOperIdTo4" parameterType="com.linkstec.newmall.dto.NewMallTopicConfigInDto">
+			update OTC142.GJ_G2010_TOPIC_INFO set LCODER_UPDATE_TIME = sysdate,
+				OPER_STATUS = 4
+				where ID = #{id}
+		</update>
+		
+		
+		<!-- ———————————————————————————————————————————————————————————————————————————————————————————————— -->
+		<!-- 知识库 -->
+		<!-- 1.新增 -->
+		<insert id="NMSecAddKnowLedgeInfo" parameterType="com.linkstec.newmall.dto.GjG2010KnowLedgeInfoDto">
+			insert into  otc.GJ_G2010_KNOWLEDGE_BASE(
+					ID,
+					KNOWLEDGE_NAME,
+					KNOWLEDGE_CONTENT,
+					KNOWLEDGE_DESCRIBE,
+					ABOUT_MODULE,
+					CREATE_TIME,
+					CREATE_PERSON
+				)values(
+					otc.SEQ_GJ_G2010_KNOWLEDGEBASE_ID.NEXTVAL,
+					#{knwoLedgeName},
+					#{knowLedgeContent},
+					#{knowLedgeDescribe},
+					#{aboutModule},
+					to_date(to_char(sysdate,'yyyy.mm.dd HH24:MI:SS'),'yyyy.mm.dd HH24:MI:SS'),
+					(select user_name from otc.v_user where user_id = #{createPerson})
+				)
+		</insert>
+		
+		<!-- 2.查询 -->
+		<select id="NMSecGetKnowLedgeInfo" parameterType="com.linkstec.newmall.dto.GjG2010KnowLedgeInfoDto" resultType ="map">
+			select a.ID,
+				   a.KNOWLEDGE_NAME,
+				   a.KNOWLEDGE_CONTENT,
+				   a.KNOWLEDGE_DESCRIBE,
+				   a.ABOUT_MODULE,
+				   a.UPDATE_TIME,
+				   a.UPDATE_PERSON,
+				   a.CREATE_TIME,
+				   a.CREATE_PERSON
+				   from otc.GJ_G2010_KNOWLEDGE_BASE a 
+				   where 1=1 
+				   	<if test="knwoLedgeName!=null">
+				   		and KNOWLEDGE_NAME like concat(concat('%',#{knwoLedgeName}),'%')
+				   	</if>
+				   	<if test="aboutModule != null">
+				   		and ABOUT_MODULE like concat(concat('%',#{aboutModule}),'%')
+				   	</if>
+				   	<if test="knowLedgeDescribe != null">
+				   		and KNOWLEDGE_DESCRIBE like concat(concat('%',#{knowLedgeDescribe}),'%')
+				   	</if>
+				   	<if test ="createTime1!=null">
+						AND CREATE_TIME &gt;= #{createTime1}
+					</if>
+					<if test ="createTime2 != null">
+						AND CREATE_TIME &lt;= #{createTime2}
+					</if> 
+					order by to_number(id) desc
+		</select>
+		
+		<!-- 3.修改 -->
+		<update id="NMSecUpdKnowLedgeInfo" parameterType="com.linkstec.newmall.dto.GjG2010KnowLedgeInfoDto">
+			update  otc.GJ_G2010_KNOWLEDGE_BASE  set LCODER_UPDATE_TIME = sysdate, 
+
+					KNOWLEDGE_NAME =#{knwoLedgeName},
+					KNOWLEDGE_CONTENT=#{knowLedgeContent},
+					KNOWLEDGE_DESCRIBE=#{knowLedgeDescribe},
+					ABOUT_MODULE=#{aboutModule},
+					UPDATE_TIME=to_date(to_char(sysdate,'yyyy.mm.dd HH24:MI:SS'),'yyyy.mm.dd HH24:MI:SS'),
+				    UPDATE_PERSON= (select user_name from otc.v_user where user_id = #{updatePerson}) 
+	
+			where 
+				ID = #{id}
+
+		</update>
+		
+		<!-- 4.删除-->
+		<delete id="NMSecDelKnowLedgeInfo" parameterType="com.linkstec.newmall.dto.GjG2010KnowLedgeInfoDto">
+			delete from   otc.GJ_G2010_KNOWLEDGE_BASE  
+			where 
+				ID = #{id}
+		</delete>
+		
+		
+		<!-- ———————————————————————————————————————————————————————————————————————————————————————————————— -->
+		<!-- 基金管理人财富号入口配置 -->
+		<!-- 1.新增 -->
+		<insert id="NMSecAddWealthConfigInfo" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			insert into  OTC142.GJ_CFH_HOMEPAGE_INFO(
+					ID,
+					CFH_CODE,
+					CFH_NAME,
+					APP_JUMP_URL,
+					PC_JUMP_URL,
+					JH_JUMP_URL,
+					APP_MANAGER_LOGO_ID,
+					APP_MANAGER_LOGO_NAME,
+					APP_MANAGER_LOGO_URL,
+					PC_MANAGER_LOGO_ID,
+					PC_MANAGER_LOGO_NAME,
+					PC_MANAGER_LOGO_URL,
+					JH_MANAGER_LOGO_ID,
+					JH_MANAGER_LOGO_NAME,
+					JH_MANAGER_LOGO_URL,
+					CREATE_TIME,
+					AUDIT_STATUS,
+					OPER_STATUS,
+					SUP_NAME,
+					PRO_PROVIDER,
+					CFH_INTRODUCT
+				) values (
+					OTC142.SQ_GJ_CFH_HP_INFO.NEXTVAL,
+					#{cfhCode},
+					#{cfhName},
+					#{appJumpUrl},
+					#{pcJumpUrl},
+					#{jhJumpUrl},
+					#{appManagerLogoId},
+					#{appManagerLogoName},
+					#{appManagerLogoUrl},
+					#{pcManagerLogoId},
+					#{pcManagerLogoName},
+					#{pcManagerLogoUrl},
+					#{jhManagerLogoId},
+					#{jhManagerLogoName},
+					#{jhManagerLogoUrl},
+					to_char(sysdate,'yyyy.mm.dd'),
+					4,
+					1,
+					#{supName},
+					#{proProvider},
+					#{cfhIntroduct}
+				)
+		</insert>
+		
+		<insert id="NMSecAddWealthConfigInfoSH" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			insert into  OTC142.GJ_CFH_HOMEPAGE_INFO_SH  (
+					ID,
+					CFH_CODE,
+					CFH_NAME,
+					APP_JUMP_URL,
+					PC_JUMP_URL,
+					JH_JUMP_URL,
+					APP_MANAGER_LOGO_ID,
+					APP_MANAGER_LOGO_NAME,
+					APP_MANAGER_LOGO_URL,
+					PC_MANAGER_LOGO_ID,
+					PC_MANAGER_LOGO_NAME,
+					PC_MANAGER_LOGO_URL,
+					JH_MANAGER_LOGO_ID,
+					JH_MANAGER_LOGO_NAME,
+					JH_MANAGER_LOGO_URL,
+					CREATE_TIME,
+					AUDIT_STATUS,
+					OPER_STATUS,
+					SUP_NAME,
+					PRO_PROVIDER,
+					CFH_INTRODUCT
+				) select 
+					a.ID,
+					a.CFH_CODE,
+					a.CFH_NAME,
+					a.APP_JUMP_URL,
+					a.PC_JUMP_URL,
+					a.JH_JUMP_URL,
+					a.APP_MANAGER_LOGO_ID,
+					a.APP_MANAGER_LOGO_NAME,
+					a.APP_MANAGER_LOGO_URL,
+					a.PC_MANAGER_LOGO_ID,
+					a.PC_MANAGER_LOGO_NAME,
+					a.PC_MANAGER_LOGO_URL,
+					a.JH_MANAGER_LOGO_ID,
+					a.JH_MANAGER_LOGO_NAME,
+					a.JH_MANAGER_LOGO_URL,
+					a.CREATE_TIME,
+					a.AUDIT_STATUS,
+					a.OPER_STATUS,
+					a.SUP_NAME,
+					a.PRO_PROVIDER,
+					a.CFH_INTRODUCT
+					from  OTC142.GJ_CFH_HOMEPAGE_INFO a where  a.id not in (select b.id from OTC142.GJ_CFH_HOMEPAGE_INFO_SH b)
+		</insert>
+		
+		<select id="NMSecGetCount0918" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto" resultType ="map">
+				SELECT to_char(wmsys.wm_concat(DISTINCT(PRO_PROVIDER))) PRO_PROVIDER,to_char(wmsys.wm_concat(DISTINCT(SUP_NAME))) SUP_NAME  FROM otc.GJ_G2010_PROD_INFO_BASE WHERE MANAGER_ID = #{cfhCode}
+		</select>
+		
+		<select id="NMSecGetCfhCode0918" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto" resultType ="string">
+				SELECT cfh_code FROM OTC142.GJ_CFH_HOMEPAGE_INFO WHERE cfh_code = #{cfhCode}
+		</select>
+		
+		<select id="queryPushStatus" parameterType="String" resultType="String">
+	        select push_status
+	        from
+	            OTC142.GJ_CFH_HOMEPAGE_INFO
+	        where ID = #{id}
+	    </select>	
+	    
+		<!-- 2.查询 -->
+		<select id="NMSecGetWealthConfigInfo" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto" resultType ="map">
+			select ID,
+				   CFH_CODE,
+				   CFH_NAME,
+				   APP_JUMP_URL,
+				   PC_JUMP_URL,
+				   JH_JUMP_URL,
+				   APP_MANAGER_LOGO_NAME,
+				   APP_MANAGER_LOGO_ID,
+				   APP_MANAGER_LOGO_URL,
+				   PC_MANAGER_LOGO_NAME,
+				   PC_MANAGER_LOGO_ID,
+				   PC_MANAGER_LOGO_URL,
+				   JH_MANAGER_LOGO_NAME,
+				   JH_MANAGER_LOGO_ID,
+				   JH_MANAGER_LOGO_URL,
+				   SUP_NAME,
+				   CREATE_TIME,
+				   UPD_TIME,
+				   UPD_PERSONNEL,
+				   AUDIT_STATUS,
+				   PRO_PROVIDER,
+				   OPER_STATUS,
+				   CFH_INTRODUCT,
+				   ROOM_ID
+				   from 
+				   <choose>
+				   		<when test="type == 1">
+				   			OTC142.GJ_CFH_HOMEPAGE_INFO a 
+				   		</when>
+				   		<otherwise>
+				   			OTC142.GJ_CFH_HOMEPAGE_INFO_SH a 
+				   		</otherwise>
+				   </choose>
+				   where 1=1 
+				   	<if test="cfhName!=null">
+				   		and CFH_NAME like concat(concat('%',#{cfhName}),'%')
+				   	</if>
+				   	<if test="cfhCode != null">
+				   		and CFH_CODE like concat(concat('%',#{cfhCode}),'%')
+				   	</if>
+					<if test ="id != null">
+						AND ID =#{id}
+					</if> 
+					order by to_number(id) desc
+		</select>
+		
+		<!-- 3.修改 -->
+		<update id="NMSecUpdWealthConfigInfo" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update  OTC142.GJ_CFH_HOMEPAGE_INFO_SH  set LCODER_UPDATE_TIME = sysdate, 
+					CFH_NAME =#{cfhName},
+					APP_JUMP_URL =#{appJumpUrl},
+					PC_JUMP_URL=#{pcJumpUrl},
+					JH_JUMP_URL=#{jhJumpUrl},
+					CFH_CODE = #{cfhCode},
+					SUP_NAME = (SELECT wm_concat(DISTINCT(SUP_NAME)) FROM otc.GJ_G2010_PROD_INFO_BASE WHERE MANAGER_ID = #{cfhCode}),
+					PRO_PROVIDER = (SELECT wm_concat(DISTINCT(PRO_PROVIDER)) FROM otc.GJ_G2010_PROD_INFO_BASE WHERE MANAGER_ID = #{cfhCode}),
+				    UPD_PERSONNEL=#{updPersonnel},
+				    UPD_TIME=to_char(sysdate,'yyyy.mm.dd'),
+				    CFH_INTRODUCT= #{cfhIntroduct}
+			where 
+				ID = #{id}
+		</update>
+		
+		<update id="NMSecUpdWealthConfigInfoMerge" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			merge into OTC142.GJ_CFH_HOMEPAGE_INFO a 
+			using (select * from OTC142.GJ_CFH_HOMEPAGE_INFO_SH ) b
+			on (a.id = b.id and b.id = #{id})
+			when matched then
+			update set 
+					a.CFH_CODE                       =b.CFH_CODE,
+					a.CFH_NAME                       =b.CFH_NAME,
+					a.APP_JUMP_URL                   =b.APP_JUMP_URL,
+					a.PC_JUMP_URL                    =b.PC_JUMP_URL,
+					a.JH_JUMP_URL                    =b.JH_JUMP_URL,
+					a.APP_MANAGER_LOGO_ID            =b.APP_MANAGER_LOGO_ID,
+					a.APP_MANAGER_LOGO_NAME          =b.APP_MANAGER_LOGO_NAME,
+					a.APP_MANAGER_LOGO_URL           =b.APP_MANAGER_LOGO_URL,
+					a.PC_MANAGER_LOGO_ID             =b.PC_MANAGER_LOGO_ID,
+					a.PC_MANAGER_LOGO_NAME           =b.PC_MANAGER_LOGO_NAME,
+					a.PC_MANAGER_LOGO_URL            =b.PC_MANAGER_LOGO_URL,
+					a.JH_MANAGER_LOGO_ID             =b.JH_MANAGER_LOGO_ID,
+					a.JH_MANAGER_LOGO_NAME          =b.JH_MANAGER_LOGO_NAME,
+					a.JH_MANAGER_LOGO_URL            =b.JH_MANAGER_LOGO_URL,
+					a.CREATE_TIME                    =b.CREATE_TIME,
+					a.SUP_NAME                      =b.SUP_NAME,
+					a.PRO_PROVIDER                    =b.PRO_PROVIDER,
+					a.CFH_INTRODUCT                  =b.CFH_INTRODUCT,
+					a.LCODER_UPDATE_TIME = b.LCODER_UPDATE_TIME
+
+			
+		</update>
+		
+		<update id="NMSecUpdWealthConfigInfoMergeSH" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			merge into OTC142.GJ_CFH_HOMEPAGE_INFO_SH a 
+			using (select * from OTC142.GJ_CFH_HOMEPAGE_INFO ) b
+			on (a.id = b.id and b.id = #{id})
+			when matched then
+			update set 
+					a.CFH_CODE                       =b.CFH_CODE,
+					a.CFH_NAME                       =b.CFH_NAME,
+					a.APP_JUMP_URL                   =b.APP_JUMP_URL,
+					a.PC_JUMP_URL                    =b.PC_JUMP_URL,
+					a.JH_JUMP_URL                    =b.JH_JUMP_URL,
+					a.APP_MANAGER_LOGO_ID            =b.APP_MANAGER_LOGO_ID,
+					a.APP_MANAGER_LOGO_NAME          =b.APP_MANAGER_LOGO_NAME,
+					a.APP_MANAGER_LOGO_URL           =b.APP_MANAGER_LOGO_URL,
+					a.PC_MANAGER_LOGO_ID             =b.PC_MANAGER_LOGO_ID,
+					a.PC_MANAGER_LOGO_NAME           =b.PC_MANAGER_LOGO_NAME,
+					a.PC_MANAGER_LOGO_URL            =b.PC_MANAGER_LOGO_URL,
+					a.JH_MANAGER_LOGO_ID             =b.JH_MANAGER_LOGO_ID,
+					a.JH_MANAGER_LOGO_NAME          =b.JH_MANAGER_LOGO_NAME,
+					a.JH_MANAGER_LOGO_URL            =b.JH_MANAGER_LOGO_URL,
+					a.CREATE_TIME                    =b.CREATE_TIME,
+					a.SUP_NAME                      =b.SUP_NAME,
+					a.PRO_PROVIDER                    =b.PRO_PROVIDER,
+					a.CFH_INTRODUCT                  =b.CFH_INTRODUCT,
+					a.LCODER_UPDATE_TIME = b.LCODER_UPDATE_TIME
+			
+		</update>
+		
+		<!-- 4.删除-->
+		<delete id="NMSecDelWealthConfigInfo" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			delete from  OTC142.GJ_CFH_HOMEPAGE_INFO  
+			where 
+				ID = #{id}
+		</delete>
+		
+		<delete id="NMSecDelWealthConfigInfoSH" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			delete from  OTC142.GJ_CFH_HOMEPAGE_INFO_SH  
+			where 
+				ID = #{id}
+		</delete>
+		
+		<!-- 5.修改App LOGO -->
+		<update id="NMSecUpdWealthConfigAppLOGO" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update  OTC142.GJ_CFH_HOMEPAGE_INFO_SH  set LCODER_UPDATE_TIME = sysdate, 
+					APP_MANAGER_LOGO_NAME =#{appManagerLogoName},
+					APP_MANAGER_LOGO_URL=#{appManagerLogoUrl},
+					APP_MANAGER_LOGO_ID=#{appManagerLogoId},
+					UPD_PERSONNEL=#{updPersonnel},
+				    UPD_TIME=to_char(sysdate,'yyyy.mm.dd')
+			where 
+				ID = #{id}
+
+		</update>
+		
+		<!-- 6.修改PC LOGO -->
+		<update id="NMSecUpdWealthConfigPcLOGO" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update  OTC142.GJ_CFH_HOMEPAGE_INFO_SH  set LCODER_UPDATE_TIME = sysdate, 
+					PC_MANAGER_LOGO_NAME =#{pcManagerLogoName},
+					PC_MANAGER_LOGO_URL=#{pcManagerLogoUrl},
+					PC_MANAGER_LOGO_ID=#{pcManagerLogoId},
+					UPD_PERSONNEL=#{updPersonnel},
+				    UPD_TIME=to_char(sysdate,'yyyy.mm.dd')
+			where 
+				ID = #{id}
+
+		</update>
+		
+		<!-- 7.修改JH LOGO -->
+		<update id="NMSecUpdWealthConfigJhLOGO" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update  OTC142.GJ_CFH_HOMEPAGE_INFO_SH  set LCODER_UPDATE_TIME = sysdate, 
+					JH_MANAGER_LOGO_NAME =#{jhManagerLogoName},
+					JH_MANAGER_LOGO_URL=#{jhManagerLogoUrl},
+					JH_MANAGER_LOGO_ID=#{jhManagerLogoId},
+					UPD_PERSONNEL=#{updPersonnel},
+				    UPD_TIME=to_char(sysdate,'yyyy.mm.dd')
+			where 
+				ID = #{id}
+
+		</update>
+		
+		<!-- 8.基金公司代码查询 -->
+		<select id="NMSecGetWealthInfo" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto" resultType ="map">
+		      select sup_name value, manager_id key
+			       from otc.GJ_G2010_PROD_INFO_BASE
+			      where sup_name !=' 'and sup_name is not null 
+			      and prod_type ='1'
+			      group by sup_name, manager_id
+			      order by sup_name
+			</select>	
+			
+			
+		<!-- 6.审核状态修改1 -->
+		<update id="NMSecWealthInfoAudit4to1" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update OTC142.GJ_CFH_HOMEPAGE_INFO set LCODER_UPDATE_TIME = sysdate,
+				AUDIT_STATUS = #{type},
+				OPER_STATUS = 1
+				where ID = #{id}
+		</update>
+		
+		<!-- 8.审核状态修改3 -->
+		<update id="NMSecWealthInfoAuditAutoTo2" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update OTC142.GJ_CFH_HOMEPAGE_INFO set LCODER_UPDATE_TIME = sysdate,
+				AUDIT_STATUS = 2
+				where ID = #{id}
+		</update>
+		
+		<!-- 9.审核状态修改4 -->
+		<update id="NMSecWealthInfoOperIdTo1" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update OTC142.GJ_CFH_HOMEPAGE_INFO set LCODER_UPDATE_TIME = sysdate,
+				OPER_STATUS = 1
+				where ID = #{id}
+		</update>
+		
+		<update id="NMSecWealthInfoOperIdTo2" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update OTC142.GJ_CFH_HOMEPAGE_INFO set LCODER_UPDATE_TIME = sysdate,
+				OPER_STATUS = 2
+				where ID = #{id}
+		</update>
+		
+		<update id="NMSecWealthInfoOperIdTo3" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update OTC142.GJ_CFH_HOMEPAGE_INFO set LCODER_UPDATE_TIME = sysdate,
+				OPER_STATUS = 3
+				where ID = #{id}
+		</update>
+		
+		<update id="NMSecWealthInfoOperIdTo4" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update OTC142.GJ_CFH_HOMEPAGE_INFO set LCODER_UPDATE_TIME = sysdate,
+				OPER_STATUS = 4
+				where ID = #{id}
+		</update>
+		
+		<!-- ———————————————————————————————————————————————————————————————————————————————————————————————— -->
+		<!-- 资讯规则用户标签 -->
+		<update id="G2010ZXRuleUserIdUpdate" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+		 	update OTC142.GJ_G2010_ITEM_NEWS_RULE
+			set LCODER_UPDATE_TIME = sysdate, user_rule_id=#{userRuleId}
+			where id=#{id}
+	 	</update>
+	 
+		 <update id="G2010ZXRuleUserIdUpdate2" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+		 	update OTC142.GJ_G2010_ITEM_NEWS_RULE_SH
+			set LCODER_UPDATE_TIME = sysdate, user_rule_id=#{userRuleId}
+			where id=#{id}
+		 </update>
+		 <!-- 资讯用户标签 -->
+		 <update id="G2010ZXItemUserIdUpdate" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+		 	update OTC142.GJ_G2010_ITEM_NEWS_INFO
+			set LCODER_UPDATE_TIME = sysdate, user_rule_id=decode(#{userRuleId},'全部',null,'',null,#{userRuleId})
+			where id=#{id}
+	 	</update>
+	 
+		 <update id="G2010ZXItemUserIdUpdate2" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+		 	update OTC142.GJ_G2010_ITEM_NEWS_INFO_SH
+			set LCODER_UPDATE_TIME = sysdate, user_rule_id=decode(#{userRuleId},'全部',null,'',null,#{userRuleId})
+			where id=#{id}
+		 </update>
+		 
+		 
+		 <!-- ———————————————————————————————————————————————————————————————————————————————————————————————— -->
+		 <!-- 产品与活动代码映射关系 -->
+		 <select id="NMSecGetProdTrusteeBankInfo" parameterType="com.linkstec.newmall.dto.GjG2010KnowLedgeInfoDto" resultType ="map">
+			select PROD_CODE,
+				   TRUSTEE_BANK
+				   from otc.GJ_G2010_PROD_TRUSTEE_BANK
+				   where 1=1 
+				   <if test="prodCode != null">
+				  			 and PROD_CODE like concat(concat('%',#{prodCode}),'%')			
+				   </if>
+				   <if test="trusteeBank != null">
+				   			 and TRUSTEE_BANK like concat(concat('%',#{trusteeBank}),'%')	
+				   </if>
+		</select>
+		
+		 <delete id="NMSecDelProdTrusteeBankInfo" parameterType="com.linkstec.newmall.dto.GjG2010KnowLedgeInfoDto" >
+			delete
+				   from otc.GJ_G2010_PROD_TRUSTEE_BANK
+				   where 
+				   
+				  			  PROD_CODE = #{prodCode}	
+				   
+				   			 and TRUSTEE_BANK = #{trusteeBank}
+		</delete>
+		
+		
+		<insert id="NMSecAddProdTrusteeBankInfo" parameterType="com.linkstec.newmall.dto.GjG2010KnowLedgeInfoDto">
+		insert into  otc.GJ_G2010_PROD_TRUSTEE_BANK(
+				PROD_CODE,
+				TRUSTEE_BANK
+			) values (
+				#{prodCode},
+				#{trusteeBank}
+			)
+		</insert>
+		
+		<select id="NMSecGetProdInfo" parameterType="com.linkstec.newmall.dto.GjG2010KnowLedgeInfoDto" resultType ="map">
+			select   PROD_NAME||'   ('|| PROD_CODE ||')'  key,
+            		 PROD_CODE  value
+          		 from otc.GJ_G2010_PROD_INFO_BASE
+           			  order by PROD_CODE desc
+		</select>
+		
+		<insert id="NMSecDelProdTrusteeBankOperInfo" parameterType="com.linkstec.newmall.dto.GjG2010KnowLedgeInfoDto">
+		insert into  otc.GJ_G2010_OPER_RECORD(
+				OPEROR,
+				OPER_APP_CONTXT,
+				OPER_APP_TARGET,
+				OPER_APP_DATE
+			) values (
+				#{updatePerson},
+				1,
+				('产品对应活动代码:'||#{operAppTarget}),
+				to_char(sysdate,'yyyy-MM-dd hh24:mi:ss')
+			)
+		</insert>
+		
+		<!-- ———————————————————————————————————————————————————————————————————————————————————————————————— -->
+		<!-- 模板配置 -->
+		<select id="NMSecGetPubMbSeq" parameterType="com.linkstec.newmall.dto.GjG2010KnowLedgeInfoDto" resultType ="string">
+			select   otc.SEQ_ITEM_MB_ID_PUB.nextval 
+          		 from dual
+		</select>
+		
+		
+		
+		
+		<!-- 第一步新增私有模板 -->
+		<!-- 二级栏目模板增加 -->
+		
+		<insert id="NMSecItemAdd2_MB_PRI" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+				insert into otc.GJ_G2010_ITEM_INFO_MB_PRI(
+					ID,
+					ITEM_NAME,
+					ITEM_REMARK,
+					PRIORITY,
+					ITEM_URL,
+					ITEM_TYPE,
+					AUDIT_STATUS,
+					AUDIT_STATUS_SH,
+					ITEM_CODE_SUPER,
+					CREATE_PERSONNEL,
+					CREATE_TIME,
+					ITEM_STATUS,
+					CUSTOMIZATION,	
+					MORE_TYPE,
+					MORE_TYPE_ID,	
+					MORE_WORD,
+					ITEM_URL_OLD,
+					MALL_URL,
+					SHELF_TYPE,
+					ITEM_NS_IS_DISPLAY,
+					SHELF_BROWSE_WAY,
+					SHELF_IS_CARIYSEL,
+					SHELF_CARIYSEL_TIME,
+					PROD_WITH_ENHANCED,
+					NAME_DESCRI_DISPLACE,
+					BUY_BUTTON_SHOW,
+					MOULD_CODE,
+					SPARE_MOULD_CODE,
+					ITEM_PURPOSE,
+					ANOTHER_BATCH,
+					buy_button_url,
+					another_batch_word,
+					USER_RULE_ID,
+					ITEM_UUID,
+					PC_ITEM_URL,
+					ITEM_PURPOSE_show,
+					red_point_display,
+					AUTO_SORT_IDENTIF, 
+					RATE_TYPE,
+					AGGREG_NAME,
+					AGGREG_REMARK,
+					TEMPLATE_TYPE	
+				)
+				values(
+					otc.SEQ_ITEM_MB_ID.NEXTVAL,
+					#{itemName},
+					#{itemRemark},
+					#{priority},
+					decode(#{moreType},1,#{itemUrl},2,#{itemUrl},#{moreTypeId}),
+					2,
+					4,
+					1,
+					#{itemCodeSuper},
+					#{createPersonnel},
+					sysdate,
+					1,
+					#{customization},
+					#{moreType},
+					#{moreTypeId},
+					#{moreWord},
+					#{itemUrlOld},
+					#{mallUrl},
+					#{shelfType},
+					<if test='shelfType=="1"'>
+						#{itemNsIsDisplay},		
+					</if>
+					<if test='shelfType=="2"'>
+						2,
+					</if>
+					<if test='shelfType=="3"'>
+						#{itemNsIsDisplay},
+					</if>
+					<if test='shelfType=="4"'>
+						#{itemNsIsDisplay},
+					</if>
+					<if test='shelfType=="5"'>
+						5,
+					</if>
+					#{shelfBrowseWay},
+					#{shelfIsCariysel},
+					#{shelfCariyselTime},
+					#{prodWithEnhanced},
+					#{nameDescriDisplace},
+					#{buyButtonShow},
+					#{mouldCode},
+					#{mouldCode},
+					nvl(#{itemPurpose},'1,4'),
+					#{anotherBatch},
+					#{buyButtonUrl},
+					#{anotherBatchWord},
+					#{ruleId},
+					#{uuId},
+					decode(#{moreType},1,#{pcItemUrl},2,#{pcItemUrl},#{moreTypeId}),
+					#{itemPurposeShow} ,
+					#{redPointDisplay},
+					#{autoSortIdentif},
+					#{rateType},
+					#{aggregName},
+					#{aggregRemark},
+					1
+				)
+			</insert>
+			
+			<!-- 专区模板增加 -->
+			<insert id="NMSecItemAdd3_MB_PRI" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+				insert into otc.GJ_G2010_ITEM_INFO_MB_PRI(
+					ID,
+					ITEM_NAME,
+					ITEM_REMARK,
+					PRIORITY,
+					ITEM_URL,
+					ITEM_TYPE,
+					AUDIT_STATUS,
+					AUDIT_STATUS_SH,
+					CREATE_PERSONNEL,
+					CREATE_TIME,
+					ITEM_STATUS,
+					SELL_REMIND,
+					DEPT_NUM,
+					ORG_NUM,
+					TICKET_NUM,
+					NOLOGIN_IS_DISPLAY,
+					LOGO_URL,
+					LOGO_IMG_NAME,
+					LOGO_IMG_ID,
+					LOGO_IMG_SOURCE_NAME,
+					MORE_TYPE,
+					MORE_TYPE_ID,
+					ITEM_URL_OLD,
+					MALL_URL,
+					TOP_ADVERTISE_TIME,
+					TOP_ADVERTISE_DISPLAY_TYPE,
+					SECOND_ITEM_STYLE,
+					NOTICE_DISPLAY_TIME,
+					NOTICE_DISPLAY_TYPE,
+					POSITION_IS_DISPLAY,
+					EXPIRATION_IS_DISPLAY,
+					LOGIN_TO_JUMP,
+					QUALIF_INVESTOR_JUMP,
+					USER_RULE_ID,
+					BLACK_ICON_ID,
+					BLACK_ICON_NAME,
+					BLACK_ICON_URL,
+					ITEM_UUID,
+					item_purpose,
+					PC_LOGO_URL,
+					PC_LOGO_ID,
+					PC_LOGO_NAME,
+					PC_ITEM_URL,
+					ITEM_PURPOSE_SHOW,
+					THIRD_ITEM_TYPE,
+					version_num,
+					version_num_show,
+					BOTTEM_FLOAT_STYLE,
+					FLOAT_WORD,
+					APP_FLOAT_URL,
+					JHW_FLOAT_URL,
+					PC_FLOAT_URL,
+					IS_ENABLE,
+					SHARE_PIC_ON_MOBILE_ID,
+					SHARE_PIC_ON_MOBILE_SOURCE,
+					SHARE_PIC_ON_MOBILE_URL,
+					TEMPLATE_TYPE			
+				)
+				values(
+					otc.SEQ_ITEM_MB_ID.NEXTVAL,
+					#{itemName},
+					#{itemRemark},
+					#{priority},
+					decode(#{moreType},2,#{itemUrl},#{moreTypeId}),
+					3,
+					4,
+					1,
+					#{createPersonnel},
+					sysdate,
+					1,
+					#{sellRemind},
+					#{deptNum},
+					#{orgNum},
+					#{ticketNum},
+					#{nologinIsDisplay},
+					#{imageUrl},
+					decode(#{imageId},null,null,#{imageIdEdit}||#{imageNameEdit}),
+					#{imageId},
+					#{imageName},
+					#{moreType},
+					#{moreTypeId},
+					#{itemUrlOld},
+					#{mallUrl},
+					#{topAdvertiseTime},
+					1,
+					0,
+					#{noticeDisplayTime},
+					1,
+					#{positionIsDisplay},
+					#{expirationIsDisplay},
+					#{loginToJump},
+					#{qualifInvestorJump},
+					#{ruleId},
+					#{blackIconId},
+					#{blackIconName},
+					#{blackIconUrl},
+					#{uuId},
+					decode(#{thirdItemType},'1',#{itemPurpose},'1,4'),
+					#{pcLogoUrl},
+					#{pcLogoId},
+					#{pcLogoName},
+					decode(#{moreType},2,#{pcItemUrl},#{moreTypeId}),
+					#{itemPurposeShow},
+					#{thirdItemType},
+					#{versionNum},
+					#{versionNumShow},
+					#{bottemFloatStyle},
+					#{floatWord},
+					#{appFloatUrl},
+					#{jhwFloatUrl},
+					#{pcFloatUrl},
+					2,
+					#{picOnMobileId},
+					#{picOnMobileSource},
+					#{picOnMobileUrl},
+					1
+				)
+			</insert>
+			
+			<!-- 第二步可以二级栏目和专区共用 -->
+			<!-- 第二步将私有模板发布成为公有模板 -->
+			<insert id="NMSecItemAdd2_MB_PUB" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+				<!-- insert into otc.GJ_G2010_ITEM_INFO_MB_PUB select * from otc.GJ_G2010_ITEM_INFO_MB_PRI where id = #{id} -->
+				<!-- merge into otc.GJ_G2010_ITEM_INFO_MB_PUB t1
+        USING (SELECT * FROM otc.GJ_G2010_ITEM_INFO_MB_PRI where id = #{id}) t2
+        ON (t1.ID = t2.ID AND t1.ID =#{id})
+        WHEN MATCHED THEN
+        UPDATE SET 
+          t1.ITEM_NAME=t2.ITEM_NAME,  
+          t1.ITEM_REMARK=t2.ITEM_REMARK,    
+          t1.ITEM_URL=t2.ITEM_URL  ,
+          t1.ITEM_TYPE=t2.ITEM_TYPE,
+          t1.AUDIT_STATUS=4,    
+          t1.PRIORITY=t2.PRIORITY,
+          t1.ITEM_CODE_SUPER=t2.ITEM_CODE_SUPER,  
+          t1.CREATE_PERSONNEL=t2.CREATE_PERSONNEL  ,  
+          t1.CREATE_TIME=t2.CREATE_TIME,  
+          t1.UPD_TIME=t2.UPD_TIME,
+          t1.UPD_PERSONNEL=t2.UPD_PERSONNEL,  
+          t1.ITEM_STATUS  =t2.ITEM_STATUS,
+          t1.TOP_ADVERTISE_NAME  =t2.TOP_ADVERTISE_NAME,    
+          t1.TOP_ADVERTISE_TIME=t2.TOP_ADVERTISE_TIME  ,    
+          t1.TOP_ADVERTISE_DISPLAY_TYPE=t2.TOP_ADVERTISE_DISPLAY_TYPE,
+          t1.NOTICE_DISPLAY_TIME=t2.NOTICE_DISPLAY_TIME,
+          t1.SECOND_ITEM_STYLE=t2.SECOND_ITEM_STYLE,  
+          t1.SELL_REMIND=t2.SELL_REMIND,  
+          t1.LOGO_URL  =t2.LOGO_URL,  
+          t1.NOTICE_DISPLAY_TYPE=t2.NOTICE_DISPLAY_TYPE,    
+          t1.LOGO_IMG_NAME=t2.LOGO_IMG_NAME,
+          t1.LOGO_IMG_ID=t2.LOGO_IMG_ID,
+          t1.LOGO_IMG_SOURCE_NAME  =t2.LOGO_IMG_SOURCE_NAME,      
+          t1.MORE_TYPE=t2.MORE_TYPE,  
+          t1.OPER_ID  =t2.OPER_ID  ,    
+          t1.UPD_RECORD=t2.UPD_RECORD,      
+          t1.MORE_TYPE_ID  =t2.MORE_TYPE_ID,      
+          t1.MORE_WORD=t2.MORE_WORD,    
+          t1.CUSTOMIZATION=t2.CUSTOMIZATION,      
+          t1.NOLOGIN_IS_DISPLAY=t2.NOLOGIN_IS_DISPLAY  ,    
+          t1.TICKET_NUM=t2.TICKET_NUM  ,      
+          t1.ORG_NUM=t2.ORG_NUM,      
+          t1.DEPT_NUM  =t2.DEPT_NUM,    
+          t1.ITEM_URL_OLD  =t2.ITEM_URL_OLD,      
+          t1.ITEM_PURPOSE  =t2.ITEM_PURPOSE,      
+          t1.MALL_URL=t2.MALL_URL  ,    
+          t1.POSITION_IS_DISPLAY=t2.POSITION_IS_DISPLAY,        
+          t1.ITEM_PURPOSE_SHOW=t2.ITEM_PURPOSE_SHOW,        
+          t1.EXPIRATION_IS_DISPLAY=t2.EXPIRATION_IS_DISPLAY,        
+          t1.NEW_ORG_NUM=t2.NEW_ORG_NUM,        
+          t1.LOGIN_TO_JUMP=t2.LOGIN_TO_JUMP,        
+          t1.QUALIF_INVESTOR_JUMP=t2.QUALIF_INVESTOR_JUMP  ,      
+          t1.SHELF_TYPE=t2.SHELF_TYPE  ,      
+          t1.ITEM_NS_IS_DISPLAY=t2.ITEM_NS_IS_DISPLAY,        
+          t1.SHELF_BROWSE_WAY=t2.SHELF_BROWSE_WAY  ,      
+          t1.SHELF_IS_CARIYSEL=t2.SHELF_IS_CARIYSEL,      
+          t1.SHELF_CARIYSEL_TIME  =t2.SHELF_CARIYSEL_TIME  ,      
+          t1.PROD_WITH_ENHANCED=t2.PROD_WITH_ENHANCED,        
+          t1.NAME_DESCRI_DISPLACE=t2.NAME_DESCRI_DISPLACE  ,      
+          t1.LIMIT_SHOW_BAR=t2.LIMIT_SHOW_BAR,        
+          t1.BUY_BUTTON_SHOW=t2.BUY_BUTTON_SHOW,      
+          t1.MOULD_CODE=t2.MOULD_CODE  ,      
+          t1.SPARE_MOULD_CODE  =t2.SPARE_MOULD_CODE,      
+          t1.MOULD_CALCULATE_DATE=t2.MOULD_CALCULATE_DATE  ,    
+          t1.ITEM_SUPER_PURPOSE=t2.ITEM_SUPER_PURPOSE  ,      
+          t1.ANOTHER_BATCH=t2.ANOTHER_BATCH,  
+          t1.BUY_BUTTON_URL=t2.BUY_BUTTON_URL,      
+          t1.ICON_AFTER_URL=t2.ICON_AFTER_URL  ,    
+          t1.ICON_AFTER_ID=t2.ICON_AFTER_ID,    
+          t1.ICON_AFTER_NAME=t2.ICON_AFTER_NAME,      
+          t1.ANOTHER_BATCH_WORD=t2.ANOTHER_BATCH_WORD  ,    
+          t1.USER_RULE_ID  =t2.USER_RULE_ID,  
+          t1.BLACK_ICON_URL  =t2.BLACK_ICON_URL,  
+          t1.BLACK_ICON_ID=t2.BLACK_ICON_ID,    
+          t1.BLACK_ICON_NAME=t2.BLACK_ICON_NAME,  
+          t1.BLACK_ICON_AFTER_URL  =t2.BLACK_ICON_AFTER_URL,      
+          t1.BLACK_ICON_AFTER_ID=t2.BLACK_ICON_AFTER_ID,      
+          t1.BLACK_ICON_AFTER_NAME=t2.BLACK_ICON_AFTER_NAME,        
+          t1.USER_RULE_ID_SPARE=t2.USER_RULE_ID_SPARE  ,      
+          t1.ITEM_UUID=t2.ITEM_UUID,    
+          t1.PC_LOGO_URL=t2.PC_LOGO_URL,    
+          t1.PC_LOGO_ID=t2.PC_LOGO_ID  ,  
+          t1.PC_LOGO_NAME=t2.PC_LOGO_NAME  ,  
+          t1.PC_ITEM_URL=t2.PC_ITEM_URL,  
+          t1.SUP_NAME  =t2.SUP_NAME,    
+          t1.PROD_FEATURE_LABEL_ENHANCED  =t2.PROD_FEATURE_LABEL_ENHANCED  ,    
+          t1.RED_POINT_DISPLAY=t2.RED_POINT_DISPLAY,        
+          t1.THIRD_ITEM_TYPE=t2.THIRD_ITEM_TYPE,      
+          t1.AUTO_SORT_IDENTIF=t2.AUTO_SORT_IDENTIF,        
+          t1.RATE_TYPE=t2.RATE_TYPE,      
+          t1.VERSION_NUM=t2.VERSION_NUM,        
+          t1.VERSION_NUM_SHOW  =t2.VERSION_NUM_SHOW,      
+          t1.BOTTEM_FLOAT_STYLE=t2.BOTTEM_FLOAT_STYLE  ,    
+          t1.FLOAT_WORD=t2.FLOAT_WORD  ,    
+          t1.APP_FLOAT_URL=t2.APP_FLOAT_URL,      
+          t1.JHW_FLOAT_URL  =t2.JHW_FLOAT_URL,    
+          t1.PC_FLOAT_URL=t2.PC_FLOAT_URL  ,    
+          t1.IS_ENABLE=t2.IS_ENABLE,      
+          t1.AGGREG_NAME=t2.AGGREG_NAME,      
+          t1.AGGREG_REMARK=t2.AGGREG_REMARK,      
+          t1.SHARE_PIC_ON_MOBILE_ID=t2.SHARE_PIC_ON_MOBILE_ID,        
+          t1.SHARE_PIC_ON_MOBILE_SOURCE=t2.SHARE_PIC_ON_MOBILE_SOURCE  ,      
+          t1.SHARE_PIC_ON_MOBILE_URL=t2.SHARE_PIC_ON_MOBILE_URL,      
+          t1.AUDIT_STATUS_SH=1,        
+          t1.YD_URL_NAME=t2.YD_URL_NAME,    
+          t1.PC_URL_NAME  =t2.PC_URL_NAME  ,    
+          t1.JH_URL_NAME=t2.JH_URL_NAME,        
+          t1.IS_FUNCTION=t2.IS_FUNCTION,      
+          t1.FUNCTION_NAME=t2.FUNCTION_NAME,        
+          t1.SHARE_CODE=t2.SHARE_CODE  ,      
+          t1.SHARE_MINI_PROGRAM_WHETHER=t2.SHARE_MINI_PROGRAM_WHETHER,        
+          t1.TEMPLATE_TYPE=t2.TEMPLATE_TYPE  
+        WHEN NOT MATCHED THEN -->
+          INSERT into otc.GJ_G2010_ITEM_INFO_MB_PUB t1(
+          	t1.ID,
+            t1.ITEM_NAME,  
+            t1.ITEM_REMARK ,   
+            t1.ITEM_URL,
+            t1.ITEM_TYPE,
+            t1.AUDIT_STATUS , 
+            t1.PRIORITY,
+            t1.ITEM_CODE_SUPER,
+            t1.CREATE_PERSONNEL,
+            t1.CREATE_TIME,
+            t1.ITEM_STATUS,  
+            t1.TOP_ADVERTISE_NAME,    
+            t1.TOP_ADVERTISE_TIME , 
+            t1.TOP_ADVERTISE_DISPLAY_TYPE,
+            t1.NOTICE_DISPLAY_TIME,
+            t1.SECOND_ITEM_STYLE,
+            t1.SELL_REMIND,
+            t1.LOGO_URL  ,
+            t1.NOTICE_DISPLAY_TYPE ,   
+            t1.LOGO_IMG_NAME,
+            t1.LOGO_IMG_ID,
+            t1.LOGO_IMG_SOURCE_NAME,  
+            t1.MORE_TYPE,
+            t1.OPER_ID ,   
+            t1.UPD_RECORD,      
+            t1.MORE_TYPE_ID,        
+            t1.MORE_WORD,  
+            t1.CUSTOMIZATION,    
+            t1.NOLOGIN_IS_DISPLAY,  
+            t1.TICKET_NUM ,     
+            t1.ORG_NUM,    
+            t1.DEPT_NUM ,   
+            t1.ITEM_URL_OLD,      
+            t1.ITEM_PURPOSE ,     
+            t1.MALL_URL ,   
+            t1.POSITION_IS_DISPLAY,      
+            t1.ITEM_PURPOSE_SHOW,    
+            t1.EXPIRATION_IS_DISPLAY,      
+            t1.NEW_ORG_NUM,    
+            t1.LOGIN_TO_JUMP ,     
+            t1.QUALIF_INVESTOR_JUMP,      
+            t1.SHELF_TYPE,    
+            t1.ITEM_NS_IS_DISPLAY,        
+            t1.SHELF_BROWSE_WAY,      
+            t1.SHELF_IS_CARIYSEL ,     
+            t1.SHELF_CARIYSEL_TIME ,     
+            t1.PROD_WITH_ENHANCED ,       
+            t1.NAME_DESCRI_DISPLACE,    
+            t1.LIMIT_SHOW_BAR ,       
+            t1.BUY_BUTTON_SHOW ,     
+            t1.MOULD_CODE ,   
+            t1.SPARE_MOULD_CODE ,     
+            t1.MOULD_CALCULATE_DATE , 
+            t1.ITEM_SUPER_PURPOSE,      
+            t1.ANOTHER_BATCH , 
+            t1.BUY_BUTTON_URL,    
+            t1.ICON_AFTER_URL ,   
+            t1.ICON_AFTER_ID,    
+            t1.ICON_AFTER_NAME ,   
+            t1.ANOTHER_BATCH_WORD,  
+            t1.USER_RULE_ID ,   
+            t1.BLACK_ICON_URL,    
+            t1.BLACK_ICON_ID,    
+            t1.BLACK_ICON_NAME,  
+            t1.BLACK_ICON_AFTER_URL  ,    
+            t1.BLACK_ICON_AFTER_ID ,   
+            t1.BLACK_ICON_AFTER_NAME  ,    
+            t1.USER_RULE_ID_SPARE ,     
+            t1.ITEM_UUID   , 
+            t1.PC_LOGO_URL ,   
+            t1.PC_LOGO_ID , 
+            t1.PC_LOGO_NAME,
+            t1.PC_ITEM_URL,
+            t1.SUP_NAME   ,   
+            t1.PROD_FEATURE_LABEL_ENHANCED  ,    
+            t1.RED_POINT_DISPLAY ,     
+            t1.THIRD_ITEM_TYPE  ,  
+            t1.AUTO_SORT_IDENTIF ,     
+            t1.RATE_TYPE ,     
+            t1.VERSION_NUM ,     
+            t1.VERSION_NUM_SHOW ,       
+            t1.BOTTEM_FLOAT_STYLE , 
+            t1.FLOAT_WORD , 
+            t1.APP_FLOAT_URL  ,  
+            t1.JHW_FLOAT_URL ,     
+            t1.PC_FLOAT_URL ,   
+            t1.IS_ENABLE  ,    
+            t1.AGGREG_NAME,      
+            t1.AGGREG_REMARK ,   
+            t1.SHARE_PIC_ON_MOBILE_ID,      
+            t1.SHARE_PIC_ON_MOBILE_SOURCE,      
+            t1.SHARE_PIC_ON_MOBILE_URL ,   
+            t1.AUDIT_STATUS_SH  ,    
+            t1.YD_URL_NAME,  
+            t1.PC_URL_NAME ,     
+            t1.JH_URL_NAME ,     
+            t1.IS_FUNCTION ,     
+            t1.FUNCTION_NAME,      
+            t1.SHARE_CODE ,     
+            t1.SHARE_MINI_PROGRAM_WHETHER,        
+            t1.TEMPLATE_TYPE 
+        )  select 
+        	#{itemCode},
+            t2.ITEM_NAME ,
+            t2.ITEM_REMARK,    
+            t2.ITEM_URL,
+            t2.ITEM_TYPE,
+            t2.AUDIT_STATUS,  
+            t2.PRIORITY,
+            #{itemCodeSuper},
+            t2.CREATE_PERSONNEL,
+            t2.CREATE_TIME,
+            t2.ITEM_STATUS , 
+            t2.TOP_ADVERTISE_NAME,    
+            t2.TOP_ADVERTISE_TIME , 
+            t2.TOP_ADVERTISE_DISPLAY_TYPE,
+            t2.NOTICE_DISPLAY_TIME,
+            t2.SECOND_ITEM_STYLE,
+            t2.SELL_REMIND,
+            t2.LOGO_URL,  
+            t2.NOTICE_DISPLAY_TYPE,    
+            t2.LOGO_IMG_NAME,
+            t2.LOGO_IMG_ID,
+            t2.LOGO_IMG_SOURCE_NAME,        
+            t2.MORE_TYPE,
+            t2.OPER_ID ,   
+            t2.UPD_RECORD,      
+            t2.MORE_TYPE_ID,        
+            t2.MORE_WORD , 
+            t2.CUSTOMIZATION,    
+            t2.NOLOGIN_IS_DISPLAY , 
+            t2.TICKET_NUM,      
+            t2.ORG_NUM,    
+            t2.DEPT_NUM,    
+            t2.ITEM_URL_OLD ,     
+            t2.ITEM_PURPOSE ,     
+            t2.MALL_URL,    
+            t2.POSITION_IS_DISPLAY,      
+            t2.ITEM_PURPOSE_SHOW,    
+            t2.EXPIRATION_IS_DISPLAY,      
+            t2.NEW_ORG_NUM,    
+            t2.LOGIN_TO_JUMP,      
+            t2.QUALIF_INVESTOR_JUMP,      
+            t2.SHELF_TYPE,    
+            t2.ITEM_NS_IS_DISPLAY,        
+            t2.SHELF_BROWSE_WAY ,     
+            t2.SHELF_IS_CARIYSEL,      
+            t2.SHELF_CARIYSEL_TIME,      
+            t2.PROD_WITH_ENHANCED,        
+            t2.NAME_DESCRI_DISPLACE,    
+            t2.LIMIT_SHOW_BAR ,       
+            t2.BUY_BUTTON_SHOW ,     
+            t2.MOULD_CODE ,   
+            t2.SPARE_MOULD_CODE,      
+            t2.MOULD_CALCULATE_DATE , 
+            t2.ITEM_SUPER_PURPOSE ,     
+            t2.ANOTHER_BATCH,  
+            t2.BUY_BUTTON_URL,    
+            t2.ICON_AFTER_URL,    
+            t2.ICON_AFTER_ID ,   
+            t2.ICON_AFTER_NAME ,   
+            t2.ANOTHER_BATCH_WORD,  
+            t2.USER_RULE_ID ,   
+            t2.BLACK_ICON_URL,    
+            t2.BLACK_ICON_ID ,   
+            t2.BLACK_ICON_NAME , 
+            t2.BLACK_ICON_AFTER_URL ,     
+            t2.BLACK_ICON_AFTER_ID ,   
+            t2.BLACK_ICON_AFTER_NAME,      
+            t2.USER_RULE_ID_SPARE,      
+            t2.ITEM_UUID,    
+            t2.PC_LOGO_URL,    
+            t2.PC_LOGO_ID , 
+            t2.PC_LOGO_NAME,
+            t2.PC_ITEM_URL,
+            t2.SUP_NAME  ,    
+            t2.PROD_FEATURE_LABEL_ENHANCED,      
+            t2.RED_POINT_DISPLAY,      
+            t2.THIRD_ITEM_TYPE,    
+            t2.AUTO_SORT_IDENTIF,      
+            t2.RATE_TYPE,      
+            t2.VERSION_NUM ,     
+            t2.VERSION_NUM_SHOW,        
+            t2.BOTTEM_FLOAT_STYLE,  
+            t2.FLOAT_WORD  ,
+            t2.APP_FLOAT_URL,    
+            t2.JHW_FLOAT_URL,      
+            t2.PC_FLOAT_URL,    
+            t2.IS_ENABLE  ,    
+            t2.AGGREG_NAME,      
+            t2.AGGREG_REMARK ,   
+            t2.SHARE_PIC_ON_MOBILE_ID,      
+            t2.SHARE_PIC_ON_MOBILE_SOURCE,      
+            t2.SHARE_PIC_ON_MOBILE_URL ,   
+            t2.AUDIT_STATUS_SH  ,    
+            t2.YD_URL_NAME  ,
+            t2.PC_URL_NAME,      
+            t2.JH_URL_NAME ,     
+            t2.IS_FUNCTION ,     
+            t2.FUNCTION_NAME,      
+            t2.SHARE_CODE   ,   
+            t2.SHARE_MINI_PROGRAM_WHETHER ,       
+            t2.TEMPLATE_TYPE  
+            from otc.gj_g2010_item_info_mb_pri t2 where id = #{id}
+
+					
+			</insert>
+			
+			<insert id="NMSecItemAdd2_MB_PUB_SH" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+			insert into otc.gj_g2010_item_info_mb_pub_sh a
+				select * from otc.gj_g2010_item_info_mb_pub b where  b.id not in (select id from otc.gj_g2010_item_info_mb_pub_sh)
+ 				<!-- merge into otc.GJ_G2010_ITEM_INFO_MB_PUB_SH t1
+				        USING (SELECT * FROM otc.GJ_G2010_ITEM_INFO_MB_PRI where id = #{id}) t2
+				        ON (t1.ID = t2.ID AND t1.ID = #{id})
+				        WHEN MATCHED THEN
+				        UPDATE SET 
+				          t1.ITEM_NAME=t2.ITEM_NAME,  
+				          t1.ITEM_REMARK=t2.ITEM_REMARK,    
+				          t1.ITEM_URL=t2.ITEM_URL  ,
+				          t1.ITEM_TYPE=t2.ITEM_TYPE,
+				          t1.AUDIT_STATUS=1  ,    
+				          t1.PRIORITY=t2.PRIORITY,
+				          t1.ITEM_CODE_SUPER=t2.ITEM_CODE_SUPER,  
+				          t1.CREATE_PERSONNEL=t2.CREATE_PERSONNEL  ,  
+				          t1.CREATE_TIME=t2.CREATE_TIME,  
+				          t1.UPD_TIME=t2.UPD_TIME,
+				          t1.UPD_PERSONNEL=t2.UPD_PERSONNEL,  
+				          t1.ITEM_STATUS  =t2.ITEM_STATUS,
+				          t1.TOP_ADVERTISE_NAME  =t2.TOP_ADVERTISE_NAME,    
+				          t1.TOP_ADVERTISE_TIME=t2.TOP_ADVERTISE_TIME  ,    
+				          t1.TOP_ADVERTISE_DISPLAY_TYPE=t2.TOP_ADVERTISE_DISPLAY_TYPE,
+				          t1.NOTICE_DISPLAY_TIME=t2.NOTICE_DISPLAY_TIME,
+				          t1.SECOND_ITEM_STYLE=t2.SECOND_ITEM_STYLE,  
+				          t1.SELL_REMIND=t2.SELL_REMIND,  
+				          t1.LOGO_URL  =t2.LOGO_URL,  
+				          t1.NOTICE_DISPLAY_TYPE=t2.NOTICE_DISPLAY_TYPE,    
+				          t1.LOGO_IMG_NAME=t2.LOGO_IMG_NAME,
+				          t1.LOGO_IMG_ID=t2.LOGO_IMG_ID,
+				          t1.LOGO_IMG_SOURCE_NAME  =t2.LOGO_IMG_SOURCE_NAME,      
+				          t1.MORE_TYPE=t2.MORE_TYPE,  
+				          t1.OPER_ID  =t2.OPER_ID  ,    
+				          t1.UPD_RECORD=t2.UPD_RECORD,      
+				          t1.MORE_TYPE_ID  =t2.MORE_TYPE_ID,      
+				          t1.MORE_WORD=t2.MORE_WORD,    
+				          t1.CUSTOMIZATION=t2.CUSTOMIZATION,      
+				          t1.NOLOGIN_IS_DISPLAY=t2.NOLOGIN_IS_DISPLAY  ,    
+				          t1.TICKET_NUM=t2.TICKET_NUM  ,      
+				          t1.ORG_NUM=t2.ORG_NUM,      
+				          t1.DEPT_NUM  =t2.DEPT_NUM,    
+				          t1.ITEM_URL_OLD  =t2.ITEM_URL_OLD,      
+				          t1.ITEM_PURPOSE  =t2.ITEM_PURPOSE,      
+				          t1.MALL_URL=t2.MALL_URL  ,    
+				          t1.POSITION_IS_DISPLAY=t2.POSITION_IS_DISPLAY,        
+				          t1.ITEM_PURPOSE_SHOW=t2.ITEM_PURPOSE_SHOW,        
+				          t1.EXPIRATION_IS_DISPLAY=t2.EXPIRATION_IS_DISPLAY,        
+				          t1.NEW_ORG_NUM=t2.NEW_ORG_NUM,        
+				          t1.LOGIN_TO_JUMP=t2.LOGIN_TO_JUMP,        
+				          t1.QUALIF_INVESTOR_JUMP=t2.QUALIF_INVESTOR_JUMP  ,      
+				          t1.SHELF_TYPE=t2.SHELF_TYPE  ,      
+				          t1.ITEM_NS_IS_DISPLAY=t2.ITEM_NS_IS_DISPLAY,        
+				          t1.SHELF_BROWSE_WAY=t2.SHELF_BROWSE_WAY  ,      
+				          t1.SHELF_IS_CARIYSEL=t2.SHELF_IS_CARIYSEL,      
+				          t1.SHELF_CARIYSEL_TIME  =t2.SHELF_CARIYSEL_TIME  ,      
+				          t1.PROD_WITH_ENHANCED=t2.PROD_WITH_ENHANCED,        
+				          t1.NAME_DESCRI_DISPLACE=t2.NAME_DESCRI_DISPLACE  ,      
+				          t1.LIMIT_SHOW_BAR=t2.LIMIT_SHOW_BAR,        
+				          t1.BUY_BUTTON_SHOW=t2.BUY_BUTTON_SHOW,      
+				          t1.MOULD_CODE=t2.MOULD_CODE  ,      
+				          t1.SPARE_MOULD_CODE  =t2.SPARE_MOULD_CODE,      
+				          t1.MOULD_CALCULATE_DATE=t2.MOULD_CALCULATE_DATE  ,    
+				          t1.ITEM_SUPER_PURPOSE=t2.ITEM_SUPER_PURPOSE  ,      
+				          t1.ANOTHER_BATCH=t2.ANOTHER_BATCH,  
+				          t1.BUY_BUTTON_URL=t2.BUY_BUTTON_URL,      
+				          t1.ICON_AFTER_URL=t2.ICON_AFTER_URL  ,    
+				          t1.ICON_AFTER_ID=t2.ICON_AFTER_ID,    
+				          t1.ICON_AFTER_NAME=t2.ICON_AFTER_NAME,      
+				          t1.ANOTHER_BATCH_WORD=t2.ANOTHER_BATCH_WORD  ,    
+				          t1.USER_RULE_ID  =t2.USER_RULE_ID,  
+				          t1.BLACK_ICON_URL  =t2.BLACK_ICON_URL,  
+				          t1.BLACK_ICON_ID=t2.BLACK_ICON_ID,    
+				          t1.BLACK_ICON_NAME=t2.BLACK_ICON_NAME,  
+				          t1.BLACK_ICON_AFTER_URL  =t2.BLACK_ICON_AFTER_URL,      
+				          t1.BLACK_ICON_AFTER_ID=t2.BLACK_ICON_AFTER_ID,      
+				          t1.BLACK_ICON_AFTER_NAME=t2.BLACK_ICON_AFTER_NAME,        
+				          t1.USER_RULE_ID_SPARE=t2.USER_RULE_ID_SPARE  ,      
+				          t1.ITEM_UUID=t2.ITEM_UUID,    
+				          t1.PC_LOGO_URL=t2.PC_LOGO_URL,    
+				          t1.PC_LOGO_ID=t2.PC_LOGO_ID  ,  
+				          t1.PC_LOGO_NAME=t2.PC_LOGO_NAME  ,  
+				          t1.PC_ITEM_URL=t2.PC_ITEM_URL,  
+				          t1.SUP_NAME  =t2.SUP_NAME,    
+				          t1.PROD_FEATURE_LABEL_ENHANCED  =t2.PROD_FEATURE_LABEL_ENHANCED  ,    
+				          t1.RED_POINT_DISPLAY=t2.RED_POINT_DISPLAY,        
+				          t1.THIRD_ITEM_TYPE=t2.THIRD_ITEM_TYPE,      
+				          t1.AUTO_SORT_IDENTIF=t2.AUTO_SORT_IDENTIF,        
+				          t1.RATE_TYPE=t2.RATE_TYPE,      
+				          t1.VERSION_NUM=t2.VERSION_NUM,        
+				          t1.VERSION_NUM_SHOW  =t2.VERSION_NUM_SHOW,      
+				          t1.BOTTEM_FLOAT_STYLE=t2.BOTTEM_FLOAT_STYLE  ,    
+				          t1.FLOAT_WORD=t2.FLOAT_WORD  ,    
+				          t1.APP_FLOAT_URL=t2.APP_FLOAT_URL,      
+				          t1.JHW_FLOAT_URL  =t2.JHW_FLOAT_URL,    
+				          t1.PC_FLOAT_URL=t2.PC_FLOAT_URL  ,    
+				          t1.IS_ENABLE=t2.IS_ENABLE,      
+				          t1.AGGREG_NAME=t2.AGGREG_NAME,      
+				          t1.AGGREG_REMARK=t2.AGGREG_REMARK,      
+				          t1.SHARE_PIC_ON_MOBILE_ID=t2.SHARE_PIC_ON_MOBILE_ID,        
+				          t1.SHARE_PIC_ON_MOBILE_SOURCE=t2.SHARE_PIC_ON_MOBILE_SOURCE  ,      
+				          t1.SHARE_PIC_ON_MOBILE_URL=t2.SHARE_PIC_ON_MOBILE_URL,      
+				          t1.AUDIT_STATUS_SH=t2.AUDIT_STATUS_SH,        
+				          t1.YD_URL_NAME=t2.YD_URL_NAME,    
+				          t1.PC_URL_NAME  =t2.PC_URL_NAME  ,    
+				          t1.JH_URL_NAME=t2.JH_URL_NAME,        
+				          t1.IS_FUNCTION=t2.IS_FUNCTION,      
+				          t1.FUNCTION_NAME=t2.FUNCTION_NAME,        
+				          t1.SHARE_CODE=t2.SHARE_CODE  ,      
+				          t1.SHARE_MINI_PROGRAM_WHETHER=t2.SHARE_MINI_PROGRAM_WHETHER,        
+				          t1.TEMPLATE_TYPE=t2.TEMPLATE_TYPE  
+				        WHEN NOT MATCHED THEN
+				          INSERT(
+				          	t1.ID,
+				            t1.ITEM_NAME,  
+				            t1.ITEM_REMARK ,   
+				            t1.ITEM_URL,
+				            t1.ITEM_TYPE,
+				            t1.AUDIT_STATUS , 
+				            t1.PRIORITY,
+				            t1.ITEM_CODE_SUPER,
+				            t1.CREATE_PERSONNEL,
+				            t1.CREATE_TIME,
+				            t1.UPD_TIME,
+				            t1.UPD_PERSONNEL,
+				            t1.ITEM_STATUS,  
+				            t1.TOP_ADVERTISE_NAME,    
+				            t1.TOP_ADVERTISE_TIME , 
+				            t1.TOP_ADVERTISE_DISPLAY_TYPE,
+				            t1.NOTICE_DISPLAY_TIME,
+				            t1.SECOND_ITEM_STYLE,
+				            t1.SELL_REMIND,
+				            t1.LOGO_URL  ,
+				            t1.NOTICE_DISPLAY_TYPE ,   
+				            t1.LOGO_IMG_NAME,
+				            t1.LOGO_IMG_ID,
+				            t1.LOGO_IMG_SOURCE_NAME,  
+				            t1.MORE_TYPE,
+				            t1.OPER_ID ,   
+				            t1.UPD_RECORD,      
+				            t1.MORE_TYPE_ID,        
+				            t1.MORE_WORD,  
+				            t1.CUSTOMIZATION,    
+				            t1.NOLOGIN_IS_DISPLAY,  
+				            t1.TICKET_NUM ,     
+				            t1.ORG_NUM,    
+				            t1.DEPT_NUM ,   
+				            t1.ITEM_URL_OLD,      
+				            t1.ITEM_PURPOSE ,     
+				            t1.MALL_URL ,   
+				            t1.POSITION_IS_DISPLAY,      
+				            t1.ITEM_PURPOSE_SHOW,    
+				            t1.EXPIRATION_IS_DISPLAY,      
+				            t1.NEW_ORG_NUM,    
+				            t1.LOGIN_TO_JUMP ,     
+				            t1.QUALIF_INVESTOR_JUMP,      
+				            t1.SHELF_TYPE,    
+				            t1.ITEM_NS_IS_DISPLAY,        
+				            t1.SHELF_BROWSE_WAY,      
+				            t1.SHELF_IS_CARIYSEL ,     
+				            t1.SHELF_CARIYSEL_TIME ,     
+				            t1.PROD_WITH_ENHANCED ,       
+				            t1.NAME_DESCRI_DISPLACE,    
+				            t1.LIMIT_SHOW_BAR ,       
+				            t1.BUY_BUTTON_SHOW ,     
+				            t1.MOULD_CODE ,   
+				            t1.SPARE_MOULD_CODE ,     
+				            t1.MOULD_CALCULATE_DATE , 
+				            t1.ITEM_SUPER_PURPOSE,      
+				            t1.ANOTHER_BATCH , 
+				            t1.BUY_BUTTON_URL,    
+				            t1.ICON_AFTER_URL ,   
+				            t1.ICON_AFTER_ID,    
+				            t1.ICON_AFTER_NAME ,   
+				            t1.ANOTHER_BATCH_WORD,  
+				            t1.USER_RULE_ID ,   
+				            t1.BLACK_ICON_URL,    
+				            t1.BLACK_ICON_ID,    
+				            t1.BLACK_ICON_NAME,  
+				            t1.BLACK_ICON_AFTER_URL  ,    
+				            t1.BLACK_ICON_AFTER_ID ,   
+				            t1.BLACK_ICON_AFTER_NAME  ,    
+				            t1.USER_RULE_ID_SPARE ,     
+				            t1.ITEM_UUID   , 
+				            t1.PC_LOGO_URL ,   
+				            t1.PC_LOGO_ID , 
+				            t1.PC_LOGO_NAME,
+				            t1.PC_ITEM_URL,
+				            t1.SUP_NAME   ,   
+				            t1.PROD_FEATURE_LABEL_ENHANCED  ,    
+				            t1.RED_POINT_DISPLAY ,     
+				            t1.THIRD_ITEM_TYPE  ,  
+				            t1.AUTO_SORT_IDENTIF ,     
+				            t1.RATE_TYPE ,     
+				            t1.VERSION_NUM ,     
+				            t1.VERSION_NUM_SHOW ,       
+				            t1.BOTTEM_FLOAT_STYLE , 
+				            t1.FLOAT_WORD , 
+				            t1.APP_FLOAT_URL  ,  
+				            t1.JHW_FLOAT_URL ,     
+				            t1.PC_FLOAT_URL ,   
+				            t1.IS_ENABLE  ,    
+				            t1.AGGREG_NAME,      
+				            t1.AGGREG_REMARK ,   
+				            t1.SHARE_PIC_ON_MOBILE_ID,      
+				            t1.SHARE_PIC_ON_MOBILE_SOURCE,      
+				            t1.SHARE_PIC_ON_MOBILE_URL ,   
+				            t1.AUDIT_STATUS_SH  ,    
+				            t1.YD_URL_NAME,  
+				            t1.PC_URL_NAME ,     
+				            t1.JH_URL_NAME ,     
+				            t1.IS_FUNCTION ,     
+				            t1.FUNCTION_NAME,      
+				            t1.SHARE_CODE ,     
+				            t1.SHARE_MINI_PROGRAM_WHETHER,        
+				            t1.TEMPLATE_TYPE 
+				        )  VALUES(
+				        	t2.ID,
+				            t2.ITEM_NAME ,
+				            t2.ITEM_REMARK,    
+				            t2.ITEM_URL,
+				            t2.ITEM_TYPE,
+				            t2.AUDIT_STATUS,  
+				            t2.PRIORITY,
+				            t2.ITEM_CODE_SUPER,
+				            t2.CREATE_PERSONNEL,
+				            t2.CREATE_TIME,
+				            t2.UPD_TIME,
+				            t2.UPD_PERSONNEL,
+				            t2.ITEM_STATUS , 
+				            t2.TOP_ADVERTISE_NAME,    
+				            t2.TOP_ADVERTISE_TIME , 
+				            t2.TOP_ADVERTISE_DISPLAY_TYPE,
+				            t2.NOTICE_DISPLAY_TIME,
+				            t2.SECOND_ITEM_STYLE,
+				            t2.SELL_REMIND,
+				            t2.LOGO_URL,  
+				            t2.NOTICE_DISPLAY_TYPE,    
+				            t2.LOGO_IMG_NAME,
+				            t2.LOGO_IMG_ID,
+				            t2.LOGO_IMG_SOURCE_NAME,        
+				            t2.MORE_TYPE,
+				            t2.OPER_ID ,   
+				            t2.UPD_RECORD,      
+				            t2.MORE_TYPE_ID,        
+				            t2.MORE_WORD , 
+				            t2.CUSTOMIZATION,    
+				            t2.NOLOGIN_IS_DISPLAY , 
+				            t2.TICKET_NUM,      
+				            t2.ORG_NUM,    
+				            t2.DEPT_NUM,    
+				            t2.ITEM_URL_OLD ,     
+				            t2.ITEM_PURPOSE ,     
+				            t2.MALL_URL,    
+				            t2.POSITION_IS_DISPLAY,      
+				            t2.ITEM_PURPOSE_SHOW,    
+				            t2.EXPIRATION_IS_DISPLAY,      
+				            t2.NEW_ORG_NUM,    
+				            t2.LOGIN_TO_JUMP,      
+				            t2.QUALIF_INVESTOR_JUMP,      
+				            t2.SHELF_TYPE,    
+				            t2.ITEM_NS_IS_DISPLAY,        
+				            t2.SHELF_BROWSE_WAY ,     
+				            t2.SHELF_IS_CARIYSEL,      
+				            t2.SHELF_CARIYSEL_TIME,      
+				            t2.PROD_WITH_ENHANCED,        
+				            t2.NAME_DESCRI_DISPLACE,    
+				            t2.LIMIT_SHOW_BAR ,       
+				            t2.BUY_BUTTON_SHOW ,     
+				            t2.MOULD_CODE ,   
+				            t2.SPARE_MOULD_CODE,      
+				            t2.MOULD_CALCULATE_DATE , 
+				            t2.ITEM_SUPER_PURPOSE ,     
+				            t2.ANOTHER_BATCH,  
+				            t2.BUY_BUTTON_URL,    
+				            t2.ICON_AFTER_URL,    
+				            t2.ICON_AFTER_ID ,   
+				            t2.ICON_AFTER_NAME ,   
+				            t2.ANOTHER_BATCH_WORD,  
+				            t2.USER_RULE_ID ,   
+				            t2.BLACK_ICON_URL,    
+				            t2.BLACK_ICON_ID ,   
+				            t2.BLACK_ICON_NAME , 
+				            t2.BLACK_ICON_AFTER_URL ,     
+				            t2.BLACK_ICON_AFTER_ID ,   
+				            t2.BLACK_ICON_AFTER_NAME,      
+				            t2.USER_RULE_ID_SPARE,      
+				            t2.ITEM_UUID,    
+				            t2.PC_LOGO_URL,    
+				            t2.PC_LOGO_ID , 
+				            t2.PC_LOGO_NAME,
+				            t2.PC_ITEM_URL,
+				            t2.SUP_NAME  ,    
+				            t2.PROD_FEATURE_LABEL_ENHANCED,      
+				            t2.RED_POINT_DISPLAY,      
+				            t2.THIRD_ITEM_TYPE,    
+				            t2.AUTO_SORT_IDENTIF,      
+				            t2.RATE_TYPE,      
+				            t2.VERSION_NUM ,     
+				            t2.VERSION_NUM_SHOW,        
+				            t2.BOTTEM_FLOAT_STYLE,  
+				            t2.FLOAT_WORD  ,
+				            t2.APP_FLOAT_URL,    
+				            t2.JHW_FLOAT_URL,      
+				            t2.PC_FLOAT_URL,    
+				            t2.IS_ENABLE  ,    
+				            t2.AGGREG_NAME,      
+				            t2.AGGREG_REMARK ,   
+				            t2.SHARE_PIC_ON_MOBILE_ID,      
+				            t2.SHARE_PIC_ON_MOBILE_SOURCE,      
+				            t2.SHARE_PIC_ON_MOBILE_URL ,   
+				            t2.AUDIT_STATUS_SH  ,    
+				            t2.YD_URL_NAME  ,
+				            t2.PC_URL_NAME,      
+				            t2.JH_URL_NAME ,     
+				            t2.IS_FUNCTION ,     
+				            t2.FUNCTION_NAME,      
+				            t2.SHARE_CODE   ,   
+				            t2.SHARE_MINI_PROGRAM_WHETHER ,       
+				            t2.TEMPLATE_TYPE  
+				        ) -->
+				        </insert>
+				        
+				        
+			<!-- 同时将模板状态改为公有，即2，以此标识模板为公有，当私有发生修改，此时将模板状态改为私有，即1 -->
+			<update id="NMSecItemConvertTo2" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+				update otc.GJ_G2010_ITEM_INFO_MB_PRI set  LCODER_UPDATE_TIME = sysdate,
+					TEMPLATE_TYPE = 2
+					where 
+					<if test="id != null">
+					   	ID =#{id}
+				    </if>
+			</update>
+			<update id="NMSecItemConvertTo1" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+				update otc.GJ_G2010_ITEM_INFO_MB_PRI set  LCODER_UPDATE_TIME = sysdate,
+					TEMPLATE_TYPE = 1
+					where 
+					<if test="id != null">
+					   	ID =#{id}
+				    </if>
+			</update>
+			
+			<!-- <insert id="NMSecItemAdd5_MB" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+				insert into otc.GJ_G2010_ITEM_INFO_MB_PRI t1(
+					t1.ID,
+					t1.ITEM_NAME,
+					t1.ITEM_REMARK,
+					t1.PRIORITY,
+					t1.ITEM_URL,
+					t1.ITEM_TYPE,
+					t1.AUDIT_STATUS,
+					t1.AUDIT_STATUS_SH,
+					t1.ITEM_CODE_SUPER,
+					t1.CREATE_PERSONNEL,
+					t1.CREATE_TIME,
+					t1.ITEM_STATUS,
+					t1.CUSTOMIZATION,	
+					t1.MORE_TYPE,
+					t1.MORE_TYPE_ID,	
+					t1.MORE_WORD,
+					t1.ITEM_URL_OLD,
+					t1.MALL_URL,
+					t1.SHELF_TYPE,
+					t1.ITEM_NS_IS_DISPLAY,
+					t1.SHELF_BROWSE_WAY,
+					t1.SHELF_IS_CARIYSEL,
+					t1.SHELF_CARIYSEL_TIME,
+					t1.PROD_WITH_ENHANCED,
+					t1.NAME_DESCRI_DISPLACE,
+					t1.BUY_BUTTON_SHOW,
+					t1.MOULD_CODE,
+					t1.SPARE_MOULD_CODE,
+					t1.ITEM_PURPOSE,
+					t1.ANOTHER_BATCH,
+					t1.buy_button_url,
+					t1.another_batch_word,
+					t1.USER_RULE_ID,
+					t1.ITEM_UUID,
+					t1.PC_ITEM_URL,
+					t1.ITEM_PURPOSE_show,
+					t1.red_point_display,
+					t1.AUTO_SORT_IDENTIF, 
+					t1.RATE_TYPE,
+					t1.AGGREG_NAME,
+					t1.AGGREG_REMARK,
+					t1.TEMPLATE_TYPE	
+				)
+				select 
+				distinct 
+					t2.ID,
+					t2.ITEM_NAME,
+					t2.ITEM_REMARK,
+					t2.PRIORITY,
+					t2.ITEM_URL,
+					t2.ITEM_TYPE,
+					t2.AUDIT_STATUS,
+					t2.AUDIT_STATUS_SH,
+					t2.ITEM_CODE_SUPER,
+					t2.CREATE_PERSONNEL,
+					t2.CREATE_TIME,
+					t2.ITEM_STATUS,
+					t2.CUSTOMIZATION,	
+					t2.MORE_TYPE,
+					t2.MORE_TYPE_ID,	
+					t2.MORE_WORD,
+					t2.ITEM_URL_OLD,
+					t2.MALL_URL,
+					t2.SHELF_TYPE,
+					t2.ITEM_NS_IS_DISPLAY,
+					t2.SHELF_BROWSE_WAY,
+					t2.SHELF_IS_CARIYSEL,
+					t2.SHELF_CARIYSEL_TIME,
+					t2.PROD_WITH_ENHANCED,
+					t2.NAME_DESCRI_DISPLACE,
+					t2.BUY_BUTTON_SHOW,
+					t2.MOULD_CODE,
+					t2.SPARE_MOULD_CODE,
+					t2.ITEM_PURPOSE,
+					t2.ANOTHER_BATCH,
+					t2.buy_button_url,
+					t2.another_batch_word,
+					t2.USER_RULE_ID,
+					t2.ITEM_UUID,
+					t2.PC_ITEM_URL,
+					t2.ITEM_PURPOSE_show,
+					t2.red_point_display,
+					t2.AUTO_SORT_IDENTIF, 
+					t2.RATE_TYPE,
+					t2.AGGREG_NAME,
+					t2.AGGREG_REMARK,
+					t2.TEMPLATE_TYPE	
+				from otc.GJ_G2010_ITEM_INFO_MB t2 where t2.ID not in (select b.id from otc.GJ_G2010_ITEM_INFO_MB_SH b)
+			</insert> -->
+			
+			
+			
+			
+			<!-- <insert id="NMSecItemAdd6_MB" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+					insert into otc.GJ_G2010_ITEM_INFO_MB_SH t1(
+						t1.ID,
+						t1.ITEM_NAME,
+						t1.ITEM_REMARK,
+						t1.PRIORITY,
+						t1.ITEM_URL,
+						t1.ITEM_TYPE,
+						t1.AUDIT_STATUS,
+						t1.AUDIT_STATUS_SH,
+						t1.ITEM_CODE_SUPER,
+						t1.CREATE_PERSONNEL,
+						t1.CREATE_TIME,
+						t1.ITEM_STATUS,
+						t1.SELL_REMIND,
+						t1.DEPT_NUM,
+						t1.ORG_NUM,
+						t1.TICKET_NUM,
+						t1.NOLOGIN_IS_DISPLAY,
+						t1.LOGO_URL,
+						t1.LOGO_IMG_NAME,
+						t1.LOGO_IMG_ID,
+						t1.LOGO_IMG_SOURCE_NAME,
+						t1.MORE_TYPE,
+						t1.MORE_TYPE_ID,
+						t1.ITEM_URL_OLD,
+						t1.MALL_URL,
+						t1.TOP_ADVERTISE_TIME,
+						t1.TOP_ADVERTISE_DISPLAY_TYPE,
+						t1.SECOND_ITEM_STYLE,
+						t1.NOTICE_DISPLAY_TIME,
+						t1.NOTICE_DISPLAY_TYPE,
+						t1.POSITION_IS_DISPLAY,
+						t1.EXPIRATION_IS_DISPLAY,
+						t1.LOGIN_TO_JUMP,
+						t1.QUALIF_INVESTOR_JUMP,
+						t1.USER_RULE_ID,
+						t1.BLACK_ICON_ID,
+						t1.BLACK_ICON_NAME,
+						t1.BLACK_ICON_URL,
+						t1.ITEM_UUID,
+						t1.item_purpose,
+						t1.PC_LOGO_URL,
+						t1.PC_LOGO_ID,
+						t1.PC_LOGO_NAME,
+						t1.PC_ITEM_URL,
+						t1.ITEM_PURPOSE_SHOW,
+						t1.THIRD_ITEM_TYPE,
+						t1.version_num,
+						t1.version_num_show,
+						t1.BOTTEM_FLOAT_STYLE,
+						t1.FLOAT_WORD,
+						t1.APP_FLOAT_URL,
+						t1.JHW_FLOAT_URL,
+						t1.PC_FLOAT_URL,
+						t1.IS_ENABLE,
+						t1.SHARE_PIC_ON_MOBILE_ID,
+						t1.SHARE_PIC_ON_MOBILE_SOURCE,
+						t1.SHARE_PIC_ON_MOBILE_URL,
+						t1.TEMPLATE_TYPE
+
+					)
+					select 
+					distinct
+						t2.ID,
+						t2.ITEM_NAME,
+						t2.ITEM_REMARK,
+						t2.PRIORITY,
+						t2.ITEM_URL,
+						t2.ITEM_TYPE,
+						t2.AUDIT_STATUS,
+						t2.AUDIT_STATUS_SH,
+						t2.ITEM_CODE_SUPER,
+						t2.CREATE_PERSONNEL,
+						t2.CREATE_TIME,
+						t2.ITEM_STATUS,
+						t2.SELL_REMIND,
+						t2.DEPT_NUM,
+						t2.ORG_NUM,
+						t2.TICKET_NUM,
+						t2.NOLOGIN_IS_DISPLAY,
+						t2.LOGO_URL,
+						t2.LOGO_IMG_NAME,
+						t2.LOGO_IMG_ID,
+						t2.LOGO_IMG_SOURCE_NAME,
+						t2.MORE_TYPE,
+						t2.MORE_TYPE_ID,
+						t2.ITEM_URL_OLD,
+						t2.MALL_URL,
+						t2.TOP_ADVERTISE_TIME,
+						t2.TOP_ADVERTISE_DISPLAY_TYPE,
+						t2.SECOND_ITEM_STYLE,
+						t2.NOTICE_DISPLAY_TIME,
+						t2.NOTICE_DISPLAY_TYPE,
+						t2.POSITION_IS_DISPLAY,
+						t2.EXPIRATION_IS_DISPLAY,
+						t2.LOGIN_TO_JUMP,
+						t2.QUALIF_INVESTOR_JUMP,
+						t2.USER_RULE_ID,
+						t2.BLACK_ICON_ID,
+						t2.BLACK_ICON_NAME,
+						t2.BLACK_ICON_URL,
+						t2.ITEM_UUID,
+						t2.item_purpose,
+						t2.PC_LOGO_URL,
+						t2.PC_LOGO_ID,
+						t2.PC_LOGO_NAME,
+						t2.PC_ITEM_URL,
+						t2.ITEM_PURPOSE_SHOW,
+						t2.THIRD_ITEM_TYPE,
+						t2.version_num,
+						t2.version_num_show,
+						t2.BOTTEM_FLOAT_STYLE,
+						t2.FLOAT_WORD,
+						t2.APP_FLOAT_URL,
+						t2.JHW_FLOAT_URL,
+						t2.PC_FLOAT_URL,
+						t2.IS_ENABLE,
+						t2.SHARE_PIC_ON_MOBILE_ID,
+						t2.SHARE_PIC_ON_MOBILE_SOURCE,
+						t2.SHARE_PIC_ON_MOBILE_URL,
+						t2.TEMPLATE_TYPE
+						from otc.GJ_G2010_ITEM_INFO_MB t2 where t2.ID NOT IN (SELECT id from otc.GJ_G2010_ITEM_INFO_MB_SH)
+				</insert> -->
+			
+			<!-- 查询私有模板 -->
+			<!-- 查询逻辑：1.当查询左边表格时，即为专区和无上级栏目的二级栏目
+				    2.当查询游标表格时，即为二级栏目，此时二级栏目根据左边的专区来动态查询 -->
+			<select id="NMSecItemMbQuery" parameterType="com.linkstec.newmall.dto.NewMallItemInDto" resultType="map">
+				select a.ID,
+				       a.ITEM_NAME,
+				       a.ITEM_REMARK,
+				       a.ITEM_URL,
+				       a.ITEM_TYPE,
+				       a.AUDIT_STATUS,
+				       a.PRIORITY,
+				       a.ITEM_CODE_SUPER,
+				       to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') create_time,
+				       a.ITEM_STATUS,
+				       a.TOP_ADVERTISE_NAME,
+				       a.TOP_ADVERTISE_TIME,
+				       a.TOP_ADVERTISE_DISPLAY_TYPE,
+				       a.NOTICE_DISPLAY_TIME,
+				       a.SECOND_ITEM_STYLE,
+				       a.SELL_REMIND,
+				       a.LOGO_URL,
+				       a.NOTICE_DISPLAY_TYPE,
+				       a.LOGO_IMG_NAME,
+				       a.LOGO_IMG_ID,
+				       a.LOGO_IMG_SOURCE_NAME,
+				       a.more_type,
+				       a.OPER_ID,
+				       a.UPD_RECORD,
+				       a.more_word,
+				       a.customization,
+				       a.dept_num,
+				       a.org_num,
+				       a.ticket_num,
+				       a.nologin_is_display,
+				       a.item_url_old,
+				       a.more_type_id,
+				       a.item_purpose,
+				       a.POSITION_IS_DISPLAY,
+				       a.mall_url,
+				       a.EXPIRATION_IS_DISPLAY,
+				       a.item_purpose_show,
+				       a.login_to_jump,
+				       a.QUALIF_INVESTOR_JUMP,
+				        a.SHELF_TYPE,
+						a.ITEM_NS_IS_DISPLAY,
+						a.SHELF_BROWSE_WAY,
+						a.SHELF_IS_CARIYSEL,
+						a.SHELF_CARIYSEL_TIME,
+						a.PROD_WITH_ENHANCED,
+						a.NAME_DESCRI_DISPLACE,
+						a.BUY_BUTTON_SHOW,
+						a.mould_code,
+						a.MOULD_CALCULATE_DATE,
+						a.SPARE_MOULD_CODE,
+						a.item_super_purpose,
+						a.another_batch,
+						a.buy_button_url,
+						a.ICON_AFTER_URL,
+						a.ICON_AFTER_ID,
+						a.ICON_AFTER_NAME,
+						a.another_batch_word,
+						a.black_icon_id,
+						a.black_icon_name,
+						a.black_icon_url,
+						a.black_icon_after_id,
+						a.black_icon_after_name,
+						a.black_icon_after_url,
+						a.USER_RULE_ID,
+						a.pc_logo_id,
+						a.pc_logo_url,
+						a.pc_logo_name,
+						a.pc_item_url,
+						a.red_point_display,
+						a.THIRD_ITEM_TYPE,
+						a.version_num,
+						a.version_num_show,
+						a.AUTO_SORT_IDENTIF, 
+						a.RATE_TYPE,
+						a.BOTTEM_FLOAT_STYLE,
+						a.FLOAT_WORD,
+						a.APP_FLOAT_URL,
+						a.JHW_FLOAT_URL,
+						a.PC_FLOAT_URL,
+						a.IS_ENABLE,
+						a.SHARE_PIC_ON_MOBILE_URL,
+						a.SHARE_PIC_ON_MOBILE_SOURCE,
+						a.SHARE_PIC_ON_MOBILE_ID,
+						a.audit_status_sh,
+						b.user_name,
+						to_char(UPD_TIME, 'YYYY-MM-DD HH24:MI:SS') UPD_TIME,
+						a.TEMPLATE_TYPE
+		  		from 
+		  			<choose>
+		  				<when test= "type ==2 or type == 3">
+		  					GJ_G2010_ITEM_INFO_MB_PRI /*LT*/   a 
+		  				</when>
+		  				<when test= "type ==1 or type == 4">
+		  					otc.GJ_G2010_ITEM_INFO_MB_PUB a 
+		  				</when>
+		  				<otherwise>
+		  					otc.GJ_G2010_ITEM_INFO_MB_PUB_SH a
+		  				</otherwise>
+		  			</choose>
+		  			left join otc.v_user b
+		  			on a.UPD_PERSONNEL = b.USER_ID
+					where 1=1 
+					<if test="type == 3 or type == 1"> 
+						and item_code_super is null
+					</if>
+					<if test="type == 2 or type == 4">
+						and item_code_super = #{itemCodeSuper}
+					</if>
+					<if test="itemName != null"> 
+						 and ITEM_NAME like concat('%',concat(#{itemName},'%'))
+					</if>
+					<if test="id != null">
+						and id = #{id}
+					</if>
+					<if test="itemType != null">
+						and item_type = #{itemType}
+					</if>
+					<if test="auditStatus != null">
+						and AUDIT_STATUS = #{auditStatus}
+					</if>
+					ORDER BY ID DESC		
+				</select>
+		
+		 <!-- 查询公共模板 -->
+		<!-- <select id="NMSecItemMbQuery_PUB" parameterType="com.linkstec.newmall.dto.NewMallItemInDto" resultType="map">
+				select a.ID,
+				       a.ITEM_NAME,
+				       a.ITEM_REMARK,
+				       a.ITEM_URL,
+				       a.ITEM_TYPE,
+				       a.AUDIT_STATUS,
+				       a.PRIORITY,
+				       a.ITEM_CODE_SUPER,
+				       to_char(create_time, 'YYYY-MM-DD HH24:MI:SS') create_time,
+				       a.ITEM_STATUS,
+				       a.TOP_ADVERTISE_NAME,
+				       a.TOP_ADVERTISE_TIME,
+				       a.TOP_ADVERTISE_DISPLAY_TYPE,
+				       a.NOTICE_DISPLAY_TIME,
+				       a.SECOND_ITEM_STYLE,
+				       a.SELL_REMIND,
+				       a.LOGO_URL,
+				       a.NOTICE_DISPLAY_TYPE,
+				       a.LOGO_IMG_NAME,
+				       a.LOGO_IMG_ID,
+				       a.LOGO_IMG_SOURCE_NAME,
+				       a.more_type,
+				       a.OPER_ID,
+				       a.UPD_RECORD,
+				       a.more_word,
+				       a.customization,
+				       a.dept_num,
+				       a.org_num,
+				       a.ticket_num,
+				       a.nologin_is_display,
+				       a.item_url_old,
+				       a.more_type_id,
+				       a.item_purpose,
+				       a.POSITION_IS_DISPLAY,
+				       a.mall_url,
+				       a.EXPIRATION_IS_DISPLAY,
+				       a.item_purpose_show,
+				       a.login_to_jump,
+				       a.QUALIF_INVESTOR_JUMP,
+				        a.SHELF_TYPE,
+						a.ITEM_NS_IS_DISPLAY,
+						a.SHELF_BROWSE_WAY,
+						a.SHELF_IS_CARIYSEL,
+						a.SHELF_CARIYSEL_TIME,
+						a.PROD_WITH_ENHANCED,
+						a.NAME_DESCRI_DISPLACE,
+						a.BUY_BUTTON_SHOW,
+						a.mould_code,
+						a.MOULD_CALCULATE_DATE,
+						a.SPARE_MOULD_CODE,
+						a.item_super_purpose,
+						a.another_batch,
+						a.buy_button_url,
+						a.ICON_AFTER_URL,
+						a.ICON_AFTER_ID,
+						a.ICON_AFTER_NAME,
+						a.another_batch_word,
+						a.black_icon_id,
+						a.black_icon_name,
+						a.black_icon_url,
+						a.black_icon_after_id,
+						a.black_icon_after_name,
+						a.black_icon_after_url,
+						a.USER_RULE_ID,
+						a.pc_logo_id,
+						a.pc_logo_url,
+						a.pc_logo_name,
+						a.pc_item_url,
+						a.red_point_display,
+						a.THIRD_ITEM_TYPE,
+						a.version_num,
+						a.version_num_show,
+						a.AUTO_SORT_IDENTIF, 
+						a.RATE_TYPE,
+						a.BOTTEM_FLOAT_STYLE,
+						a.FLOAT_WORD,
+						a.APP_FLOAT_URL,
+						a.JHW_FLOAT_URL,
+						a.PC_FLOAT_URL,
+						a.IS_ENABLE,
+						a.SHARE_PIC_ON_MOBILE_URL,
+						a.SHARE_PIC_ON_MOBILE_SOURCE,
+						a.SHARE_PIC_ON_MOBILE_ID,
+						a.audit_status_sh,
+						to_char(UPD_TIME, 'YYYY-MM-DD HH24:MI:SS') UPD_TIME,
+						a.UPD_PERSONNEL,
+						a.TEMPLATE_TYPE
+		  		from 
+		  		<choose>
+		  		TO DO
+		  			<when test ="">
+		  				otc.GJ_G2010_ITEM_INFO_PUB_MB_SH a 
+		  			</when>
+		  			<otherwise>
+		  				otc.GJ_G2010_ITEM_INFO_PUB_MB a 
+		  			</otherwise>
+		  		</choose>
+		  		
+		  		where 1=1 
+					<if test= "itemCodeSuper != null">
+						and item_code_super = #{itemCodeSuper}
+					</if>
+					<if test= "id != null">
+						and id = #{id}
+					</if>
+					<if test="type == 3"> 
+						 and item_code_super is null
+					</if>
+					<if test="type == 2"> 
+						 and item_type=2
+					</if>
+					<if test="type == 5">
+						and item_type =2 
+						and template_type = 2
+					</if>
+					<if test="itemName != null"> 
+						 and ITEM_NAME like concat('%',concat(#{itemName},'%'))
+					</if>
+					<if test="createPersonnel == null and type == 3">
+						and  TEMPLATE_TYPE	 = 2
+					</if>			
+					ORDER BY ID DESC
+		</select> -->
+		
+		<!-- 删除私有模板，直接删，且删除时，会连带删除子栏目 -->
+		<delete id="NMSecDelItemMb_PRI" parameterType="com.linkstec.newmall.dto.NewMallItemInDto" >
+			delete from otc.GJ_G2010_ITEM_INFO_MB_PRI
+			 where
+			<if test="id != null">
+					ID in
+			       (SELECT ID
+			          FROM otc.GJ_G2010_ITEM_INFO_MB_PRI
+			         START WITH ID = #{id}
+			        CONNECT BY PRIOR ID = ITEM_CODE_SUPER)
+			 </if>
+			 <if test="id == null">
+				1!=1
+			 </if>
+		</delete>
+		<!-- 删除公有模板 -->
+		<delete id="NMSecDelItemMb_PUB" parameterType="com.linkstec.newmall.dto.NewMallItemInDto" >
+			delete from otc.GJ_G2010_ITEM_INFO_MB_PUB
+			 where
+			<if test="id != null">
+					ID in
+			       (SELECT ID
+			          FROM otc.GJ_G2010_ITEM_INFO_MB_PUB
+			         START WITH ID = #{id}
+			        CONNECT BY PRIOR ID = ITEM_CODE_SUPER)
+			 </if>
+			 <if test="id == null">
+				1!=1
+			 </if>
+		</delete>
+		<!-- 删除公有模板审核 -->
+		<delete id="NMSecDelItemMb_PUB_SH" parameterType="com.linkstec.newmall.dto.NewMallItemInDto" >
+			delete from otc.GJ_G2010_ITEM_INFO_MB_PUB_SH
+			 where
+			<if test="id != null">
+					ID in
+			       (SELECT ID
+			          FROM otc.GJ_G2010_ITEM_INFO_MB_PUB_SH
+			         START WITH ID = #{id}
+			        CONNECT BY PRIOR ID = ITEM_CODE_SUPER)
+			 </if>
+			 <if test="id == null">
+				1!=1
+			 </if>
+		</delete>
+
+		<!-- 私有，公有审核二级栏目编辑 -->
+		<update id="NMSecItemEdit2" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+			update 
+			<choose>
+				<when test="type == 2 " >
+					otc.GJ_G2010_ITEM_INFO_MB_PUB_SH	
+				</when >
+				<when test="type == 4">
+					otc.GJ_G2010_ITEM_INFO_MB_PRI	
+				</when>
+			</choose>
+			set
+			LCODER_UPDATE_TIME = sysdate,
+			UPD_TIME=sysdate,
+			UPD_PERSONNEL= #{updPersonnel},
+			ITEM_NAME=#{itemName},
+			ITEM_REMARK=#{itemRemark},
+			ITEM_URL=decode(#{moreType},1,#{itemUrl},2,#{itemUrl},#{moreTypeId}),
+			PRIORITY=#{priority},
+			MORE_TYPE=#{moreType} ,
+			MORE_TYPE_ID=#{moreTypeId},
+			MORE_WORD=#{moreWord},
+			customization=#{customization},
+			item_url_old=#{itemUrlOld},
+			mall_url=#{mallUrl},
+			SHELF_TYPE=#{shelfType},
+			ITEM_NS_IS_DISPLAY=#{itemNsIsDisplay},
+			SHELF_BROWSE_WAY=#{shelfBrowseWay},
+			SHELF_IS_CARIYSEL=#{shelfIsCariysel},
+			SHELF_CARIYSEL_TIME=#{shelfCariyselTime},
+			PROD_WITH_ENHANCED=	#{prodWithEnhanced},
+			NAME_DESCRI_DISPLACE=#{nameDescriDisplace},
+			BUY_BUTTON_SHOW=#{buyButtonShow},
+			SPARE_MOULD_CODE=#{mouldCode},
+			another_batch=#{anotherBatch},
+			buy_button_url=#{buyButtonUrl},
+			another_batch_word=#{anotherBatchWord},
+			item_purpose=#{itemPurpose},
+			USER_RULE_ID=#{ruleId},
+			pc_item_url=#{pcItemUrl},
+			AUTO_SORT_IDENTIF = #{autoSortIdentif},
+			RATE_TYPE=#{rateType},
+			item_purpose_show=#{itemPurposeShow},
+			red_point_display=#{redPointDisplay}
+			<if test="mouldCalculateDate==null">
+			,MOULD_CODE=#{mouldCode}
+			</if>
+			where ID=#{id}
+			<if test="id == null">
+				and 1=2
+			</if>
+		</update>
+		
+		<!-- 私有，公有审核专区模板编辑 -->
+		<update id="NMSecItemEdit3" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+			update 
+			<choose>
+				<when test = "type == 5">
+					otc.GJ_G2010_ITEM_INFO_MB_PRI
+				</when>
+				<when test = "type == 3">
+					otc.GJ_G2010_ITEM_INFO_MB_PUB_SH	
+				</when>
+			</choose>
+			set
+			LCODER_UPDATE_TIME = sysdate,
+			UPD_TIME=sysdate,
+			UPD_PERSONNEL=#{updPersonnel},
+			ITEM_NAME=#{itemName},
+			ITEM_REMARK=#{itemRemark},
+			ITEM_URL=decode(#{moreType},2,#{itemUrl},#{moreTypeId}),
+			dept_num=#{deptNum} ,
+			org_num=#{orgNum},
+			ticket_num=#{ticketNum},
+			nologin_is_display=#{nologinIsDisplay},
+			MORE_WORD=#{moreWord},
+			sell_remind=#{sellRemind},
+			customization=#{customization},
+			more_type=#{moreType},
+			more_type_id=#{moreTypeId},
+			item_url_old=#{itemUrlOld},
+			item_purpose=#{itemPurpose},
+			third_item_type=#{thirdItemType},
+			mall_url=#{mallUrl},
+			TOP_ADVERTISE_TIME=#{topAdvertiseTime},
+			NOTICE_DISPLAY_TIME=#{noticeDisplayTime},
+			EXPIRATION_IS_DISPLAY=#{expirationIsDisplay},
+			LOGIN_TO_JUMP=#{loginToJump},
+			QUALIF_INVESTOR_JUMP=#{qualifInvestorJump},
+			USER_RULE_ID=#{ruleId},
+			item_purpose_show=#{itemPurposeShow},
+			pc_item_url=decode(#{moreType},1,#{pcItemUrl},2,#{pcItemUrl},#{moreTypeId}),
+			version_num=#{versionNum},
+			version_num_show=#{versionNumShow},
+			BOTTEM_FLOAT_STYLE=#{bottemFloatStyle},
+			FLOAT_WORD=#{floatWord},
+			IS_ENABLE=#{isEnable},
+			APP_FLOAT_URL=#{appFloatUrl},
+			JHW_FLOAT_URL=#{jhwFloatUrl},
+			PC_FLOAT_URL=#{pcFloatUrl}
+			where id=#{id}
+		</update>
+		
+		
+		<!-- 获取专区模板ID,以在新增二级栏目的时候关联上级专区 -->
+		<select id="NMSecItem3MbIDQuery" parameterType="com.linkstec.newmall.dto.NewMallItemInDto" resultType="map">
+				select id code,item_name name from gj_g2010_item_info_mb_pri /*LT*/  where item_type = '3'
+		</select>
+		
+		<!-- 查询关联上级专区是否已经发布 -->
+		<select id="NMSecItemMbTypeQuery" parameterType="com.linkstec.newmall.dto.NewMallItemInDto"
+				resultType="string">
+				select template_type from otc.gj_g2010_item_info_mb_pri where  id = #{itemCodeSuper} 
+		</select>
+		
+		<!-- 公有模板：点通过， -->
+		<update id="passMergeItemInfo"  parameterType="com.linkstec.newmall.dto.NewMallProductInDto">
+		MERGE INTO otc.GJ_G2010_ITEM_INFO_MB_PUB t1
+			USING (SELECT * FROM otc.GJ_G2010_ITEM_INFO_MB_PUB_SH) t2
+			ON (t1.ID = t2.ID AND t1.ID =#{id})
+			WHEN MATCHED THEN
+			UPDATE SET				
+				t1.ITEM_NAME=t2.ITEM_NAME,	
+				t1.ITEM_REMARK=t2.ITEM_REMARK,		
+				t1.ITEM_URL=t2.ITEM_URL	,
+				t1.ITEM_TYPE=t2.ITEM_TYPE,
+				t1.AUDIT_STATUS=1	,		
+				t1.PRIORITY=t2.PRIORITY,
+				t1.ITEM_CODE_SUPER=t2.ITEM_CODE_SUPER,	
+				t1.CREATE_PERSONNEL=t2.CREATE_PERSONNEL	,	
+				t1.CREATE_TIME=t2.CREATE_TIME,	
+				t1.UPD_TIME=t2.UPD_TIME,
+				t1.UPD_PERSONNEL=t2.UPD_PERSONNEL,	
+				t1.ITEM_STATUS	=t2.ITEM_STATUS,
+				t1.TOP_ADVERTISE_NAME	=t2.TOP_ADVERTISE_NAME,		
+				t1.TOP_ADVERTISE_TIME=t2.TOP_ADVERTISE_TIME	,		
+				t1.TOP_ADVERTISE_DISPLAY_TYPE=t2.TOP_ADVERTISE_DISPLAY_TYPE,
+				t1.NOTICE_DISPLAY_TIME=t2.NOTICE_DISPLAY_TIME,
+				t1.SECOND_ITEM_STYLE=t2.SECOND_ITEM_STYLE,	
+				t1.SELL_REMIND=t2.SELL_REMIND,	
+				t1.LOGO_URL	=t2.LOGO_URL,	
+				t1.NOTICE_DISPLAY_TYPE=t2.NOTICE_DISPLAY_TYPE,		
+				t1.LOGO_IMG_NAME=t2.LOGO_IMG_NAME,
+				t1.LOGO_IMG_ID=t2.LOGO_IMG_ID,
+				t1.LOGO_IMG_SOURCE_NAME	=t2.LOGO_IMG_SOURCE_NAME,			
+				t1.MORE_TYPE=t2.MORE_TYPE,	
+				t1.OPER_ID	=t2.OPER_ID	,		
+				t1.UPD_RECORD=t2.UPD_RECORD,			
+				t1.MORE_TYPE_ID	=t2.MORE_TYPE_ID,			
+				t1.MORE_WORD=t2.MORE_WORD,		
+				t1.CUSTOMIZATION=t2.CUSTOMIZATION,			
+				t1.NOLOGIN_IS_DISPLAY=t2.NOLOGIN_IS_DISPLAY	,		
+				t1.TICKET_NUM=t2.TICKET_NUM	,			
+				t1.ORG_NUM=t2.ORG_NUM,			
+				t1.DEPT_NUM	=t2.DEPT_NUM,		
+				t1.ITEM_URL_OLD	=t2.ITEM_URL_OLD,			
+				t1.ITEM_PURPOSE	=t2.ITEM_PURPOSE,			
+				t1.MALL_URL=t2.MALL_URL	,		
+				t1.POSITION_IS_DISPLAY=t2.POSITION_IS_DISPLAY,				
+				t1.ITEM_PURPOSE_SHOW=t2.ITEM_PURPOSE_SHOW,				
+				t1.EXPIRATION_IS_DISPLAY=t2.EXPIRATION_IS_DISPLAY,				
+				t1.NEW_ORG_NUM=t2.NEW_ORG_NUM,				
+				t1.LOGIN_TO_JUMP=t2.LOGIN_TO_JUMP,				
+				t1.QUALIF_INVESTOR_JUMP=t2.QUALIF_INVESTOR_JUMP	,			
+				t1.SHELF_TYPE=t2.SHELF_TYPE	,			
+				t1.ITEM_NS_IS_DISPLAY=t2.ITEM_NS_IS_DISPLAY,				
+				t1.SHELF_BROWSE_WAY=t2.SHELF_BROWSE_WAY	,			
+				t1.SHELF_IS_CARIYSEL=t2.SHELF_IS_CARIYSEL,			
+				t1.SHELF_CARIYSEL_TIME	=t2.SHELF_CARIYSEL_TIME	,			
+				t1.PROD_WITH_ENHANCED=t2.PROD_WITH_ENHANCED,				
+				t1.NAME_DESCRI_DISPLACE=t2.NAME_DESCRI_DISPLACE	,			
+				t1.LIMIT_SHOW_BAR=t2.LIMIT_SHOW_BAR,				
+				t1.BUY_BUTTON_SHOW=t2.BUY_BUTTON_SHOW,			
+				t1.MOULD_CODE=t2.MOULD_CODE	,			
+				t1.SPARE_MOULD_CODE	=t2.SPARE_MOULD_CODE,			
+				t1.MOULD_CALCULATE_DATE=t2.MOULD_CALCULATE_DATE	,		
+				t1.ITEM_SUPER_PURPOSE=t2.ITEM_SUPER_PURPOSE	,			
+				t1.ANOTHER_BATCH=t2.ANOTHER_BATCH,	
+				t1.BUY_BUTTON_URL=t2.BUY_BUTTON_URL,			
+				t1.ICON_AFTER_URL=t2.ICON_AFTER_URL	,		
+				t1.ICON_AFTER_ID=t2.ICON_AFTER_ID,		
+				t1.ICON_AFTER_NAME=t2.ICON_AFTER_NAME,			
+				t1.ANOTHER_BATCH_WORD=t2.ANOTHER_BATCH_WORD	,		
+				t1.USER_RULE_ID	=t2.USER_RULE_ID,	
+				t1.BLACK_ICON_URL	=t2.BLACK_ICON_URL,	
+				t1.BLACK_ICON_ID=t2.BLACK_ICON_ID,		
+				t1.BLACK_ICON_NAME=t2.BLACK_ICON_NAME,	
+				t1.BLACK_ICON_AFTER_URL	=t2.BLACK_ICON_AFTER_URL,			
+				t1.BLACK_ICON_AFTER_ID=t2.BLACK_ICON_AFTER_ID,			
+				t1.BLACK_ICON_AFTER_NAME=t2.BLACK_ICON_AFTER_NAME,				
+				t1.USER_RULE_ID_SPARE=t2.USER_RULE_ID_SPARE	,			
+				t1.ITEM_UUID=t2.ITEM_UUID,		
+				t1.PC_LOGO_URL=t2.PC_LOGO_URL,		
+				t1.PC_LOGO_ID=t2.PC_LOGO_ID	,	
+				t1.PC_LOGO_NAME=t2.PC_LOGO_NAME	,	
+				t1.PC_ITEM_URL=t2.PC_ITEM_URL,	
+				t1.SUP_NAME	=t2.SUP_NAME,		
+				t1.PROD_FEATURE_LABEL_ENHANCED	=t2.PROD_FEATURE_LABEL_ENHANCED	,		
+				t1.RED_POINT_DISPLAY=t2.RED_POINT_DISPLAY,				
+				t1.THIRD_ITEM_TYPE=t2.THIRD_ITEM_TYPE,			
+				t1.AUTO_SORT_IDENTIF=t2.AUTO_SORT_IDENTIF,				
+				t1.RATE_TYPE=t2.RATE_TYPE,			
+				t1.VERSION_NUM=t2.VERSION_NUM,				
+				t1.VERSION_NUM_SHOW	=t2.VERSION_NUM_SHOW,			
+				t1.BOTTEM_FLOAT_STYLE=t2.BOTTEM_FLOAT_STYLE	,		
+				t1.FLOAT_WORD=t2.FLOAT_WORD	,		
+				t1.APP_FLOAT_URL=t2.APP_FLOAT_URL,			
+				t1.JHW_FLOAT_URL	=t2.JHW_FLOAT_URL,		
+				t1.PC_FLOAT_URL=t2.PC_FLOAT_URL	,		
+				t1.IS_ENABLE=t2.IS_ENABLE,			
+				t1.AGGREG_NAME=t2.AGGREG_NAME,			
+				t1.AGGREG_REMARK=t2.AGGREG_REMARK,			
+				t1.SHARE_PIC_ON_MOBILE_ID=t2.SHARE_PIC_ON_MOBILE_ID,				
+				t1.SHARE_PIC_ON_MOBILE_SOURCE=t2.SHARE_PIC_ON_MOBILE_SOURCE	,			
+				t1.SHARE_PIC_ON_MOBILE_URL=t2.SHARE_PIC_ON_MOBILE_URL,			
+				t1.AUDIT_STATUS_SH=t2.AUDIT_STATUS_SH,				
+				t1.YD_URL_NAME=t2.YD_URL_NAME,		
+				t1.PC_URL_NAME	=t2.PC_URL_NAME	,		
+				t1.JH_URL_NAME=t2.JH_URL_NAME,				
+				t1.IS_FUNCTION=t2.IS_FUNCTION,			
+				t1.FUNCTION_NAME=t2.FUNCTION_NAME,				
+				t1.SHARE_CODE=t2.SHARE_CODE	,			
+				t1.SHARE_MINI_PROGRAM_WHETHER=t2.SHARE_MINI_PROGRAM_WHETHER,				
+				t1.TEMPLATE_TYPE=t2.TEMPLATE_TYPE,
+				t1.LCODER_UPDATE_TIME = SYSDATE
+				</update>
+				
+		<!-- 共有模板：点不通过 -->
+		<update id="noPassMergeItemInfo"  parameterType="com.linkstec.newmall.dto.NewMallProductInDto">
+		MERGE INTO otc.GJ_G2010_ITEM_INFO_MB_PUB_SH t1
+			USING (SELECT * FROM otc.GJ_G2010_ITEM_INFO_MB_PUB) t2
+			ON (t1.ID = t2.ID AND t1.ID =#{id})
+			WHEN MATCHED THEN
+			UPDATE SET					
+				t1.ITEM_NAME=t2.ITEM_NAME,	
+				t1.ITEM_REMARK=t2.ITEM_REMARK,		
+				t1.ITEM_URL=t2.ITEM_URL	,
+				t1.ITEM_TYPE=t2.ITEM_TYPE,
+				t1.AUDIT_STATUS=1	,		
+				t1.PRIORITY=t2.PRIORITY,
+				t1.ITEM_CODE_SUPER=t2.ITEM_CODE_SUPER,	
+				t1.CREATE_PERSONNEL=t2.CREATE_PERSONNEL	,	
+				t1.CREATE_TIME=t2.CREATE_TIME,	
+				t1.UPD_TIME=t2.UPD_TIME,
+				t1.UPD_PERSONNEL=t2.UPD_PERSONNEL,	
+				t1.ITEM_STATUS	=t2.ITEM_STATUS,
+				t1.TOP_ADVERTISE_NAME	=t2.TOP_ADVERTISE_NAME,		
+				t1.TOP_ADVERTISE_TIME=t2.TOP_ADVERTISE_TIME	,		
+				t1.TOP_ADVERTISE_DISPLAY_TYPE=t2.TOP_ADVERTISE_DISPLAY_TYPE,
+				t1.NOTICE_DISPLAY_TIME=t2.NOTICE_DISPLAY_TIME,
+				t1.SECOND_ITEM_STYLE=t2.SECOND_ITEM_STYLE,	
+				t1.SELL_REMIND=t2.SELL_REMIND,	
+				t1.LOGO_URL	=t2.LOGO_URL,	
+				t1.NOTICE_DISPLAY_TYPE=t2.NOTICE_DISPLAY_TYPE,		
+				t1.LOGO_IMG_NAME=t2.LOGO_IMG_NAME,
+				t1.LOGO_IMG_ID=t2.LOGO_IMG_ID,
+				t1.LOGO_IMG_SOURCE_NAME	=t2.LOGO_IMG_SOURCE_NAME,			
+				t1.MORE_TYPE=t2.MORE_TYPE,	
+				t1.OPER_ID	=t2.OPER_ID	,		
+				t1.UPD_RECORD=t2.UPD_RECORD,			
+				t1.MORE_TYPE_ID	=t2.MORE_TYPE_ID,			
+				t1.MORE_WORD=t2.MORE_WORD,		
+				t1.CUSTOMIZATION=t2.CUSTOMIZATION,			
+				t1.NOLOGIN_IS_DISPLAY=t2.NOLOGIN_IS_DISPLAY	,		
+				t1.TICKET_NUM=t2.TICKET_NUM	,			
+				t1.ORG_NUM=t2.ORG_NUM,			
+				t1.DEPT_NUM	=t2.DEPT_NUM,		
+				t1.ITEM_URL_OLD	=t2.ITEM_URL_OLD,			
+				t1.ITEM_PURPOSE	=t2.ITEM_PURPOSE,			
+				t1.MALL_URL=t2.MALL_URL	,		
+				t1.POSITION_IS_DISPLAY=t2.POSITION_IS_DISPLAY,				
+				t1.ITEM_PURPOSE_SHOW=t2.ITEM_PURPOSE_SHOW,				
+				t1.EXPIRATION_IS_DISPLAY=t2.EXPIRATION_IS_DISPLAY,				
+				t1.NEW_ORG_NUM=t2.NEW_ORG_NUM,				
+				t1.LOGIN_TO_JUMP=t2.LOGIN_TO_JUMP,				
+				t1.QUALIF_INVESTOR_JUMP=t2.QUALIF_INVESTOR_JUMP	,			
+				t1.SHELF_TYPE=t2.SHELF_TYPE	,			
+				t1.ITEM_NS_IS_DISPLAY=t2.ITEM_NS_IS_DISPLAY,				
+				t1.SHELF_BROWSE_WAY=t2.SHELF_BROWSE_WAY	,			
+				t1.SHELF_IS_CARIYSEL=t2.SHELF_IS_CARIYSEL,			
+				t1.SHELF_CARIYSEL_TIME	=t2.SHELF_CARIYSEL_TIME	,			
+				t1.PROD_WITH_ENHANCED=t2.PROD_WITH_ENHANCED,				
+				t1.NAME_DESCRI_DISPLACE=t2.NAME_DESCRI_DISPLACE	,			
+				t1.LIMIT_SHOW_BAR=t2.LIMIT_SHOW_BAR,				
+				t1.BUY_BUTTON_SHOW=t2.BUY_BUTTON_SHOW,			
+				t1.MOULD_CODE=t2.MOULD_CODE	,			
+				t1.SPARE_MOULD_CODE	=t2.SPARE_MOULD_CODE,			
+				t1.MOULD_CALCULATE_DATE=t2.MOULD_CALCULATE_DATE	,		
+				t1.ITEM_SUPER_PURPOSE=t2.ITEM_SUPER_PURPOSE	,			
+				t1.ANOTHER_BATCH=t2.ANOTHER_BATCH,	
+				t1.BUY_BUTTON_URL=t2.BUY_BUTTON_URL,			
+				t1.ICON_AFTER_URL=t2.ICON_AFTER_URL	,		
+				t1.ICON_AFTER_ID=t2.ICON_AFTER_ID,		
+				t1.ICON_AFTER_NAME=t2.ICON_AFTER_NAME,			
+				t1.ANOTHER_BATCH_WORD=t2.ANOTHER_BATCH_WORD	,		
+				t1.USER_RULE_ID	=t2.USER_RULE_ID,	
+				t1.BLACK_ICON_URL	=t2.BLACK_ICON_URL,	
+				t1.BLACK_ICON_ID=t2.BLACK_ICON_ID,		
+				t1.BLACK_ICON_NAME=t2.BLACK_ICON_NAME,	
+				t1.BLACK_ICON_AFTER_URL	=t2.BLACK_ICON_AFTER_URL,			
+				t1.BLACK_ICON_AFTER_ID=t2.BLACK_ICON_AFTER_ID,			
+				t1.BLACK_ICON_AFTER_NAME=t2.BLACK_ICON_AFTER_NAME,				
+				t1.USER_RULE_ID_SPARE=t2.USER_RULE_ID_SPARE	,			
+				t1.ITEM_UUID=t2.ITEM_UUID,		
+				t1.PC_LOGO_URL=t2.PC_LOGO_URL,		
+				t1.PC_LOGO_ID=t2.PC_LOGO_ID	,	
+				t1.PC_LOGO_NAME=t2.PC_LOGO_NAME	,	
+				t1.PC_ITEM_URL=t2.PC_ITEM_URL,	
+				t1.SUP_NAME	=t2.SUP_NAME,		
+				t1.PROD_FEATURE_LABEL_ENHANCED	=t2.PROD_FEATURE_LABEL_ENHANCED	,		
+				t1.RED_POINT_DISPLAY=t2.RED_POINT_DISPLAY,				
+				t1.THIRD_ITEM_TYPE=t2.THIRD_ITEM_TYPE,			
+				t1.AUTO_SORT_IDENTIF=t2.AUTO_SORT_IDENTIF,				
+				t1.RATE_TYPE=t2.RATE_TYPE,			
+				t1.VERSION_NUM=t2.VERSION_NUM,				
+				t1.VERSION_NUM_SHOW	=t2.VERSION_NUM_SHOW,			
+				t1.BOTTEM_FLOAT_STYLE=t2.BOTTEM_FLOAT_STYLE	,		
+				t1.FLOAT_WORD=t2.FLOAT_WORD	,		
+				t1.APP_FLOAT_URL=t2.APP_FLOAT_URL,			
+				t1.JHW_FLOAT_URL	=t2.JHW_FLOAT_URL,		
+				t1.PC_FLOAT_URL=t2.PC_FLOAT_URL	,		
+				t1.IS_ENABLE=t2.IS_ENABLE,			
+				t1.AGGREG_NAME=t2.AGGREG_NAME,			
+				t1.AGGREG_REMARK=t2.AGGREG_REMARK,			
+				t1.SHARE_PIC_ON_MOBILE_ID=t2.SHARE_PIC_ON_MOBILE_ID,				
+				t1.SHARE_PIC_ON_MOBILE_SOURCE=t2.SHARE_PIC_ON_MOBILE_SOURCE	,			
+				t1.SHARE_PIC_ON_MOBILE_URL=t2.SHARE_PIC_ON_MOBILE_URL,			
+				t1.AUDIT_STATUS_SH=t2.AUDIT_STATUS_SH,				
+				t1.YD_URL_NAME=t2.YD_URL_NAME,		
+				t1.PC_URL_NAME	=t2.PC_URL_NAME	,		
+				t1.JH_URL_NAME=t2.JH_URL_NAME,				
+				t1.IS_FUNCTION=t2.IS_FUNCTION,			
+				t1.FUNCTION_NAME=t2.FUNCTION_NAME,				
+				t1.SHARE_CODE=t2.SHARE_CODE	,			
+				t1.SHARE_MINI_PROGRAM_WHETHER=t2.SHARE_MINI_PROGRAM_WHETHER,				
+				t1.TEMPLATE_TYPE=t2.TEMPLATE_TYPE,
+				t1.LCODER_UPDATE_TIME = SYSDATE
+				</update>
+				
+		<!-- 6.审核状态修改1 -->
+		<update id="NMSecItemMBInfoAudit4to1" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update otc.GJ_G2010_ITEM_INFO_MB_PUB set LCODER_UPDATE_TIME = sysdate,
+				AUDIT_STATUS = #{type},
+				AUDIT_STATUS_SH = 1
+				where ID = #{id}
+		</update>
+		
+		<!-- 8.审核状态修改3 -->
+		<update id="NMSecItemMBInfoAuditAutoTo2" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update otc.GJ_G2010_ITEM_INFO_MB_PUB set LCODER_UPDATE_TIME = sysdate,
+				AUDIT_STATUS = 2
+				where ID = #{id}
+		</update>
+		
+		<!-- 9.审核状态修改4 -->
+		<update id="NMSecItemMBInfoOperIdTo1" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update otc.GJ_G2010_ITEM_INFO_MB_PUB set LCODER_UPDATE_TIME = sysdate,
+				AUDIT_STATUS_SH = 1
+				where ID = #{id}
+		</update>
+		
+		<update id="NMSecItemMBInfoOperIdTo2" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update otc.GJ_G2010_ITEM_INFO_MB set LCODER_UPDATE_TIME = sysdate,
+				AUDIT_STATUS_SH = 2
+				where ID = #{id}
+		</update>
+		
+		<update id="NMSecItemMBInfoOperIdTo3" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update otc.GJ_G2010_ITEM_INFO_MB_PUB set LCODER_UPDATE_TIME = sysdate,
+				AUDIT_STATUS_SH = 3
+				where ID = #{id}
+		</update>
+		
+		<update id="NMSecItemMBInfoOperIdTo4" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update otc.GJ_G2010_ITEM_INFO_MB_PUB set LCODER_UPDATE_TIME = sysdate,
+				AUDIT_STATUS_SH = 4
+				where ID = #{id}
+		</update>
+		
+		<update id="NMSecItemMBInfoOperIdTo5" parameterType="com.linkstec.newmall.dto.GjG2010WealthConfigInfoInDto">
+			update otc.GJ_G2010_ITEM_INFO_MB_PUB set LCODER_UPDATE_TIME = sysdate,
+				AUDIT_STATUS_SH = 5
+				where ID = #{id}
+		</update>
+		
+		<select id="NMSecItemMBInfoGetPriInfo" parameterType="com.linkstec.newmall.dto.NewMallItemInDto" resultType="map">
+			select ID from  otc.GJ_G2010_ITEM_INFO_MB_PRI 
+				where ID  in
+			       (SELECT ID
+			          FROM otc.GJ_G2010_ITEM_INFO_MB_PRI
+			         START WITH ID = #{id}
+			        CONNECT BY PRIOR ID = ITEM_CODE_SUPER)
+		</select>
+		
+		<select id="NMSecItemMBInfoGetPubInfo" parameterType="com.linkstec.newmall.dto.NewMallItemInDto" resultType="map">
+			select ID from  otc.GJ_G2010_ITEM_INFO_MB_PUB 
+				where item_code_super =#{id}
+		</select>
+
+		<!-- 专区上传PClogo -->
+		<update id="G2010PcLogoUp" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+			UPDATE 
+			<choose>
+				<when test = "type == 18 or type == 19 or type == 20 or type == 21">
+					otc.GJ_G2010_ITEM_INFO_MB_PRI
+				</when>
+				<otherwise>
+					otc.GJ_G2010_ITEM_INFO_MB_PUB_SH
+				</otherwise>
+			</choose>
+			
+			SET  LCODER_UPDATE_TIME = sysdate,upd_personnel=#{updPersonnel},
+			PC_LOGO_URL=#{imageUrl},
+				PC_LOGO_ID=#{imageId},
+				PC_LOGO_NAME=#{imageName},
+				upd_time=sysdate
+				where id=#{id}
+		</update>
+		
+		<!-- 移动端分享缩略图 -->
+		<update id="G2010ModuleMobilePicUp" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+				UPDATE 
+			<choose>
+				<when test = "type == 18 or type == 19 or type == 20 or type == 21">
+					otc.GJ_G2010_ITEM_INFO_MB_PRI
+				</when>
+				<otherwise>
+					otc.GJ_G2010_ITEM_INFO_MB_PUB_SH
+				</otherwise>
+			</choose>
+			SET  LCODER_UPDATE_TIME = sysdate,upd_personnel=#{updPersonnel},
+			SHARE_PIC_ON_MOBILE_URL=#{imageUrl},
+				SHARE_PIC_ON_MOBILE_ID=#{imageId},
+				SHARE_PIC_ON_MOBILE_SOURCE=#{imageName},
+				upd_time=sysdate
+				where id=#{id}
+		</update>
+		
+		<!-- 专区上传移动logo -->
+		<update id="G2010ThirdItemLogoUp" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+			update 
+			<choose>
+				<when test = "type == 18 or type == 19 or type == 20 or type == 21">
+					otc.GJ_G2010_ITEM_INFO_MB_PRI
+				</when>
+				<otherwise>
+					otc.GJ_G2010_ITEM_INFO_MB_PUB_SH
+				</otherwise>
+			</choose>
+			set  LCODER_UPDATE_TIME = sysdate,upd_personnel=#{updPersonnel},
+				upd_time=sysdate,
+				LOGO_URL=#{imageUrl},
+				LOGO_IMG_ID=#{imageId},
+				LOGO_IMG_NAME=#{imageId}||#{imageName},
+				LOGO_IMG_SOURCE_NAME=#{imageName}
+			where id=#{id}
+		</update>
+		
+		<!-- 上传黑金前icon -->
+		<update id="G2010BlackIconUp" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+			UPDATE 
+			<choose>
+				<when test = "type == 18 or type == 19 or type == 20 or type == 21">
+					otc.GJ_G2010_ITEM_INFO_MB_PRI
+				</when>
+				<otherwise>
+					otc.GJ_G2010_ITEM_INFO_MB_PUB_SH
+				</otherwise>
+			</choose>
+			SET  LCODER_UPDATE_TIME = sysdate,upd_personnel=#{updPersonnel},
+			BLACK_ICON_URL=#{imageUrl},
+				BLACK_ICON_ID=#{imageId},
+				BLACK_ICON_NAME=#{imageName},
+				upd_time=sysdate
+				where id=#{id}
+		</update>
+		
+		
+		
+		
+		
+			
+
+		<!-- 201909121543复制专区/二级栏目功能 -->
+		
+		
+			<!-- 根据上级栏目查询底下的二级栏目 -->
+			<select id="NMSecGetitemType2BySuperCode" parameterType="com.linkstec.newmall.dto.NewMallItemInDto" resultType="map" >
+					select item_code from OTC142.GJ_G2010_ITEM_INFO 
+								where item_code_super = #{itemCode} 
+								
+								             
+			</select>
+			
+			<!-- 插入COPY的二级栏目 -->
+			<insert id="CopyNMSecItem2" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+						insert into OTC142.GJ_G2010_ITEM_INFO t1(
+							t1.ID,
+							t1.ITEM_CODE,
+							t1.ITEM_NAME,
+							t1.ITEM_REMARK,
+							t1.PRIORITY,
+							t1.ITEM_URL,
+							t1.ITEM_TYPE,
+							t1.AUDIT_STATUS,
+							t1.ITEM_CODE_SUPER,
+							t1.CREATE_PERSONNEL,
+							t1.CREATE_TIME,
+							t1.ITEM_STATUS,
+							t1.CUSTOMIZATION,	
+							t1.MORE_TYPE,
+							t1.MORE_TYPE_ID,	
+							t1.MORE_WORD,
+							t1.ITEM_URL_OLD,
+							t1.MALL_URL,
+							t1.SHELF_TYPE,
+							t1.ITEM_NS_IS_DISPLAY,
+							t1.SHELF_BROWSE_WAY,
+							t1.SHELF_IS_CARIYSEL,
+							t1.SHELF_CARIYSEL_TIME,
+							t1.PROD_WITH_ENHANCED,
+							t1.NAME_DESCRI_DISPLACE,
+							t1.BUY_BUTTON_SHOW,
+							t1.MOULD_CODE,
+							t1.SPARE_MOULD_CODE,
+							t1.ITEM_PURPOSE,
+							t1.ANOTHER_BATCH,
+							t1.buy_button_url,
+							t1.another_batch_word,
+							t1.USER_RULE_ID,
+							t1.ITEM_UUID,
+							t1.PC_ITEM_URL,
+							t1.ITEM_PURPOSE_show,
+							t1.red_point_display,
+							t1.AUTO_SORT_IDENTIF, 
+							t1.RATE_TYPE,
+							t1.AGGREG_NAME,
+							t1.AGGREG_REMARK,
+							t1.IS_ENABLE,
+							t1.IS_FUNCTION,
+							t1.FUNCTION_NAME
+						)
+						select 
+							#{seqCode},
+							#{itemCode},
+							t2.ITEM_NAME,
+							t2.ITEM_REMARK,
+							t2.PRIORITY,
+							t2.ITEM_URL,
+							t2.ITEM_TYPE,
+							'4',
+							#{itemCodeSuper},
+							#{createPersonnel},
+							t2.CREATE_TIME,
+							'2',
+							t2.CUSTOMIZATION,	
+							t2.MORE_TYPE,
+							t2.MORE_TYPE_ID,	
+							t2.MORE_WORD,
+							t2.ITEM_URL_OLD,
+							t2.MALL_URL,
+							t2.SHELF_TYPE,
+							t2.ITEM_NS_IS_DISPLAY,
+							t2.SHELF_BROWSE_WAY,
+							t2.SHELF_IS_CARIYSEL,
+							t2.SHELF_CARIYSEL_TIME,
+							t2.PROD_WITH_ENHANCED,
+							t2.NAME_DESCRI_DISPLACE,
+							t2.BUY_BUTTON_SHOW,
+							t2.MOULD_CODE,
+							t2.SPARE_MOULD_CODE,
+							t2.ITEM_PURPOSE,
+							t2.ANOTHER_BATCH,
+							t2.buy_button_url,
+							t2.another_batch_word,
+							t2.USER_RULE_ID,
+							t2.ITEM_UUID,
+							t2.PC_ITEM_URL,
+							t2.ITEM_PURPOSE_show,
+							t2.red_point_display,
+							t2.AUTO_SORT_IDENTIF, 
+							t2.RATE_TYPE,
+							t2.AGGREG_NAME,
+							t2.AGGREG_REMARK,
+							t2.IS_ENABLE,
+							t2.IS_FUNCTION,
+							t2.FUNCTION_NAME
+						from OTC142.GJ_G2010_ITEM_INFO t2
+						where item_code = #{itemUrl}
+			</insert>
+			
+			
+			<insert id="CopyNMSecItem2ByMB" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+						insert into OTC142.GJ_G2010_ITEM_INFO t1(
+							t1.ID,
+							t1.ITEM_CODE,
+							t1.ITEM_NAME,
+							t1.ITEM_REMARK,
+							t1.PRIORITY,
+							t1.ITEM_URL,
+							t1.ITEM_TYPE,
+							t1.AUDIT_STATUS,
+							t1.ITEM_CODE_SUPER,
+							t1.CREATE_PERSONNEL,
+							t1.CREATE_TIME,
+							t1.ITEM_STATUS,
+							t1.CUSTOMIZATION,	
+							t1.MORE_TYPE,
+							t1.MORE_TYPE_ID,	
+							t1.MORE_WORD,
+							t1.ITEM_URL_OLD,
+							t1.MALL_URL,
+							t1.SHELF_TYPE,
+							t1.ITEM_NS_IS_DISPLAY,
+							t1.SHELF_BROWSE_WAY,
+							t1.SHELF_IS_CARIYSEL,
+							t1.SHELF_CARIYSEL_TIME,
+							t1.PROD_WITH_ENHANCED,
+							t1.NAME_DESCRI_DISPLACE,
+							t1.BUY_BUTTON_SHOW,
+							t1.MOULD_CODE,
+							t1.SPARE_MOULD_CODE,
+							t1.ITEM_PURPOSE,
+							t1.ANOTHER_BATCH,
+							t1.buy_button_url,
+							t1.another_batch_word,
+							t1.USER_RULE_ID,
+							t1.ITEM_UUID,
+							t1.PC_ITEM_URL,
+							t1.ITEM_PURPOSE_show,
+							t1.red_point_display,
+							t1.AUTO_SORT_IDENTIF, 
+							t1.RATE_TYPE,
+							t1.AGGREG_NAME,
+							t1.AGGREG_REMARK,
+							t1.IS_ENABLE,
+							t1.IS_FUNCTION,
+							t1.FUNCTION_NAME
+						)
+						select 
+							#{seqCode},
+							#{itemCode},
+							t2.ITEM_NAME,
+							t2.ITEM_REMARK,
+							t2.PRIORITY,
+							t2.ITEM_URL,
+							t2.ITEM_TYPE,
+							'4',
+							#{itemCodeSuper},
+							#{createPersonnel},
+							t2.CREATE_TIME,
+							'2',
+							t2.CUSTOMIZATION,	
+							t2.MORE_TYPE,
+							t2.MORE_TYPE_ID,	
+							t2.MORE_WORD,
+							t2.ITEM_URL_OLD,
+							t2.MALL_URL,
+							t2.SHELF_TYPE,
+							t2.ITEM_NS_IS_DISPLAY,
+							t2.SHELF_BROWSE_WAY,
+							t2.SHELF_IS_CARIYSEL,
+							t2.SHELF_CARIYSEL_TIME,
+							t2.PROD_WITH_ENHANCED,
+							t2.NAME_DESCRI_DISPLACE,
+							t2.BUY_BUTTON_SHOW,
+							t2.MOULD_CODE,
+							t2.SPARE_MOULD_CODE,
+							t2.ITEM_PURPOSE,
+							t2.ANOTHER_BATCH,
+							t2.buy_button_url,
+							t2.another_batch_word,
+							t2.USER_RULE_ID,
+							t2.ITEM_UUID,
+							t2.PC_ITEM_URL,
+							t2.ITEM_PURPOSE_show,
+							t2.red_point_display,
+							t2.AUTO_SORT_IDENTIF, 
+							t2.RATE_TYPE,
+							t2.AGGREG_NAME,
+							t2.AGGREG_REMARK,
+							t2.IS_ENABLE,
+							t2.IS_FUNCTION,
+							t2.FUNCTION_NAME
+						from otc.GJ_G2010_ITEM_INFO_MB_PUB t2
+						where id = #{id}
+			</insert>
+			
+			<insert id="CopyNMSecItem2SH" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+			insert into OTC142.GJ_G2010_ITEM_INFO_SH a
+				select * from OTC142.GJ_G2010_ITEM_INFO b where  b.item_code not in (select item_code from OTC142.GJ_G2010_ITEM_INFO_SH)
+			</insert>
+			
+			
+			<!-- 二级栏目，专区存量 -->
+			<select id="NMSecGetItemCodeIdByExist0912" parameterType="com.linkstec.newmall.dto.NewMallItemInDto" resultType="map">
+		 			SELECT ITEM_CODE,ITEM_NAME,ITEM_CODE_SUPER FROM GJ_G2010_ITEM_INFO /*LT*/
+		 				 WHERE item_type= #{type} 
+		 				 <if test="itemCode != null">
+		 					 and item_code like concat('%',concat(#{itemCode},'%'))
+		 				 </if> 
+		 				 <if test="itemName != null">
+		 					 and item_name like concat('%',concat(#{itemName},'%'))
+		 				 </if> 
+		 				 order by ITEM_CODE DESC		 	
+		 	</select>
+		 	
+		 	
+		 	<!-- 二级栏目，专区模板 -->
+		 	<select id="NMSecGetItemCodeIdByMB0912" parameterType="com.linkstec.newmall.dto.NewMallItemInDto" resultType="map">
+		 			SELECT ID,ITEM_NAME FROM otc.GJ_G2010_ITEM_INFO_MB_PUB
+		 				 WHERE item_type= #{itemType1} and item_code_super is null and audit_status = 1
+		 				 <if test="id != null">
+		 					 and id like concat('%',concat(#{id},'%'))
+		 				 </if> 
+		 				 <if test="itemName != null">
+		 					 and item_name like concat('%',concat(#{itemName},'%'))
+		 				 </if> 	
+		 				  order by ID DESC		 	
+		 	</select>
+		 	
+		 	<select id="NMSecGetItemInfoFromExist0916" parameterType="com.linkstec.newmall.dto.NewMallItemInDto" resultType="map">
+		 			 select a.ID,
+		       a.ITEM_CODE,
+		       a.ITEM_NAME,
+		       a.ITEM_NAME || '_副本' ITEM_NAME_COPY,
+		       a.ITEM_REMARK,
+		       a.ITEM_URL,
+		       a.ITEM_TYPE,
+		       a.AUDIT_STATUS,
+		       a.PRIORITY,
+		       a.PRIORITY+1 PRIORITY_COPY,
+		       a.ITEM_CODE_SUPER,
+		       a.ITEM_STATUS,
+		       a.TOP_ADVERTISE_NAME,
+		       a.TOP_ADVERTISE_TIME,
+		       a.TOP_ADVERTISE_DISPLAY_TYPE,
+		       a.NOTICE_DISPLAY_TIME,
+		       a.SECOND_ITEM_STYLE,
+		       a.SELL_REMIND,
+		       a.LOGO_URL,
+		       a.NOTICE_DISPLAY_TYPE,
+		       a.LOGO_IMG_NAME,
+		       a.LOGO_IMG_ID,
+		       a.LOGO_IMG_SOURCE_NAME,
+		       a.more_type,
+		       a.OPER_ID,
+		       a.UPD_RECORD,
+		       a.more_word,
+		       a.customization,
+		       a.dept_num,
+		       a.org_num,
+		       a.ticket_num,
+		       a.nologin_is_display,
+		       a.item_url_old,
+		       a.more_type_id,
+		       a.item_purpose,
+		       a.POSITION_IS_DISPLAY,
+		       a.mall_url,
+		       a.EXPIRATION_IS_DISPLAY,
+		       a.item_purpose_show,
+		       a.login_to_jump,
+		       a.QUALIF_INVESTOR_JUMP,
+		        a.SHELF_TYPE,
+				a.ITEM_NS_IS_DISPLAY,
+				a.SHELF_BROWSE_WAY,
+				a.SHELF_IS_CARIYSEL,
+				a.SHELF_CARIYSEL_TIME,
+				a.PROD_WITH_ENHANCED,
+				a.NAME_DESCRI_DISPLACE,
+				a.BUY_BUTTON_SHOW,
+				a.mould_code,
+				a.MOULD_CALCULATE_DATE,
+				a.SPARE_MOULD_CODE,
+				a.item_super_purpose,
+				a.another_batch,
+				a.buy_button_url,
+				a.ICON_AFTER_URL,
+				a.ICON_AFTER_ID,
+				a.ICON_AFTER_NAME,
+				a.another_batch_word,
+				a.black_icon_id,
+				a.black_icon_name,
+				a.black_icon_url,
+				a.black_icon_after_id,
+				a.black_icon_after_name,
+				a.black_icon_after_url,
+				a.USER_RULE_ID,
+				a.pc_logo_id,
+				a.pc_logo_url,
+				a.pc_logo_name,
+				a.pc_item_url,
+				a.red_point_display,
+				a.THIRD_ITEM_TYPE,
+				a.version_num,
+				a.version_num_show,
+				a.AUTO_SORT_IDENTIF, 
+				a.RATE_TYPE,
+				a.BOTTEM_FLOAT_STYLE,
+				a.FLOAT_WORD,
+				a.APP_FLOAT_URL,
+				a.JHW_FLOAT_URL,
+				a.PC_FLOAT_URL,
+				a.IS_ENABLE,
+				a.SHARE_PIC_ON_MOBILE_URL,
+				a.SHARE_PIC_ON_MOBILE_SOURCE,
+				a.SHARE_PIC_ON_MOBILE_ID,
+				a.audit_status_sh,
+				a.yd_url_name,
+				a.pc_url_name,
+				a.jh_url_name,
+				a.is_function,
+				a.function_name
+						 <choose>
+						 	<when test="type == 1">
+						 		from  OTC142.GJ_G2010_ITEM_INFO  a
+						 	</when>
+						 	<otherwise>
+						 		from  otc.gj_g2010_item_info_mb_pub a
+						 	</otherwise>
+						 </choose>
+						where 
+						<if test="itemCode != null">
+							item_code = #{itemCode}
+						</if>
+						<if test="id != null">
+							id = #{id}
+						</if>
+			</select>
+						
+		 	<select id="G2010GetSeq0930" parameterType="com.linkstec.newmall.dto.NewMallItemInDto" resultType="int">
+		 			select OTC142.SEQ_GJ_G2010_ITEM_CODE.NEXTVAL from dual
+		 	</select>
+		 	
+		 	<!-- //COPY 产品 -->
+		 	<select id="G2010GetAllProdByCode0930" parameterType="com.linkstec.newmall.dto.NewMallItemInDto" resultType="map">
+		 			select 
+		 		  item_code,
+		 		  prod_code,
+			      priority,
+			      create_personnel,
+			      create_time,
+			      audit_status,
+			      status,
+			      source,
+			      USER_RULE_ID,
+			      ITEM_PROD_UUID,
+			      BUTTON_IS_DISPLAY,
+				  BUTTON_WORD_SHOW,
+				  PC_BUTTON_LINK,
+				  BUTTON_LINK,
+				  AUDIT_STATUS_SH
+				  from OTC142.GJ_G2010_SECOND_ITEM_PROD_INFO
+				  where item_code =#{itemCode}
+		 	</select>
+		 		
+			<select id="G2010GetCountPic" parameterType="com.linkstec.newmall.dto.NewMallAdvertiseInDto" resultType="map">
+					select ADVERTISE_IMG_NAME from OTC142.GJ_G2010_ADVERTISE_INFO where ADVERTISE_IMG_NAME = #{advertiseImgName}
+			</select>
+			
+			<insert id="NMSecItemCopy" parameterType="com.linkstec.newmall.dto.NewMallItemInDto">
+				insert into OTC142.GJ_G2010_ITEM_INFO t1(
+					t1.ID,
+					t1.ITEM_CODE,
+					t1.ITEM_NAME,
+					t1.ITEM_REMARK,
+					t1.PRIORITY,
+					t1.ITEM_URL,
+					t1.ITEM_TYPE,
+					t1.AUDIT_STATUS,
+					t1.ITEM_CODE_SUPER,
+					t1.CREATE_PERSONNEL,
+					t1.CREATE_TIME,
+					t1.ITEM_STATUS,
+					t1.CUSTOMIZATION,	
+					t1.MORE_TYPE,
+					t1.MORE_TYPE_ID,	
+					t1.MORE_WORD,
+					t1.ITEM_URL_OLD,
+					t1.MALL_URL,
+					t1.SHELF_TYPE,
+					t1.ITEM_NS_IS_DISPLAY,
+					t1.SHELF_BROWSE_WAY,
+					t1.SHELF_IS_CARIYSEL,
+					t1.SHELF_CARIYSEL_TIME,
+					t1.PROD_WITH_ENHANCED,
+					t1.NAME_DESCRI_DISPLACE,
+					t1.BUY_BUTTON_SHOW,
+					t1.MOULD_CODE,
+					t1.SPARE_MOULD_CODE,
+					t1.ITEM_PURPOSE,
+					t1.ANOTHER_BATCH,
+					t1.buy_button_url,
+					t1.another_batch_word,
+					t1.USER_RULE_ID,
+					t1.ITEM_UUID,
+					t1.PC_ITEM_URL,
+					t1.ITEM_PURPOSE_show,
+					t1.red_point_display,
+					t1.AUTO_SORT_IDENTIF, 
+					t1.RATE_TYPE,
+					t1.AGGREG_NAME,
+					t1.AGGREG_REMARK,
+					t1.IS_ENABLE,
+					t1.IS_FUNCTION,
+					t1.FUNCTION_NAME
+					)
+					select 
+					distinct 
+						t2.ID,
+						t2.ITEM_CODE,
+						t2.ITEM_NAME,
+						t2.ITEM_REMARK,
+						t2.PRIORITY,
+						t2.ITEM_URL,
+						t2.ITEM_TYPE,
+						'4',
+						t2.ITEM_CODE_SUPER,
+						t2.CREATE_PERSONNEL,
+						t2.CREATE_TIME,
+						'2',
+						t2.CUSTOMIZATION,	
+						t2.MORE_TYPE,
+						t2.MORE_TYPE_ID,	
+						t2.MORE_WORD,
+						t2.ITEM_URL_OLD,
+						t2.MALL_URL,
+						t2.SHELF_TYPE,
+						t2.ITEM_NS_IS_DISPLAY,
+						t2.SHELF_BROWSE_WAY,
+						t2.SHELF_IS_CARIYSEL,
+						t2.SHELF_CARIYSEL_TIME,
+						t2.PROD_WITH_ENHANCED,
+						t2.NAME_DESCRI_DISPLACE,
+						t2.BUY_BUTTON_SHOW,
+						t2.MOULD_CODE,
+						t2.SPARE_MOULD_CODE,
+						t2.ITEM_PURPOSE,
+						t2.ANOTHER_BATCH,
+						t2.buy_button_url,
+						t2.another_batch_word,
+						t2.USER_RULE_ID,
+						t2.ITEM_UUID,
+						t2.PC_ITEM_URL,
+						t2.ITEM_PURPOSE_show,
+						t2.red_point_display,
+						t2.AUTO_SORT_IDENTIF, 
+						t2.RATE_TYPE,
+						t2.AGGREG_NAME,
+						t2.AGGREG_REMARK,
+						t2.IS_ENABLE,
+						t2.IS_FUNCTION,
+						t2.FUNCTION_NAME
+					from OTC142.GJ_G2010_ITEM_INFO t2  where t2.ITEM_CODE = #{itemCode}
+		</insert>
+			
+		 	
+		 	
+		 	
+		 <!-- ———————————————————————————————————————————————————————————————————————————————————————————————— -->
+		<!-- 新增广告获取栏目类型 -->
+		<select id="NMSecGetItemType" parameterType="com.linkstec.newmall.dto.NewMallAdvertiseInDto" resultType="String">
+			select a.item_type
+				  from OTC142.GJ_G2010_ITEM_INFO a
+				 where a.item_code = #{itemCode}
+			</select> 
+			
+		 <!-- ———————————————————————————————————————————————————————————————————————————————————————————————— -->
+		 <!-- 手动DMP标签 -->
+		 <select id="NMSecGetDmpTag0820" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" resultType="map">
+		 	select emp_no,
+			       tenant_id,
+			       tag_id,
+			       tag_name,
+			       creater,
+			       day,
+			       batch_id,
+			       create_time,
+			       update_time from gj_g2010_manual_dmp_tag /*LT*/
+						 	
+			where 1=1
+			    <if test ="tagId != null">
+			             and tag_id  like concat(concat('%',#{tagId}),'%')
+			   </if>
+			   <if test ="tagName != null">
+			             and tag_name  like concat(concat('%',#{tagName}),'%')
+			   </if>
+			   order by create_time desc
+		 </select>
+		 
+		 
+		  <delete id="NMSecDelDmpTag0820" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" >
+			delete from  OTC142.GJ_G2010_MANUAL_DMP_TAG
+				
+				   where 
+				 	tag_id  = #{tagId}  and tag_name  = #{tagName}
+			   
+			</delete>
+			
+			<update id="NMSecUpdDmpTag0820" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto">
+				update
+						OTC142.GJ_G2010_MANUAL_DMP_TAG
+					set LCODER_UPDATE_TIME = sysdate,
+					EMP_NO=#{empNo},
+					TENANT_ID=#{tenantNo},
+					TAG_ID=#{tagId},
+					TAG_NAME=#{tagName},
+					UPDATE_TIME=to_char(sysdate,'yyyy.mm.dd HH24:MI:SS')
+				where tag_id = #{status}
+			</update>
+			
+			<!-- 20200423修复缺陷：根据tagId修改tagName -->
+			<!-- 修改标签表标签名 -->
+			<update id="NMSecUpdDmpTag20200423" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto">
+				update
+						OTC142.GJ_G2010_MANUAL_DMP_TAG
+					set LCODER_UPDATE_TIME = sysdate,
+					TAG_NAME=#{tagName},
+					UPDATE_TIME=to_char(sysdate,'yyyy.mm.dd HH24:MI:SS')
+				where tag_id = #{tagId}
+			</update>
+			<!-- 修改规则表标签名 -->
+			<update id="NMSecUpdCustDmpTag20200423" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto">
+				update OTC142.GJ_G2010_CUST_DMP_INFO	set  LCODER_UPDATE_TIME = sysdate,
+					TAG_NAME=replace(TAG_NAME,#{oldTagName},#{tagName}),
+					
+					UPDATE_TIME =to_char(sysdate,'yyyy.mm.dd hh24:mi:ss')
+				where  TAG_ID like concat(concat('%',#{tagId}),'%')
+				
+			</update>
+			
+			
+		 
+			 <insert id="NMSecAddManualDmpTag0820" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto">
+				insert into  OTC142.GJ_G2010_MANUAL_DMP_TAG(
+						EMP_NO,
+						TENANT_ID,
+						TAG_ID,
+						TAG_NAME,
+						CREATER,
+						CREATE_TIME
+					)values(
+						#{empNo},
+						#{tenantNo},
+						#{tagId},
+						#{tagName},
+						(select user_name from otc.v_user where user_id = #{createPersonnel}),
+						to_char(sysdate,'yyyy.mm.dd HH24:MI:SS')
+					)
+			</insert>
+			
+			
+			 <select id="NMSecGetCheckDmpTag0820" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" resultType="map">
+			 	         select tag_name from (select tag_name,tag_id from OTC142.GJ_G2010_MANUAL_DMP_TAG)
+								        
+								      where  tag_name = #{tagName}
+								      <if  test ="type == 3">
+								      	and tag_id != #{tagId}
+								      </if>
+			 </select>
+		 
+		 	 
+		 	 <select id="NMSecGetCustDmpTag0821" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" resultType="map">
+				 	select a.id,
+				 		   a.cust_num,
+				 		   a.mobile,
+				 		   a.tag_id,
+				 		   a.tag_name,
+				 		   a.create_time,
+				 		   b.user_name create_person,
+				 		   a.update_time
+					  from OTC142.GJ_G2010_CUST_DMP_INFO a
+					  	left join otc.v_user  b
+					  	 on a.create_person = to_char(b.user_id)
+					where 1=1
+					    <if test ="custNum != null">
+					             and a.cust_num  like concat(concat('%',#{custNum}),'%')
+					   </if>
+					   <if test ="mobile != null">
+					             and a.mobile  like concat(concat('%',#{mobile}),'%')
+					   </if>
+					   <if test ="tagId != null">
+					             and a.tag_id  like concat(concat('%',#{tagId}),'%')
+					   </if>
+					   <if test ="id != null">
+					             and a.id  =#{id}
+					   </if>
+					    order by a.id desc
+			 </select>
+			 
+			 
+			<delete id="NMSecDelCustDmpTag0821" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" >
+				delete
+					   from  OTC142.GJ_G2010_CUST_DMP_INFO
+					   where 
+					 
+						ID = #{id}
+					
+			   
+			</delete>
+			
+			<delete id="NMSecDelCustDm0919" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" >
+				delete
+					   from  OTC142.GJ_G2010_CUST_DMP_INFO
+					   where 
+					   	    1=1 
+						<if test="custNum != null">
+							and cust_num = #{custNum}
+						</if>
+						<if test="mobile != null">
+							and mobile = #{mobile}
+						</if>
+						
+					
+			   
+			</delete>
+			
+			<update id="NMSecUpdCustDmpTag0821" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto">
+				update OTC142.GJ_G2010_CUST_DMP_INFO	set  LCODER_UPDATE_TIME = sysdate,
+					TAG_NAME=#{tagName},
+					CUST_NUM=#{custNum},
+					MOBILE =#{mobile},
+					UPDATE_TIME=to_char(sysdate,'yyyy.mm.dd HH24:MI:SS')
+				where ID = #{id}
+			</update>
+			
+			<update id="NMSecUpdCustDmpTag0917" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto">
+				update OTC142.GJ_G2010_CUST_DMP_INFO	set LCODER_UPDATE_TIME = sysdate,
+					TAG_NAME=#{tagName},
+					TAG_ID=#{tagId},
+					UPDATE_TIME =to_char(sysdate,'yyyy.mm.dd hh24:mi:ss')
+				where 1=1
+				<if test="custNum != null">
+					and CUST_NUM = #{custNum}
+				</if>
+				<if test="mobile != null">
+					and MOBILE = #{mobile}
+				</if>
+				
+			</update>
+					
+					
+			<update id="NMSecUpdCustDmpTag09251" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto">
+				update OTC142.GJ_G2010_CUST_DMP_INFO	set  LCODER_UPDATE_TIME = sysdate,
+					MOBILE = #{mobile},
+					TAG_NAME=#{tagName},
+					TAG_ID=#{tagId}
+				where 1=1
+					and CUST_NUM = #{custNum}
+			</update>
+			
+			<update id="NMSecUpdCustDmpTag09252" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto">
+				update OTC142.GJ_G2010_CUST_DMP_INFO	set  LCODER_UPDATE_TIME = sysdate,
+					CUST_NUM = #{custNum},
+					TAG_NAME=#{tagName},
+					TAG_ID=#{tagId}
+				where 1=1
+					and MOBILE = #{mobile}
+			</update>
+		 
+		 	<select id="NMSecGetDmpTagId0903" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" resultType="map">
+		 			SELECT TAG_ID || CONCAT(CONCAT('  (',TAG_NAME),')') KEY ,TAG_ID VALUE  FROM (SELECT TAG_ID,TAG_NAME FROM OTC142.GJ_G2010_MANUAL_DMP_TAG)
+		 	</select>
+		 	
+		 	<select id="NMSecGetDmpTagName0903" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" resultType="string">
+		 			select tag_name from  OTC142.GJ_G2010_MANUAL_DMP_TAG 
+						         WHERE TAG_ID  = #{tagId} 
+						         
+													         
+		 	</select>
+		 	
+		 	<select id="NMSecGetDmpTagId0909" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" resultType="map">
+		 			SELECT TAG_ID FROM OTC142.GJ_G2010_MANUAL_DMP_TAG
+		 				 WHERE 1=1 
+		 				 <if test="tagId != null">
+		 					 and TAG_ID =#{tagId}
+		 				 </if> 	 	
+		 	</select>
+		 	
+		 	<!-- 校验是否已经存在目标关系 -->
+		 	<select id="NMSecGetDmpTagId09092" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" resultType="map">
+		 			SELECT TAG_ID FROM OTC142.GJ_G2010_CUST_DMP_INFO
+		 				 WHERE 1=1 
+		 				 <if test="tagId != null">
+		 					 and tag_id  like concat(concat('%',#{tagId}),'%')
+		 				 </if> 
+		 				 <if test="custNum != null">
+		 					 and CUST_NUM = #{custNum}
+		 				 </if> 	 	
+		 	</select>
+
+		 	<select id="NMSecGetDmpTagId09093" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" resultType="map">
+		 			SELECT TAG_ID FROM OTC142.GJ_G2010_CUST_DMP_INFO
+		 				 WHERE 1=1 
+		 				 <if test="tagId != null">
+		 					 and tag_id  like concat(concat('%',#{tagId}),'%')
+		 				 </if> 
+		 				 <if test="mobile != null">
+		 					 and MOBILE =#{mobile}
+		 				 </if> 		 	
+		 	</select>
+		 	
+		 	<!-- 根据ID获取custNum,Mobile -->
+		 	<select id="NMSecGetCustNum0919" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" resultType="map">
+		 			SELECT CUST_NUM,MOBILE,TAG_ID,TAG_NAME FROM OTC142.GJ_G2010_CUST_DMP_INFO
+		 				 WHERE 1=1 
+		 				 <if test="id != null">
+		 					 and ID =#{id}
+		 				 </if> 	 	
+		 	</select>
+		 	
+		 	<!-- 查询是否存在此客户代码 -->
+		 	<select id="NMSecGetCustNum0917" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" resultType="map">
+		 			SELECT CUST_NUM FROM OTC142.GJ_G2010_CUST_DMP_INFO
+		 				 WHERE 1=1 
+		 				 <if test="custNum != null">
+		 					 and CUST_NUM =#{custNum}
+		 				 </if> 	 	
+		 	</select>
+		 	<!-- 查询时候存在此手机号 -->
+		 	<select id="NMSecGetMobile0917" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" resultType="map">
+		 			SELECT MOBILE FROM OTC142.GJ_G2010_CUST_DMP_INFO
+		 				 WHERE 1=1 
+		 				 <if test="mobile != null">
+		 					 and MOBILE =#{mobile}
+		 				 </if> 		 	
+		 	</select>
+		 	<!-- 根据客户代码查询标签代码 -->
+		 	<select id="NMSecGetTagId0917" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" resultType="map">
+		 			SELECT  distinct TAG_ID,TAG_NAME FROM OTC142.GJ_G2010_CUST_DMP_INFO WHERE
+		 			1=1
+		 				 <if test="mobile != null">
+		 					 and MOBILE =#{mobile}
+		 				 </if> 	
+		 				 <if test="custNum != null">
+		 					 and CUST_NUM =#{custNum}
+		 				 </if> 		 	
+		 	</select>
+		 	
+		 	
+		 	<select id="NMSecDelCustDmpTag0910" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" resultType="map">
+				select tag_id ,tag_name,cust_num,mobile from OTC142.GJ_G2010_CUST_DMP_INFO 
+				where tag_id like  concat('%',concat(#{tagId},'%'))
+			</select>
+			
+			<!-- 清空标签关系临时表 -->
+			<delete id="G2010CustTagTempTruncate" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto">
+				delete from otc.GJ_G2010_CUST_DMP_INFO_TEMP
+			</delete>
+			
+			<!-- 当客户代码已经存在时 -->
+			<update id="NMSecUpdCustDmpTag12102023" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto">				       
+				MERGE INTO OTC142.GJ_G2010_CUST_DMP_INFO T1
+				  USING (SELECT *
+				           FROM otc.GJ_G2010_CUST_DMP_INFO_TEMP
+				         ) T2
+				  ON (T1.cust_num = T2.cust_num)
+				  WHEN MATCHED THEN
+				    UPDATE
+				       SET 
+				       	   T1.tag_id               = decode(instr(t1.tag_id,t2.tag_id),0,t1.tag_id ||','|| t2.tag_id,t1.tag_Id),
+				      	   T1.mobile               = T2.mobile,
+				           T1.TAG_NAME             = decode(instr(t1.TAG_NAME,t2.TAG_NAME),0,t1.TAG_NAME ||','|| t2.TAG_NAME,t1.TAG_NAME),
+				           T1.update_time		   = sysdate,
+						   T1.LCODER_UPDATE_TIME = SYSDATE
+			</update>
+			
+			<!-- 当手机号码已经存在时 -->
+			<update id="NMSecUpdCustDmpTag12102024" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto">				       
+				MERGE INTO OTC142.GJ_G2010_CUST_DMP_INFO T1
+				  USING (SELECT *
+				           FROM otc.GJ_G2010_CUST_DMP_INFO_TEMP
+				         ) T2
+				  ON (T1.mobile = T2.mobile)
+				  WHEN MATCHED THEN
+				    UPDATE
+				       SET T1.tag_id               = decode(instr(t1.tag_id,t2.tag_id),0,t1.tag_id ||','|| t2.tag_id,t1.tag_Id),
+				           T1.cust_num             = T2.cust_num,
+				           T1.TAG_NAME             = decode(instr(t1.TAG_NAME,t2.TAG_NAME),0,t1.TAG_NAME ||','|| t2.TAG_NAME,t1.TAG_NAME),
+				           T1.update_time		   = sysdate,
+						   T1.LCODER_UPDATE_TIME = SYSDATE
+			</update>
+			
+			<!-- 客户代码不存在时 -->
+			<insert id="NMSecUpdCustDmpTag12102025" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" >
+				insert into OTC142.GJ_G2010_CUST_DMP_INFO(id,cust_num,mobile,tag_id,tag_name,create_person,create_time)
+					 SELECT id,cust_num,mobile,tag_id,tag_name,create_person,sysdate
+						  FROM otc.GJ_G2010_CUST_DMP_INFO_TEMP A
+						 WHERE CUST_NUM IS NOT NULL AND  NOT EXISTS
+						 (SELECT *
+						          FROM GJ_G2010_CUST_DMP_INFO B WHERE A.CUST_NUM = B.CUST_NUM)
+			</insert>
+			
+			<!-- 手机号码不存在时 -->
+			<insert id="NMSecUpdCustDmpTag12102026" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" >
+				insert into OTC142.GJ_G2010_CUST_DMP_INFO(id,cust_num,mobile,tag_id,tag_name,create_person,create_time)
+					  SELECT id,cust_num,mobile,tag_id,tag_name,create_person,sysdate
+						  FROM otc.GJ_G2010_CUST_DMP_INFO_TEMP A
+						 WHERE MOBILE IS NOT NULL AND  NOT EXISTS
+						 (SELECT *
+						          FROM GJ_G2010_CUST_DMP_INFO B WHERE A.MOBILE = B.MOBILE)
+			</insert>
+			
+			<insert id="NMSecAddCustDmpTag0821" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" >
+					INSERT INTO OTC142.GJ_G2010_CUST_DMP_INFO(
+	                 ID,
+	                 CUST_NUM,
+	                 MOBILE,
+	                 TAG_ID,
+	                 TAG_NAME,
+	                 CREATE_TIME,
+	                 CREATE_PERSON 
+			          ) VALUES (
+			                 OTC142.SEQ_GJ_CUST_TAG.NEXTVAL,
+			                 #{custNum},
+			                 #{mobile},
+			                 #{tagId},
+			                 #{tagName},
+			                 to_char(sysdate,'yyyy.mm.dd hh24:mi:ss'),
+			                 #{createPersonnel}  
+			          )
+			</insert>
+			
+			<insert id="addCustDmpInfo1211" parameterType="com.linkstec.newmall.dto.NMThrCommonInDto" >
+				<!--  MERGE INTO otc.gj_g2010_cust_dmp_info_TEMP t
+				USING (
+		        <foreach collection="list" item="item" index="index" separator="union" >
+		            select
+		            to_char(${item.0}) CUST_NUM,
+		            to_char(${item.1}) MOBILE,
+		            to_char(${item.2}) TAG_ID,
+		            to_char(${item.3}) TAG_NAME,
+		            to_char(${item.4}) CREATE_PERSONNEL
+		            from dual
+		        </foreach>) t1
+		        ON (1 != 1)
+				WHEN NOT MATCHED THEN
+				INSERT(ID,
+						CUST_NUM,
+						MOBILE,
+						TAG_ID,
+						TAG_NAME,
+						CREATE_TIME,
+						CREATE_PERSON)
+						VALUES(
+						OTC142.SEQ_GJ_CUST_TAG.nextval,
+						t1.CUST_NUM,
+						t1.MOBILE,
+						t1.TAG_ID,
+						t1.TAG_NAME,
+						sysdate,
+						t1.CREATE_PERSONNEL
+						)  -->
+				insert into otc.gj_g2010_cust_dmp_info_TEMP (
+					ID,
+					CUST_NUM,
+					TAG_ID,
+					CREATE_TIME
+				)
+					values (
+					OTC142.SEQ_GJ_CUST_TAG.nextval,
+					#{custNum},
+				    #{tagId},
+					sysdate
+					) 
+			</insert>
+			
+			<insert id = "test0801" parameterType ="com.linkstec.newmall.dto.NMThrCommonInDto">
+					insert into GJ_G2010_CUST_DMP_INFO_TEMP(
+					
+							ID,
+							CUST_NUM,
+							MOBILE,
+							CREATE_PERSON,
+							TAG_ID,
+							CREATE_TIME
+							)
+							
+						
+							values (
+							OTC142.SEQ_GJ_CUST_TAG.nextval,
+							#{custNum},
+							#{mobile},
+							#{createPersonnel},
+						    #{tagId},
+							sysdate
+							) 
+			
+			</insert>
+			
+			<!-- 操作一览 -->
+			<insert id="addCustDmpInfo1212" parameterType="java.util.List" >
+				begin
+				<foreach collection="list" item="item" index="index" separator="" >
+						 insert 
+						 into 
+						 otc.gj_g2010_cust_dmp_info_temp
+						 (
+								ID,
+								CUST_NUM,
+								MOBILE,
+								TAG_ID,
+								TAG_NAME,
+								CREATE_TIME,
+								CREATE_PERSON
+						  )
+						values 
+						(
+								OTC142.SEQ_GJ_CUST_TAG.nextval,
+								#{item.custNum,jdbcType=VARCHAR},
+					            #{item.mobile,jdbcType=VARCHAR},
+					            #{item.tagId,jdbcType=VARCHAR},
+					            #{item.tagName,jdbcType=VARCHAR},
+								sysdate,
+								#{item.createPersonnel,jdbcType=VARCHAR}
+						);
+					</foreach>
+				end;
+				commit;
+			</insert>
+			
+			
+			<insert id="insertT1000051" parameterType="java.util.Map">
+			        MERGE INTO otc.gj_g2010_cust_dmp_info_TEMP t
+			        USING (
+			        <foreach collection="list" item="item" index="index" separator="union" >
+			
+			            select
+			                    <foreach collection="item.entrySet()" index="m_key" item="m_value">
+			                        <if test="m_key != 4">#{m_value} ALREADY_SOLD_NUM${m_key},</if>
+			                        <if test="m_key == 4">#{m_value} ALREADY_SOLD_NUM${m_key}</if>
+			                    </foreach>
+			            from dual
+			        </foreach>) t1
+			        ON (1 != 1)
+			        WHEN NOT MATCHED THEN
+			        INSERT(ID,
+			        CUST_NUM,
+			        MOBILE,
+			        TAG_ID,
+			        TAG_NAME,
+			        CREATE_TIME,
+			        CREATE_PERSON)
+			        VALUES(
+			        OTC142.SEQ_GJ_CUST_TAG.nextval,
+			        t1.ALREADY_SOLD_NUM0,
+			        t1.ALREADY_SOLD_NUM1,
+			        t1.ALREADY_SOLD_NUM2,
+			        t1.ALREADY_SOLD_NUM3,
+			        sysdate,
+			        t1.ALREADY_SOLD_NUM4
+			        )
+   			 </insert>
+			
+		 	
+
+			
+		 	
+		 	
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+</mapper>
